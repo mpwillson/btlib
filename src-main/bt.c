@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bt.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -453,10 +453,10 @@ int main(int argc,char *argv[])
         else if (strcmp(arg[0],"sd") == 0) {
             ierr = btrecs(btp,arg[1],&size);
             if (ierr == QNOKEY) {
-                printf("Key '%s' record size: %d bytes\n",arg[1],size);
+                fprintf(stderr,"No such key as '%s'\n",arg[1]);
             }
             else {
-                fprintf(stderr,"No such key as '%s'\n",arg[1]);
+                printf("Key '%s' record size: %d bytes\n",arg[1],size);
             }
         }
         /* list all keys and data from current key */
