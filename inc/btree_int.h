@@ -58,7 +58,7 @@ extern void bxdump(char *,int);
 extern int binsdt(char *,int dsize);
 extern int mkdblk(void);
 extern int rdsz(char *);
-extern int rdint(char *);
+extern unsigned rdint(char *);
 extern void wrsz(int,char *);
 extern void wrint(unsigned i,char *);
 extern int binsdt(char *,int);

@@ -13,12 +13,13 @@
 
 /* Implementation defined constants */
 
-/* maximum key size (bytes) */
-#define ZKYLEN 32
 /* number of bytes per int */
 #define ZBPW 4
 /* bits per byte */
 #define ZBYTEW 8
+
+/* maximum key size (bytes) */
+#define ZKYLEN 32
 /* number of in-memory blocks (3 is the minimum) */
 #define ZMXBLK  3
 /* block size in bytes */
@@ -75,8 +76,9 @@
 
 /*  Data block defines:
  *      
- *      Each data record segment is prefixed by ZDOVRH bytes of information
- *      (currently six).  These are used as follows:
+ *      Each data record segment is prefixed by ZDOVRH bytes of
+ *      information (six bytes for a 32 bit int implementation).
+ *      These are used as follows:
  *
  *          Bytes 1 and 2: the size of the data record in bytes
  *          (maximum size of a data record is therefore 65536 bytes).
@@ -84,7 +86,9 @@
  *          Bytes 3-6: data record address of the next segment of this
  *          data record (0 if the last (or only) segment)).
  */
-#define ZDOVRH  6
+
+#define ZDRSZ 2
+#define ZDOVRH  (ZDRSZ+ZBPW)
 
 /* minimum number of bytes for a segment */
 #define ZDSGMN 7    
@@ -172,6 +176,7 @@
 #define QNOTFR  49
 #define QBADVR  50
 #define QDAOVR  51
+#define QF2BIG  52
 
 /*
     To find out how stdin is hooked (file, pipe or terminal)

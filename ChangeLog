@@ -1,3 +1,8 @@
+2004-09-25  Mark Willson  <mark@gold>
+
+	* Detect and fail gracefully when the index file reaches maximum
+	size (that's 2^31-1 bytes on a 32 bit int implementation).
+
 2004-09-22  Mark Willson  <mark@gold>
 
 	* Detect overflow of data block addressing.

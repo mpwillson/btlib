@@ -15,9 +15,10 @@
  *      to grow over time.  To clean up a btree database, it must be
  *      copied to a new (and empty) btree database.
  *
- *      A data record address is held in a four byte field (as this is
+ *      A data record address is held in a ZBPW byte field (as this is
  *      the maximum size of a data value stored with a key in the
- *      btree index), in the following format:
+ *      btree index), in the following format (for a 32 bit int, i.e. 4 bytes
+ *      per word where bytes are 8 bits):
  *      
  *      31                                             0
  *      +----------------------------+-----------------+
@@ -40,7 +41,8 @@
  *      segments, sized to fit the data block.
  *      
  *      Each data segment is prefixed by ZDOVRH bytes of information
- *      (currently six).  These are used as follows:
+ *      (six bytes for a 32 bit int implementation).  These are used
+ *      as follows:
  *
  *          Bytes 1 and 2: the size of the data segment in bytes
  *          (maximum size of a data segment is therefore 65536 bytes)
@@ -393,7 +395,7 @@ int bseldt(int draddr, char *data, int dsize)
 #endif
 
         segsz = rdsz(d->data+offset);
-        draddr = rdint(d->data+offset+2);
+        draddr = rdint(d->data+offset+ZDRSZ);
 #if DEBUG > 0
         fprintf(stderr,"BSELDT: Seg size: %d, next draddr: %x\n",segsz,draddr);
 #endif
@@ -475,7 +477,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
         if (cpsz == remsz) {
             /* last (or only) segment */
             wrsz(cpsz,d->data+offset);
-            wrint((unsigned) 0,d->data+offset+2);
+            wrint((unsigned) 0,d->data+offset+ZDRSZ);
             /* update free space in block */
             freesz = bgtinf(dblk,ZMISC);
             freesz += (segsz-cpsz);
@@ -497,7 +499,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
         /* insert returned data address into original last segment */
         status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
-        wrint(draddr,d->data+offset+2);
+        wrint(draddr,d->data+offset+ZDRSZ);
         ((btact->cntrl)+idx)->writes++;
     }
     
@@ -644,7 +646,7 @@ int insdat(int blk,char *data, int dsize, unsigned prevseg)
     status = brdblk(blk,&idx);
     d = (DATBLK *) (btact->memrec)+idx;
     wrsz(dsize,d->data+offset);
-    wrint(prevseg,d->data+offset+2);
+    wrint(prevseg,d->data+offset+ZDRSZ);
 #if DEBUG > 0
     fprintf(stderr,"writing segment at block %d, offset %d, of size %d\n",
             blk,offset,dsize);
@@ -727,21 +729,20 @@ int mkdblk(void)
 
 int rdsz(char *a)
 {
-    short s;
+    int s;
 
     s = *a++ & 0xff;
     s |= (*a & 0xff) << 8;
-    return ((int)s);
+    return (s);
 }
 
-int rdint(char *a)
+unsigned rdint(char *a)
 {
-    int i;
+    int i = 0,k;
 
-    i = *a++ & 0xff;
-    i |= (*a++ & 0xff) << 8;
-    i |= (*a++ & 0xff) << 16;
-    i |= (*a & 0xff) << 24;
+    for (k=0;k<ZBPW;k++) {
+        i |= (*a++ & 0xff) << ZBYTEW*k;
+    }
     return(i);
 }
 
@@ -756,10 +757,11 @@ void wrsz(int i, char *a)
 
 void wrint(unsigned i, char *a)
 {
-    *a++ = i & 0xff;
-    *a++ = (i>>8) & 0xff;
-    *a++ = (i>>16) & 0xff;
-    *a = (i>>24) & 0xff;
+    int k;
+
+    for (k=0;k<ZBPW;k++) {
+        *a++ = (i >> ZBYTEW*k) & 0xff;
+    }
 }
 
 int offsetmask;                 /* used to mask out block number
@@ -818,7 +820,7 @@ int getseginfo(unsigned draddr, int *size, unsigned *nextseg)
 
     d = (DATBLK *) (btact->memrec)+idx;
     *size = rdsz(d->data+offset);
-    *nextseg = rdint(d->data+offset+2);
+    *nextseg = rdint(d->data+offset+ZDRSZ);
     return(0);
 }
 
