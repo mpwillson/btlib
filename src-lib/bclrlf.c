@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bclrlf: initialises last key found info
  *

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * btdelr: delete root name from super root, and all the blocks
  *          belonging to the root.

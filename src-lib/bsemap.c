@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * block   - locks active BT file
  * bunlock - unlocks active BT file

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * btcrt:  create B tree index file

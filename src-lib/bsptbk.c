@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
   bsptbk: splits block into two

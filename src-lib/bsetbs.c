@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
   bsetbs: alter busy state of in-memory block

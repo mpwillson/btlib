@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * balblk: attempts to balance blocks
  *

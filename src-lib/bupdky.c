@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bupdky:  updates value of  key
  *

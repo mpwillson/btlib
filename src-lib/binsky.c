@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * binsky:  inserts key into index (duplicates not permitted)

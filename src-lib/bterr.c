@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * btcerr: returns last error code, io error code and appropriate

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * brdsup  - reads super root

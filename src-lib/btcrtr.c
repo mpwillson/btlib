@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * btcrtr: creates a new root in index file
  *

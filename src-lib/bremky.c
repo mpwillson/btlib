@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bremky: deletes key (and rlink) at pos from blk
  *

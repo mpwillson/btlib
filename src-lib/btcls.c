@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * btcls: close B tree index file

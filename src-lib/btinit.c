@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * btinit: initialise B tree tables 
  *

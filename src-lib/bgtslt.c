@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bgtslt: frees in-memory slot and returns index
  *

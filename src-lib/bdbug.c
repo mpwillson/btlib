@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bdbug: write out internal info
  *

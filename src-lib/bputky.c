@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bputky: inserts key, value and links into block
  *

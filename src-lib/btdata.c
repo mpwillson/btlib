@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files

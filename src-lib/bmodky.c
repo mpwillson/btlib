@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bmodky: replaces value of key at location loc in block
  *

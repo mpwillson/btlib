@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bjoin: bjoins keys in rblk to lblk (using tkey)
  *

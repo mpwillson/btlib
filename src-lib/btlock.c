@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * btlock: locks index file for exclusive use
  *

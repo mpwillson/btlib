@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bclrst: initialises B tree statistic counters
  *

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * bxdump - dumps binary data in hex format (with character translation)

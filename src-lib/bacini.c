@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *  bacini: Initialise BTA structure, malloc'ing space as required
  *

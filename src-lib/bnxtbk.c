@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * bnxtbk:  returns next block from index file

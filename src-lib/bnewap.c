@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * Return pointer to free bt active slot, NULL if none free
  *

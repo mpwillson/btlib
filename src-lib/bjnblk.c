@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bjnblk: joins leaf blocks if possible
  *

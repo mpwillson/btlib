@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bgtinf: get information about block
  *

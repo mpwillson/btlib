@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bcpybk: copies contents of one block to another
  *

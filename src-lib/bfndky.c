@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bfndky: finds key in index
  *

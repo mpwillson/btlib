@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bwrblk: write block from memory to disk
  *

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * brdblk: reads block from disk into memory
  *

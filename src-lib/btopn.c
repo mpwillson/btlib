@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * btopn: opens existing B tree index
  *

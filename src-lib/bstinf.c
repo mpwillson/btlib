@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
   bstinf: set information about block

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bdelky:  deletes key in index
  *

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
   bsrhbk: searches block for key

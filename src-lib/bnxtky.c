@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * bnxtky:  returns next key from index
  *

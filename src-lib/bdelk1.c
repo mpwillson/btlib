@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
  * bdelk1:  deletes key in index (does the real work)

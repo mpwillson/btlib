@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  * This file is part of the B Tree library.
  *

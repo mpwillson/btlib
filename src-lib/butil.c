@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *  butil:  utility routines for the B Tree library
  *

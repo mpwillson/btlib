@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *
   bsetbk:  sets info array in block

@@ -1,5 +1,5 @@
 /*
- * $id$
+ * $Id$
  *
  *    bacfre: Frees malloc'd memory acquired by bacini for index context
  *
