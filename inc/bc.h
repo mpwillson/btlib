@@ -20,7 +20,7 @@
 /* number of in-memory blocks (3 is the minimum) */
 #define ZMXBLK  3
 /* block size in bytes */
-#define ZBLKSZ 4096
+#define ZBLKSZ 1024
 /* number of keys per block */
 #define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW)) 
 /* number of pad words required */
