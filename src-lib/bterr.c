@@ -1,6 +1,5 @@
 /*
- * $Id$
- *
+ * $Id: bterr.c,v 1.7 2004/09/26 11:49:18 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -15,6 +14,8 @@
  * bterr:  set error code
  * bgterr: returns error code
  * 
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

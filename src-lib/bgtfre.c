@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bgtfre.c,v 1.6 2004/09/26 11:49:18 mark Exp $
  *
  * bgtfre: gets free block
  *
@@ -7,6 +7,8 @@
  *   None
  *
  * bgtfre returns block number of free block
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bcpybk.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * bcpybk: copies contents of one block to another
  *
@@ -9,6 +9,8 @@
  *     ts     first key number in to-block
  *     fs     first key number in from-block
  *     n      number of keys to copy
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

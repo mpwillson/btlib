@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bnxtbk.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
  * bnxtbk:  returns next block from index file
@@ -9,6 +9,8 @@
  *     
  *   current root (scroot) is returned as last block.  
  *   blk must be ZNULL on first call.
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bsetbk.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  *
   bsetbk:  sets info array in block
@@ -14,6 +14,8 @@
     nblks  total number of blocks in index file
 
 *
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

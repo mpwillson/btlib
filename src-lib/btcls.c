@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btcls.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
  * btcls: close B tree index file
@@ -8,6 +8,8 @@
  *   b  - pointer to BT context
  *     
  * Returns zero if no errors, error code otherwise
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bputky.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -9,6 +9,8 @@
  *    val    value of key to insert
  *    link1  left link pointer
  *    link2  right link pointer
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,7 +1,9 @@
 /*
- * $Id$
+ * $Id: btque.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * B tree routines to handle least recently used queue for blocks
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

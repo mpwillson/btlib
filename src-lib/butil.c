@@ -1,7 +1,9 @@
 /*
- * $Id$
+ * $Id: butil.c,v 1.3 2004/09/26 11:49:18 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,5 +1,7 @@
 /*
- * $Id$
+ * $Id: bc.h,v 1.8 2004/09/26 11:49:18 mark Exp $
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

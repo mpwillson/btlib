@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bsuper.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -7,6 +7,8 @@
  *
  * Both return 0 for success, error code otherwise
  * 
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

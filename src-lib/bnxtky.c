@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bnxtky.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -9,6 +9,8 @@
  *   val     returned with value of key
  *
  * bnxtky returns non-ZERO if an error occurred
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

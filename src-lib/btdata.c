@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btdata.c,v 1.7 2004/09/26 11:49:18 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -57,6 +57,8 @@
  *  Mnemonic    Release Date    Who
  *  DT-ALPHA    1.0     010605  mpw
  *      Created.
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

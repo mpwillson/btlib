@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bnewap.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * Return pointer to free bt active slot, NULL if none free
  *
@@ -7,6 +7,8 @@
  *    fid - file name for this slot
  *
  *  NULL returned if not slots free or file already open (error signalled)
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

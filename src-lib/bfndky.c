@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bfndky.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -11,6 +11,8 @@
  * index is left positioned at next key (for use by bnxtky)
  *  
  * bfndky returns 0 for no errors, error code otherwise
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

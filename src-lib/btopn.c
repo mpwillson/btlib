@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btopn.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  * btopn: opens existing B tree index
  *
@@ -9,6 +9,8 @@
  *   shared  set TRUE is index file is to be shared
  *
  * Returns zero if no errors, error code otherwise
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,10 +1,12 @@
 /*
- * $Id$
+ * $Id: bacini.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *  bacini: Initialise BTA structure, malloc'ing space as required
  *
  *  Parameters:
  *      b - pointer to BT context
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,8 +1,10 @@
 /*
- * $Id$
+ * $Id: btree_int.h,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  * Btree internal function definitions
  *   
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

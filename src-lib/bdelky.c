@@ -1,11 +1,13 @@
 /*
- * $Id$
+ * $Id: bdelky.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * bdelky:  deletes key in index
  *
  * Parameters:
  *     b       index context pointer
  *     key     name of key to delete 
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

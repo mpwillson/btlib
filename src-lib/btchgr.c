@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btchgr.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
  * btchgr: change B tree root
@@ -9,6 +9,8 @@
  *    root    name of root to switch to
  *            
  * Returns zero if no errors, error code otherwise
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,7 +1,9 @@
 /*
- * $Id$
+ * $Id: bclrlf.c,v 1.3 2004/09/26 11:49:18 mark Exp $
  *
  * bclrlf: initialises last key found info
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bdelk1.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -8,6 +8,8 @@
  *    key    name of key to delete
  *
  *  bdelky returns 0 on succesful deletion, error-code otherwise
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

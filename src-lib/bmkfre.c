@@ -1,10 +1,12 @@
 /*
- * $Id$
+ * $Id: bmkfre.c,v 1.3 2004/09/26 11:49:18 mark Exp $
  * 
  *  bmkfre: return block to free list
  *
  *  Parameters:
  *    blk    number of block to free up
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

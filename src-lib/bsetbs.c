@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bsetbs.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
   bsetbs: alter busy state of in-memory block
@@ -10,6 +10,8 @@
      busy   new status (TRUE for busy, FALSE for flushable)
 
 *
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bgtinf.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  * bgtinf: get information about block
  *
@@ -8,6 +8,8 @@
  *   type   type of information required
  *   
  * bgtinf returns the info requested
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

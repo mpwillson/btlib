@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bdbug.c,v 1.6 2004/09/26 11:49:18 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -9,6 +9,8 @@
  *   blkno  block number
  *
  * N.B. bdbug has rather too much knowledge of the btree internals
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

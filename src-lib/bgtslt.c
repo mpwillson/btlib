@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bgtslt.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * bgtslt: frees in-memory slot and returns index
  *
@@ -7,6 +7,8 @@
  *   None
  *    
  * bgtslt returns index of free memory block
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

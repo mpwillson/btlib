@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: bstinf.c,v 1.5 2004/09/26 11:49:18 mark Exp $
  *
  *
   bstinf: set information about block
@@ -11,6 +11,8 @@
     val    info value
 
 *
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btlock.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  * btlock: locks index file for exclusive use
  *
@@ -18,6 +18,8 @@
  * NB  btlock may be called multiple times, but for each call, a
  *     corresponding call to btunlock must be made.
  *     
+ * Copyright (C) 2003, 2004 Mark Willson.
+ *
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or

@@ -1,11 +1,13 @@
 /*
- * $Id$
+ * $Id: bleaf.c,v 1.4 2004/09/26 11:49:18 mark Exp $
  *
  *
  * bleaf: position to left or right-most leaf block from current position
  *
  * Parameters:
  *   dir    direction (0 for left, 1 for right)
+ *
+ * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
  *
