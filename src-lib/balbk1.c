@@ -1,15 +1,32 @@
 /*
-  balbk1: balances keys between blocks 
-
-  void balbk1(int lblk,int rblk,int diff,char *key,int val)
-
-        lblk   left block of pair 
-        rblk   right block of pair 
-        diff   if negative, move diff/2 keys left 
-               else move diff/2 keys right 
-        key    name of current parent key for both blocks 
-        val    value of parent key
-*/
+ * $id$
+ *
+ * balbk1: balances keys between blocks 
+ *
+ * Parameters:
+ *   lblk   left block of pair 
+ *   rblk   right block of pair 
+ *   diff   if negative, move diff/2 keys left 
+ *          else move diff/2 keys right 
+ *   key    name of current parent key for both blocks 
+ *   val    value of parent key
+ *
+ * This file is part of the B Tree library.
+ *
+ * The B Tree library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The B Tree library  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <stdlib.h>
 #include <stdio.h>

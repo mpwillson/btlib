@@ -1,15 +1,32 @@
 /*
-  bjoin: bjoins keys in rblk to lblk (using tkey)
-
-  void bjoin(int lblk,int rblk,char *tkey,int val)
-
-        lblk   left block of joining pair
-        rblk   right block of joining pair
-        tkey   name of parent key
-        val    value of parent key
-
-   Parent block of left and right siblings is in last found context.
-*/
+ * $id$
+ *
+ * bjoin: bjoins keys in rblk to lblk (using tkey)
+ *
+ * Parameters:
+ *   lblk   left block of joining pair
+ *   rblk   right block of joining pair
+ *   tkey   name of parent key
+ *   val    value of parent key
+ *
+ * Parent block of left and right siblings is in last found context.
+ *
+ * This file is part of the B Tree library.
+ *
+ * The B Tree library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The B Tree library  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <stdio.h>
 

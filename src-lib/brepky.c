@@ -1,16 +1,32 @@
 /*
-  brepky: replaces key at location loc in block
-
-  int brepky(int blk,int loc,char *key,int val,int link1,int link2)
-
-    blk    block for which replacement is required
-    loc    location in block to store information
-    key    name of key
-    val    value of key
-    link1  left link pointer
-    link2  right link pointer
-
-*/
+ * $id$
+ *
+ * brepky: replaces key at location loc in block
+ *
+ * Parameters:
+ *   blk    block for which replacement is required
+ *   loc    location in block to store information
+ *   key    name of key
+ *   val    value of key
+ *   link1  left link pointer
+ *   link2  right link pointer
+ *
+ * This file is part of the B Tree library.
+ *
+ * The B Tree library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The B Tree library  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <stdio.h>
 #include <string.h>

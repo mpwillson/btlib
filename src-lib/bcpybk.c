@@ -1,14 +1,31 @@
 /*
-  bcpybk: copies contents of one block to another
-
-  int bcpybk(int tblk,int fblk,int ts,int fs,int n)
-
-      tblk   block number of to-block
-      fblk   block number of from-block
-      ts     first key number in to-block
-      fs     first key number in from-block
-      n      number of keys to copy
-*/
+ * $id$
+ *
+ * bcpybk: copies contents of one block to another
+ *
+ * Parameters:
+ *     tblk   block number of to-block
+ *     fblk   block number of from-block
+ *     ts     first key number in to-block
+ *     fs     first key number in from-block
+ *     n      number of keys to copy
+ *
+ * This file is part of the B Tree library.
+ *
+ * The B Tree library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * The B Tree library  is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 
 #include <string.h>
