@@ -34,9 +34,8 @@ INTRODUCTION
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
-         mkdir bt-2.0.1
-         cd bt-2.0.1
-         tar xzf ../bt-2.0.1.tar.gz
+        cd ~/dev               
+        tar xzf ~/downloads/bt-2.0.1.tar.gz
 
     Since the tar file includes this README file, you've probably done
     this already.
