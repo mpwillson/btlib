@@ -20,7 +20,6 @@
 BTA *btopn(char *fid, int mode, int shared)
 {
     int status;
-    int ok;
 
     bterr("",0,NULL);
 
