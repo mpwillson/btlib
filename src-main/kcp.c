@@ -128,7 +128,6 @@ int copyroot(BTA* in, BTA* out, char *rootname)
     while (status == 0) {
         status = btseln(in,key,buf,bufsiz,&rsiz);
         if (status != 0) continue;
-        
         while (bufsiz == rsiz) {
             /* assume the record is bigger than the buffer,
              * so increase buffer size
@@ -141,10 +140,7 @@ int copyroot(BTA* in, BTA* out, char *rootname)
         }
         status = btins(out,key,buf,rsiz);
     }
-    if (status == QNOKEY)
-        return 0;
-    else
-        return status;
+    return (status==QNOKEY)?0:status;
 }
 
 void kalloc(char **buf,int bufsiz)
