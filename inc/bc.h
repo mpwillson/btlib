@@ -171,6 +171,7 @@
 
 #define QNOTFR  49
 #define QBADVR  50
+#define QDAOVR  51
 
 /*
     To find out how stdin is hooked (file, pipe or terminal)
