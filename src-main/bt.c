@@ -204,11 +204,11 @@ int main(int argc,char *argv[])
                     /* force head of file list as in-use */
                     if (phead != NULL) {
                         btp = phead->b;
-                        fprintf(stderr,"btree file %s now in use\n",phead->fid);
+                        fprintf(stdout,"btree file %s now in use\n",phead->fid);
                     }
                     else {
                         btp = NULL;
-                        fprintf(stderr,"warning: no in-use btree file\n");
+                        fprintf(stdout,"warning: no in-use btree file\n");
                     }
                 }
             }

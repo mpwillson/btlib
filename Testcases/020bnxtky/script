@@ -3,4 +3,9 @@ c test_db
 e ../inskeysrand.bt
 f
 l
+# now repeat when open shared
+x
+o test_db s
+f
+l
 q

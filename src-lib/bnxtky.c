@@ -35,8 +35,11 @@ int bnxtky(BTA* b,char *key,int *val)
             goto fin;
         }
         /* position to last found key via bfndky, since context could
-         * have been invalidated by other updates */
+         * have been invalidated by concurrent updates by other users.
+         * Note we don't care if the key is found or not, so the error
+         * status is always cleared. */
         status = bfndky(b,btact->cntxt->lf.lfkey,val);
+        bterr("",0,NULL);
     }
 
     while (btact->cntxt->lf.lfblk >= 0 && !found) {
