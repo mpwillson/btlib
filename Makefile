@@ -28,6 +28,8 @@ DEP=.dep
 
 CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR}
 
+LIBS=
+
 # activate this macro to ignore ld errors
 #LDFLAGS=-Xlinker -noinhibit-exec
 
@@ -49,10 +51,10 @@ include 	${DEP}
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
 bt:	${SRC_MAIN}/bt.c ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
+	${CC} ${CFLAGS} ${LDFLAGS} ${LIBS} -o $@ $^
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${CFLAGS} ${LIBS} -o $@ $^
 
 clean:
 	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe .dep
