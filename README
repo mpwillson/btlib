@@ -1,6 +1,6 @@
 BT Library README File
 
-8th September, 2004
+3rd October, 2004
 
 CONTENTS
     INTRODUCTION
@@ -35,7 +35,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
         cd ~/dev               
-        tar xzf ~/downloads/bt-2.0.1.tar.gz
+        tar xzf ~/downloads/bt-2.0.2.tar.gz
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -46,6 +46,7 @@ COMPILING
                             utility
         inc                 C header files
         lib                 holds BT library archive
+        Testcases           driver and master output files for testing
 
     The BT library (and a test harness and copy utility) are built by
     make.  Build the library for your machine by issuing the following
@@ -114,3 +115,4 @@ RELEASE HISTORY
     15th December,  2003        1.0     First public release
     31st May,       2004        2.0     Major API revision
      8th September, 2004        2.0.1   Bug fix release
+     3rd October,   2004        2.0.2   Bug fix release
