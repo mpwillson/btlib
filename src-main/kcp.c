@@ -1,5 +1,5 @@
 /*
- *  $Id: kcp.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ *  $Id: kcp.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *  
  *  NAME
  *      kcp - copies B Tree index/data files
@@ -16,7 +16,15 @@
  *  NOTES
  *      kcp will only function successfully on B Tree files in which
  *      all keys have associated data records. It will not function
- *      where key values have been assigned arbitrary values. 
+ *      where key values have been assigned arbitrary values.
+ *
+ *  BUGS
+ *      As keys are copied in order, the number of blocks used in the
+ *      index of the new_file will likely be larger than the old file.
+ *      This is not generally a problem, unless the file size is close to
+ *      the maximum supported in the implementation.  In this case, some
+ *      records will not be copied as insufficient space remains for
+ *      the keys and data records.
  *
  *  MODIFICATION HISTORY
  *  Mnemonic        Rel Date    Who
