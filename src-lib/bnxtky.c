@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: bnxtky.c,v 1.7 2004/10/02 16:10:08 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -60,7 +60,7 @@ int bnxtky(BTA* b,char *key,int *val)
         bterr("",0,NULL);
     }
 
-    while (btact->cntxt->lf.lfblk >= 0 && !found) {
+    while (btact->cntxt->lf.lfblk != ZNULL && !found) {
         status = brdblk(btact->cntxt->lf.lfblk,&idx);
         if (idx < 0) {
             bterr("BNXTKY",QRDBLK,itostr(btact->cntxt->lf.lfblk));
@@ -98,7 +98,7 @@ int bnxtky(BTA* b,char *key,int *val)
         /* if rlink to process, walk to leftmost leaf of this branch */
         bleaf(0);
     }
-    if (btact->cntxt->lf.lfblk < 0) {
+    if (btact->cntxt->lf.lfblk == ZNULL) {
         /* end of index reached */
         bterr("BNXTKY",QNOKEY,NULL);
     }
