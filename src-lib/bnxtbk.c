@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtbk.c,v 1.4 2004/09/26 11:49:18 mark Exp $
+ * $Id: bnxtbk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
  *
  *
  * bnxtbk:  returns next block from index file
@@ -25,7 +25,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar; if not, write to the Free Software
+ * along with the B Tree library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 

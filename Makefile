@@ -11,6 +11,8 @@
 #   Add -Wno-long-long to CFLAGS for use under FreeBSD
 # BTMAKE	03Dec12	1.3	mpw
 #	Revised dependency handling - use 'make depend' to recreate if necessary
+# BTMAKE    04Oct02 1.4 mpw
+#   Added compile for big file tester
 
 DEBUG=-g
 
@@ -23,6 +25,8 @@ SRC_MAIN=./src-main
 # BT archive in LIB_DIR
 LIB_DIR=./lib
 LIB_FILE=${LIB_DIR}/libbt.a
+# Testcases in TESTCASES
+TESTCASES=./Testcases
 # Computed dependencies in DEP
 DEP=.dep
 
@@ -51,10 +55,10 @@ include 	${DEP}
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
 bt:	${SRC_MAIN}/bt.c ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} ${LIBS} -o $@ $^
+	${CC} ${CFLAGS} ${LDFLAGS} ${LIB_FILE} -o $@ $^
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
-	${CC} ${CFLAGS} ${LIBS} -o $@ $^
+	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
 
 clean:
 	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe .dep
@@ -69,9 +73,13 @@ depend:
 	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
 
 test_run:
-	cd Testcases;sh test_control.sh
-	find ./Testcases -type f -name "test_db" -exec rm  {} \;
+	cd ${TESTCASES};sh test_control.sh
+	find ${TESTCASES} -type f -name "test_db" -exec rm  {} \;
 
 test_init:
-	cd Testcases;sh ./create_output_masters.sh
-	find ./Testcases -type f -name "test_db" -exec rm  {} \;
+	cd ${TESTCASES};sh ./create_output_masters.sh
+	find ${TESTCASES} -type f -name "test_db" -exec rm  {} \;
+
+# Build big file tester
+bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
+	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
