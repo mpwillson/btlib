@@ -5,8 +5,8 @@
    B tree constants
 */
 
-#define DEBUG 0
 
+#define DEBUG 0
 
 #define TRUE 1
 #define FALSE 0
@@ -17,6 +17,8 @@
 #define ZKYLEN 32
 /* number of bytes per int */
 #define ZBPW 4
+/* bits per byte */
+#define ZBYTEW 8
 /* number of in-memory blocks (3 is the minimum) */
 #define ZMXBLK  3
 /* block size in bytes */
@@ -42,13 +44,20 @@
  * 
  */
 
+/* ZVERS must be incremented when structure of B Tree index file
+ * changes */
+
+#define ZVERS 0x2
+
+/* ZBTYPE and ZBTVER share information word 0 */
 #define ZBTYPE 0
 #define ZMISC  1
 #define ZNXBLK 2
 #define ZNKEYS 3
 #define ZNBLKS 4
+#define ZBTVER -1
 
-/* number of info words */
+/* max info word index */
 #define ZINFSZ 5
 
 /* block type of root */
@@ -159,6 +168,9 @@
 #define QDUP    46
 #define QNOKEY  47
 #define QNOWRT  48
+
+#define QNOTFR  49
+#define QBADVR  50
 
 /*
     To find out how stdin is hooked (file, pipe or terminal)
