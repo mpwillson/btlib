@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.8 2004/09/26 13:07:39 mark Exp $
+ * $Id: bterr.c,v 1.9 2004/10/02 16:10:09 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -88,7 +88,7 @@ char *msgblk[] = {
     " Function prohibited in shared access mode",
     " No block available for data storage",
     " Data block usage gone bad: %s",
-    " Corrupt data segment header found in block: %s",
+    " Data segment header references a non-data block: %s",
     " Unable to open index file",
     " Circular data segment pointer encountered",
     " Unlock operation failed",

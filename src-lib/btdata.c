@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.9 2004/10/02 16:10:09 mark Exp $
+ * $Id: btdata.c,v 1.10 2004/10/03 19:38:48 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -407,7 +407,7 @@ int bseldt(int draddr, char *data, int dsize)
         cnvdraddr(draddr,&dblk,&offset);
 
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
-            bterr("BSELDT",QNOTDA,NULL);
+            bterr("BSELDT",QNOTDA,itostr(dblk));
             totsz = -1;
             goto fin;
         }
