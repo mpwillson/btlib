@@ -1,9 +1,9 @@
 /*
- * $Id: bclrlf.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bclrlf.c,v 1.5 2004/10/02 16:10:08 mark Exp $
  *
  * bclrlf: initialises last key found info
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004, 2005 Mark Willson.
  *
  * This file is part of the B Tree library.
  *
@@ -29,7 +29,8 @@
 
 void bclrlf(void)
 {
-    btact->cntxt->lf.lfblk = 0;
+    btact->cntxt->lf.lfblk = ZNULL; /* ensure bnxtky is not entered
+                                     * unless bfndky is called first */
     btact->cntxt->lf.lfpos = 0;
     btact->cntxt->lf.lfexct = FALSE;
     strcpy(btact->cntxt->lf.lfkey,"");
