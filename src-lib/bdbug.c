@@ -17,6 +17,8 @@
 #include "btree.h"
 #include "btree_int.h"
 
+#define MASK (int) (pow(2,((ZBPW/2)*ZBYTEW))-1)
+
 int bdbug(BTA * b,char *cmd,int blkno)
 {
     int i,j,ioerr;
@@ -113,12 +115,12 @@ int bdbug(BTA * b,char *cmd,int blkno)
                     "  Nxblk:%10d\n"
                     "  Nkeys:%10d\n"
                     "  Nblks:%10d\n",
-                    ((btact->memrec)+i)->infblk[ZBTYPE],
-                    ((btact->memrec)+i)->infblk[ZMISC],
-                    ((btact->memrec)+i)->infblk[ZNXBLK],
-                    ((btact->memrec)+i)->infblk[ZNKEYS],
-                    ((btact->memrec)+i)->infblk[ZNBLKS]);
-            if (((btact->memrec)+i)->infblk[ZBTYPE] == ZDATA) {
+                    bgtinf(blkno,ZBTYPE),
+                    bgtinf(blkno,ZMISC),
+                    bgtinf(blkno,ZNXBLK),
+                    bgtinf(blkno,ZNKEYS),
+                    bgtinf(blkno,ZNBLKS));
+            if (bgtinf(blkno,ZBTYPE) == ZDATA) {
                 d = (DATBLK *) (btact->memrec)+i;
                 bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
                 goto fin;

@@ -525,11 +525,16 @@ int binsdt(char *data, int dsize)
     dblk = bgtinf(btact->cntxt->super.scroot,ZNXBLK);
     if (dblk == ZNULL) {
         dblk = mkdblk();
+        if (dblk == ZNULL) {
+            bterr("BINSDT",QNOBLK,NULL);
+            goto fin;
+        }
         bstinf(btact->cntxt->super.scroot,ZNXBLK,dblk);
     }
 
-    if (dblk == ZNULL) {
-        bterr("BINSDT",QNOBLK,NULL);
+    /* sanity check; is this a data block? */
+    if (bgtinf(dblk,ZBTYPE) != ZDATA) {
+        bterr("BINSDT",QNOTDA,itostr(dblk));
         goto fin;
     }
 
@@ -665,7 +670,7 @@ int brecsz(unsigned draddr)
 #endif
         /* ensure we are pointing at a data block */
         if (bgtinf(blk,ZBTYPE) != ZDATA) {
-            bterr("BRECSZ",QNOTDA,NULL);
+            bterr("BRECSZ",QNOTDA,itostr(blk));
             return(0);
         }
         getseginfo(draddr,&segsz,&newdraddr);

@@ -33,7 +33,13 @@ int bgtfre()
             bterr("BGTFRE",QRDBLK,itostr(blk));
         }
         else {
-            btact->cntxt->super.sfreep = bgtinf(blk,ZNXBLK);
+            if (bgtinf(blk,ZBTYPE) != ZFREE) {
+                bterr("BGTFRE",QNOTFR,itostr(blk));
+                return(ZNULL);
+            }
+            else {
+                btact->cntxt->super.sfreep = bgtinf(blk,ZNXBLK);
+            }
         }
         if (blk >= 0) {
             btact->cntxt->stat.xgot++;

@@ -20,15 +20,21 @@ int brdsup()
         bterr("BRDSUP",QRDBLK,NULL);
         goto fin;
     } 
-    if (((btact->memrec)+idx)->infblk[ZBTYPE] != ZROOT) {
+    if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {
         bterr("BRDSUP",QSRNR,NULL);
         ioerr = QSRNR;
         goto fin;
     }
+    if (bgtinf(ZSUPER,ZBTVER) != ZVERS) {
+        bterr("BRDSUP",QBADVR,itostr(ZVERS));
+        ioerr = QBADVR;
+        goto fin;
+    }
+    
     /* retain free list pointers et al */
-    btact->cntxt->super.snfree = ((btact->memrec)+idx)->infblk[ZMISC];
-    btact->cntxt->super.sfreep = ((btact->memrec)+idx)->infblk[ZNXBLK];
-    btact->cntxt->super.sblkmx = ((btact->memrec)+idx)->infblk[ZNBLKS];
+    btact->cntxt->super.snfree = bgtinf(ZSUPER,ZMISC);
+    btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
+    btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
     return(0);
 fin:
     return(ioerr);

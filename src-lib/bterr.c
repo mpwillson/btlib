@@ -20,8 +20,8 @@
 #include "bc.h"
 
 
-static int qerror;
-static int qcode;
+static int qerror = 0;
+static int qcode = 0;
 static char qarg[72];
 static int syserror;
 
@@ -67,7 +67,7 @@ char *msgblk[] = {
     " Function prohibited in shared access mode",
     " No block available for data storage",
     " Data block usage gone bad: %s",
-    " Corrupt data segment header encountered",
+    " Corrupt data segment header found in block: %s",
     " Unable to open index file",
     " Circular data segment pointer encountered",
     " Unlock operation failed",
@@ -77,6 +77,8 @@ char *msgblk[] = {
     " Key \"%s\" already exists in index",
     " Key \"%s\" does not exist in index",
     " Write access to index prohibited",
+    " Block on free list is not marked as free",
+    " Index file is incompatible with this version: %s",
     " No message exists for this error code"
 };
 
@@ -116,13 +118,20 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
   To reset saved error codes, use a call of the form bterr("",0,NULL);
 */
 
-void bterr(char *name,int ierr,char* arg)
+void bterr(char *name, int errorcode, char* arg)
 {
 
-    if (qerror == 0 || strlen(name) == 0) {
+    if (strlen(name) == 0) {
+        errno = 0;
         syserror = FALSE;
+        qname[0] = '\0';
+        qerror = 0;
+        qcode = 0;
+        qarg[0] = '\0';
+    }
+    else if (qerror == 0) {
         strcpy(qname,name);
-        qerror = ierr;
+        qerror = errorcode;
         if (arg != NULL) strcpy(qarg,arg);
         if (errno != 0 && qcode == 0) {
             syserror = TRUE;

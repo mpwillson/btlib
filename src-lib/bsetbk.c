@@ -26,7 +26,8 @@ int bsetbk(int blk,int type,int misc,int nxblk,int nkeys,int nblks)
         bterr("BSETBK",QRDBLK,itostr(blk));
     }
     else {
-        ((btact->memrec)+idx)->infblk[ZBTYPE] = type;
+        ((btact->memrec)+idx)->infblk[ZBTYPE] =
+            (ZVERS << ((ZBPW/2)*ZBYTEW)) | type;
         ((btact->memrec)+idx)->infblk[ZMISC] = misc;
         ((btact->memrec)+idx)->infblk[ZNXBLK] = nxblk;
         ((btact->memrec)+idx)->infblk[ZNKEYS] = nkeys;

@@ -15,6 +15,8 @@
 #include "bt.h"
 #include "btree_int.h"
 
+#define MASK ((1<<((ZBPW/2)*ZBYTEW))-1)
+
 int bgtinf(int blk,int type)
 {
     int val,ioerr,idx;
@@ -24,11 +26,22 @@ int bgtinf(int blk,int type)
         bterr("BGTINF",QINFER,NULL);
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0)
+        if (idx < 0) {
             bterr("BGTINF",QRDBLK,NULL);
-        else
-            val = ((btact->memrec)+idx)->infblk[type];
-
+        }
+        else {
+            switch (type) {
+                case ZBTYPE:
+                    val = ((btact->memrec)+idx)->infblk[ZBTYPE] & MASK;
+                    break;
+                case ZBTVER:
+                    val = ((btact->memrec)+idx)->infblk[ZBTYPE] >>
+                        ((ZBPW/2)*ZBYTEW);
+                    break;
+                default:
+                    val = ((btact->memrec)+idx)->infblk[type];
+            }
+        }
     }
     return(val);
 }

@@ -8,11 +8,13 @@
     val    info value
 
 */
+#define MASK 2**((ZBPW/2)*ZBYTEW)-1
 
 
 #include "bc.h"
 #include "bt.h"
 #include "btree_int.h"
+#include <math.h>
 
 int bstinf(int blk,int type,int val)
 {
@@ -26,7 +28,15 @@ int bstinf(int blk,int type,int val)
             bterr("BSTINF",QRDBLK,itostr(blk));
         }
         else {
-            ((btact->memrec)+idx)->infblk[type] = val;
+            switch (type) {
+                case ZBTYPE:
+                    ((btact->memrec)+idx)->infblk[type] =
+                        (ZVERS << ((ZBPW/2)*ZBYTEW)) | val;
+                case ZBTVER:
+                    break; /* always set implicitly by ZBTYPE */
+                default:
+                    ((btact->memrec)+idx)->infblk[type] = val;
+            }
             ((btact->cntrl)+idx)->writes++;
         }
     }
