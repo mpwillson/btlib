@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.8 2004/09/26 13:07:39 mark Exp $
+ * $Id: btdata.c,v 1.9 2004/10/02 16:10:09 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -165,6 +165,11 @@ int btupd(BTA *b,char *key, char *data, int dsize)
 
     bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
+
+    if (dsize <= 0) {
+        bterr("BTUPD",QEMPTY,NULL);
+        return QEMPTY;
+    }
 
     btact = b;      /* set context pointer */
 
@@ -516,6 +521,10 @@ int bupddt(unsigned draddr, char *data, int dsize)
         /* new data record is larger, need new segments for rest of record
          */
         draddr = binsdt(data,remsz);
+        if (draddr == ZNULL) {
+            /* no more blocks; force this to be last segment */
+            draddr = 0;
+        }
         /* insert returned data address into original last segment */
         status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
@@ -649,7 +658,7 @@ int deldat(int blk,int offset)
     else if (freesz < 0 || freesz > ZBLKSZ-(ZINFSZ*ZBPW)) {
         /* shouldn't have a negative count or greater than max free
          * space*/
-        bterr("BDELDT",QNEGSZ,itostr(freesz));
+        bterr("DELDAT",QNEGSZ,itostr(freesz));
     }
     else {
         bstinf(blk,ZMISC,freesz);
