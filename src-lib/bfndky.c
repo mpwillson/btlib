@@ -99,6 +99,6 @@ int bfndky(BTA *b,char *key,int *val)
 fin:
     if (btact->shared) bulock();
     /* non-zero status indicates no such key found */
-    if (status) bterr("BFNDKY",QNOKEY,NULL);
+    if (status) bterr("BFNDKY",QNOKEY,lkey);
     return(btgerr());
 }
