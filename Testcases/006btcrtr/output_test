@@ -1,0 +1,22 @@
+ No. of blocks:            16
+ Max. poss. keys:        1616
+ Actual keys:            1000
+ Occupancy (%):         61.88
+ No. of blocks:            16
+ Max. poss. keys:        1616
+ Actual keys:            1000
+ Occupancy (%):         61.88
+ No. of blocks:            19
+ Max. poss. keys:        1919
+ Actual keys:            1000
+ Occupancy (%):         52.11
+Key: '$$default' = 1
+Key: '$$super' = 0
+Key: 'root_1' = 2
+Key: 'root_2' = 18
+Key: 'root_3' = 34
+Key: 'root_4' = 53
+ No. of blocks:             1
+ Max. poss. keys:         101
+ Actual keys:               6
+ Occupancy (%):          5.94

@@ -1,0 +1,11 @@
+c test_db
+e ../inskeysrand.bt
+s super
+e ../delkeysrand.bt
+s super
+e ../inskeysrand.bt
+e ../delkeysord.bt
+e ../inskeysrand.bt
+e ../delkeysrord.bt
+s super
+q

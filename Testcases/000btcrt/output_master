@@ -1,0 +1,8 @@
+  Number of blocks:          2
+  # free blocks:             0
+  First free:               -1
+  Current root blk:          1
+  Current root nm:  $$default
+  Block overhead:            8
+  Block size:             4096
+  Keys per block:          101

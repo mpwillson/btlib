@@ -1,0 +1,7 @@
+c test_db
+e ../defdata.bt
+f
+ld
+s super
+s block 1
+q

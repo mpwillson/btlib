@@ -1,0 +1,15 @@
+c test_db
+cr $$super
+f
+l
+cr $$default
+f
+l
+d new_key
+cr $$super
+f
+l
+cr $$default
+f
+l
+q

@@ -1,0 +1,20 @@
+c test_db
+dr root_1
+e ../inskeysrand.bt
+dr root_2
+e ../inskeysrand.bt
+dr root_3
+e ../inskeysrand.bt
+cr $$super
+f
+l
+cr $$default
+rr root_3
+rr root_2
+rr root_1
+# change root should fail
+cr root_3
+cr $$super
+f
+l
+q

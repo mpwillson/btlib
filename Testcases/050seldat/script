@@ -1,0 +1,14 @@
+c test_db
+e ../defdata.bt
+b data ../defdata.bt
+dd key1 *data
+dd key2 *data
+dd key3 *data
+f
+l
+s super
+s block 1
+fd key1 d
+fd key2 d
+fd key3 d
+q

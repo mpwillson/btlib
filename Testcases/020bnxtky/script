@@ -1,0 +1,6 @@
+# list every key in the database 
+c test_db
+e ../inskeysrand.bt
+f
+l
+q

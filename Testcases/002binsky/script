@@ -1,0 +1,8 @@
+c test_db
+e ../inskeysrand.bt
+s super
+s space
+# try and define the same keys again - this should produce an error
+# message for each key
+e ../inskeysrand.bt
+q
