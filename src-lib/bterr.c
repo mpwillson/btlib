@@ -79,6 +79,7 @@ char *msgblk[] = {
     " Write access to index prohibited",
     " Block on free list is not marked as free",
     " Index file is incompatible with this version: %s",
+    " Data capacity exceeded at block: %s"
     " No message exists for this error code"
 };
 

@@ -7,6 +7,7 @@
     cmd    debug command
     blkno  block number
 
+    bdbug has rather too much knowledge of the btree internals
 */
 
 #include <stdio.h>

@@ -15,7 +15,7 @@
  *      to grow over time.  To clean up a btree database, it must be
  *      copied to a new (and empty) btree database.
  *
- *      A data record address is held in a four byte int (as this is
+ *      A data record address is held in a four byte field (as this is
  *      the maximum size of a data value stored with a key in the
  *      btree index), in the following format:
  *      
@@ -26,6 +26,11 @@
  *
  *      With the default block size of 1024 bytes, the byte offset is 10 bits
  *      wide, while the block number field is 22 bits wide.
+ *
+ *      Note for implementations where the default int size is not 32
+ *      bits (e.g. 16 bits), the amount left for the block
+ *      number is only 6 bits (127 blocks).  This limits the amount of
+ *      data that can be stored significantly.
  *
  *      The field widths for the block number and offset are
  *      calculated from the block size when the btree library is
@@ -701,6 +706,12 @@ int mkdblk(void)
 
     blk = bgtfre();
     if (blk != ZNULL ) {
+        /* check if block is addressable with implementation word
+           length and block offset width */
+        if (mkdraddr(blk,0) == 0) {
+            bterr("MKDBLK",QDAOVR,itostr(blk));
+            return(ZNULL);
+        }
         /* data block info set as follows:
            0 - block type
            1 - number of free bytes in block
