@@ -83,3 +83,6 @@ test_init:
 # Build big file tester
 bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
 	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
+
+bigtdel:  ${TESTCASES}/bigtdel.c ${LIB_FILE}
+	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
