@@ -1,10 +1,33 @@
 /*
- * bigt is a stress test for the B Tree library, to ensure it handles
- * the largest files properly.
- *
- * The Btree should fail gracefully at around 2GB on a machine with 32
- * bit integers.  
+ * $Id$
  * 
+ * NAME
+ *      bigt - a stress test for the B Tree library, to ensure the 
+ *      largest files are handled properly.
+ *
+ * SYNOPSIS
+ *      bigt [-n record_count]
+ *
+ *      record_count defines the number of records to be written to
+ *      the B Tree index file.  If not specified, INT_MAX records are
+ *      attempted to be written.
+ *
+ *  DESCRIPTION
+ *      Bigt creates a database named test_db in the working directory
+ *      and inserts up to record_count keys and associated data
+ *      records.  The default data record is 1024 bytes, filled with
+ *      the character 'D'.
+ * 
+ *      Bigt should fail gracefully at around 2GB on a machine with 32
+ *      bit integers.  
+ *
+ *  MODIFICATION HISTORY
+ *  Mnemonic        Rel Date    Who
+ *  BIGT            1.0 040923  mpw
+ *      Created.
+ *  BIGT            1.1 041004  mpw
+ *      Added -n command switch.
+ *      
  * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -40,10 +63,26 @@ int main(int argc, char *argv[])
 {
     int status;
     int errorcode,ioerror,i;
+    char *s;
     char data[DATASIZE];
     char key[32],rname[32],msg[132];
+    int nrecs = INT_MAX;
     BTA *bt;
-    
+
+    while (--argc > 0 && (*++argv)[0] == '-') {
+        for (s=argv[0]+1;*s != '\0'; s++) {
+            switch (*s) {
+                case 'n':
+                    nrecs = atoi(*++argv);
+                    --argc;
+                    break;
+                default:
+                    fprintf(stderr,"bigt: unknown command switch: -%c\n",*s);
+                    return EXIT_FAILURE;
+            }
+        }
+    }
+                    
     btinit();
 
     bt = btcrt("test_db",0,FALSE);
@@ -52,12 +91,13 @@ int main(int argc, char *argv[])
         data[i] = 'D';
     }
 
-    for (i=0;i<INT_MAX;i++) {
+    for (i=0;i<nrecs;i++) {
         sprintf(key,"%d",i);
         status = btins(bt,key,data,DATASIZE);
         if (status != 0) {
             btcerr(&errorcode,&ioerror,rname,msg);
-            printf("BTree error: %d [%s]: %s\n",errorcode,rname,msg);
+            printf("While attempting to insert key: %s;\n",key);
+            printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
             btcls(bt);
             return EXIT_FAILURE;
         }
