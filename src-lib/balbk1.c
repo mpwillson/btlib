@@ -50,7 +50,7 @@ void balbk1(int lblk,int rblk,int diff,char *key,int val)
     for (i=keypos;i!=limit;i+=dir) {
         bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
         if (result != 0) {
-            bterr("BALBK1",QBALSE,0);
+            bterr("BALBK1",QBALSE,NULL);
             goto fin;
         }
         bremky(fblk,keypos);
@@ -61,7 +61,7 @@ void balbk1(int lblk,int rblk,int diff,char *key,int val)
     i = keypos;
     bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
     if (result != 0) {
-        bterr("BALBK1",QBALSE,0);
+        bterr("BALBK1",QBALSE,NULL);
         goto fin;
     }
     bputky(btact->cntxt->lf.lfblk,tkey,tval,lblk,rblk);

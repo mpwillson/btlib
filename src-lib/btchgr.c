@@ -1,11 +1,10 @@
 /*
   btchgr: change B tree root
 
-  int btchgr(BTA *b,char *root,int *ok)
+  int btchgr(BTA *b,char *root)
 
       b       index file context pointer
       root    name of root to switch to
-      ok      returned TRUE if switch ok
              
   Returns zero if no errors, error code otherwise
 
@@ -19,42 +18,43 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int btchgr(BTA *b,char *root,int *ok)
+int btchgr(BTA *b,char *root)
 {
-    int svblk,blk,ioerr;
+    int svblk,blk,status;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
 
-    if ((ioerr=bvalap("BTCHGR",b)) != 0) return(ioerr);
+    if ((status=bvalap("BTCHGR",b)) != 0) return(status);
 
     btact = b;
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BTCHGR",QBUSY,0);
+            bterr("BTCHGR",QBUSY,NULL);
             goto fin;
         }
     }
     svblk = b->cntxt->super.scroot;
     /* unbusy current root */
-    if (b->cntxt->super.scroot >= 0) bsetbs(b->cntxt->super.scroot,0);
+    if (b->cntxt->super.scroot >= 0) bsetbs(b->cntxt->super.scroot,FALSE);
 
     /* make current root the superroot (where root names are stored) */
     b->cntxt->super.scroot = ZSUPER;
-    bsetbs(b->cntxt->super.scroot,1);
-    ioerr = bfndky(b,root,&blk,ok);
-    bsetbs(b->cntxt->super.scroot,0);
-    if (ioerr != 0) goto fin;
+    bsetbs(b->cntxt->super.scroot,TRUE);
+    status = bfndky(b,root,&blk);
+    bsetbs(b->cntxt->super.scroot,FALSE);
     bclrlf();
     /* if ok, set up new root, else  restore old root */
-    if (*ok) {
+    if (status == 0) {
         b->cntxt->super.scroot = blk;
         strcpy(b->cntxt->super.scclas,root);
-        bsetbs(b->cntxt->super.scroot,1);
+        bsetbs(b->cntxt->super.scroot,TRUE);
     }
     else {
         b->cntxt->super.scroot = svblk;
-        if (b->cntxt->super.scroot != ZNULL) bsetbs(b->cntxt->super.scroot,1);
+        if (b->cntxt->super.scroot != ZNULL) {
+            bsetbs(b->cntxt->super.scroot,TRUE);
+        }
     }
 fin:
     if (btact->shared) bulock();

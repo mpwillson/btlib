@@ -1,11 +1,10 @@
 /*
   btcrtr: creates a new root in index file
 
-  int btcrtr(BTA *b, char *root,int *ok)
+  int btcrtr(BTA *b, char *root)
 
       b      pointer to BT context
       root   name of root to create
-      ok     returned TRUE if root created ok
 
   Returns zero if no errors, error code otherwise
 */
@@ -16,49 +15,49 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int btcrtr(BTA *b, char *root,int *ok)
+int btcrtr(BTA *b, char *root)
 {
-    int svblk,blk,ioerr;
+    int svblk,blk,status;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
 
-    if ((ioerr=bvalap("BTCRTR",b)) != 0) return(ioerr);
+    if ((status=bvalap("BTCRTR",b)) != 0) return(status);
 
     btact = b;
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BTCRTR",QBUSY,0);
+            bterr("BTCRTR",QBUSY,NULL);
             goto fin;
         }
     }
 
     svblk = btact->cntxt->super.scroot;
     /* unbusy current root */
-    bsetbs(btact->cntxt->super.scroot,0);
+    bsetbs(btact->cntxt->super.scroot,FALSE);
     /* make current root the superroot (where root names are stored) */
     btact->cntxt->super.scroot = ZSUPER;
-    bsetbs(btact->cntxt->super.scroot,1);
-    ioerr = binsky(b,root,ZNULL,ok);
+    bsetbs(btact->cntxt->super.scroot,TRUE);
+    status = binsky(b,root,ZNULL);
     btact->cntxt->super.smod++;     /* super root updated */
-    bsetbs(btact->cntxt->super.scroot,0);
+    bsetbs(btact->cntxt->super.scroot,FALSE);
     bclrlf();
     /* if ok, set up new root, else restore old root */
-    if (*ok) {
+    if (status == 0) {
         /* get free block for new root */
         blk = bgtfre();
         if (blk == 0) goto fin;
         /* update root block number */
-        ioerr = bupdky(b,root,blk,ok);
-        if (ioerr != 0 ) goto fin;
+        status = bupdky(b,root,blk);
+        if (status != 0 ) goto fin;
         bsetbk(blk,ZROOT,0,ZNULL,0,0);
         btact->cntxt->super.scroot = blk;
         strcpy(btact->cntxt->super.scclas,root);
-        bsetbs(btact->cntxt->super.scroot,1);
+        bsetbs(btact->cntxt->super.scroot,TRUE);
     }
     else {
         btact->cntxt->super.scroot = svblk;
-        bsetbs(btact->cntxt->super.scroot,1);
+        bsetbs(btact->cntxt->super.scroot,TRUE);
     }
 fin:
     if (btact->shared) bulock();

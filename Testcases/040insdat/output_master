@@ -98,117 +98,23 @@ Key: 'aaaa0096' - Data: 'aaaa0096'
 Key: 'aaaa0097' - Data: 'aaaa0097'
 Key: 'aaaa0098' - Data: 'aaaa0098'
 Key: 'aaaa0099' - Data: 'aaaa0099'
-  Number of blocks:          3
+  Number of blocks:         11
   # free blocks:             0
   First free:               -1
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
   Block:         1
   Misc:          0
-  Nxblk:         2
-  Nkeys:       100
+  Nxblk:         8
+  Nkeys:         6
   Nblks:         0
                                Key        Val      Llink      Rlink
-                          aaaa0000       8192         -1         -1
-                          aaaa0001       8206         -1         -1
-                          aaaa0002       8220         -1         -1
-                          aaaa0003       8234         -1         -1
-                          aaaa0004       8248         -1         -1
-                          aaaa0005       8262         -1         -1
-                          aaaa0006       8276         -1         -1
-                          aaaa0007       8290         -1         -1
-                          aaaa0008       8304         -1         -1
-                          aaaa0009       8318         -1         -1
-                          aaaa0010       8332         -1         -1
-                          aaaa0011       8346         -1         -1
-                          aaaa0012       8360         -1         -1
-                          aaaa0013       8374         -1         -1
-                          aaaa0014       8388         -1         -1
-                          aaaa0015       8402         -1         -1
-                          aaaa0016       8416         -1         -1
-                          aaaa0017       8430         -1         -1
-                          aaaa0018       8444         -1         -1
-                          aaaa0019       8458         -1         -1
-                          aaaa0020       8472         -1         -1
-                          aaaa0021       8486         -1         -1
-                          aaaa0022       8500         -1         -1
-                          aaaa0023       8514         -1         -1
-                          aaaa0024       8528         -1         -1
-                          aaaa0025       8542         -1         -1
-                          aaaa0026       8556         -1         -1
-                          aaaa0027       8570         -1         -1
-                          aaaa0028       8584         -1         -1
-                          aaaa0029       8598         -1         -1
-                          aaaa0030       8612         -1         -1
-                          aaaa0031       8626         -1         -1
-                          aaaa0032       8640         -1         -1
-                          aaaa0033       8654         -1         -1
-                          aaaa0034       8668         -1         -1
-                          aaaa0035       8682         -1         -1
-                          aaaa0036       8696         -1         -1
-                          aaaa0037       8710         -1         -1
-                          aaaa0038       8724         -1         -1
-                          aaaa0039       8738         -1         -1
-                          aaaa0040       8752         -1         -1
-                          aaaa0041       8766         -1         -1
-                          aaaa0042       8780         -1         -1
-                          aaaa0043       8794         -1         -1
-                          aaaa0044       8808         -1         -1
-                          aaaa0045       8822         -1         -1
-                          aaaa0046       8836         -1         -1
-                          aaaa0047       8850         -1         -1
-                          aaaa0048       8864         -1         -1
-                          aaaa0049       8878         -1         -1
-                          aaaa0050       8892         -1         -1
-                          aaaa0051       8906         -1         -1
-                          aaaa0052       8920         -1         -1
-                          aaaa0053       8934         -1         -1
-                          aaaa0054       8948         -1         -1
-                          aaaa0055       8962         -1         -1
-                          aaaa0056       8976         -1         -1
-                          aaaa0057       8990         -1         -1
-                          aaaa0058       9004         -1         -1
-                          aaaa0059       9018         -1         -1
-                          aaaa0060       9032         -1         -1
-                          aaaa0061       9046         -1         -1
-                          aaaa0062       9060         -1         -1
-                          aaaa0063       9074         -1         -1
-                          aaaa0064       9088         -1         -1
-                          aaaa0065       9102         -1         -1
-                          aaaa0066       9116         -1         -1
-                          aaaa0067       9130         -1         -1
-                          aaaa0068       9144         -1         -1
-                          aaaa0069       9158         -1         -1
-                          aaaa0070       9172         -1         -1
-                          aaaa0071       9186         -1         -1
-                          aaaa0072       9200         -1         -1
-                          aaaa0073       9214         -1         -1
-                          aaaa0074       9228         -1         -1
-                          aaaa0075       9242         -1         -1
-                          aaaa0076       9256         -1         -1
-                          aaaa0077       9270         -1         -1
-                          aaaa0078       9284         -1         -1
-                          aaaa0079       9298         -1         -1
-                          aaaa0080       9312         -1         -1
-                          aaaa0081       9326         -1         -1
-                          aaaa0082       9340         -1         -1
-                          aaaa0083       9354         -1         -1
-                          aaaa0084       9368         -1         -1
-                          aaaa0085       9382         -1         -1
-                          aaaa0086       9396         -1         -1
-                          aaaa0087       9410         -1         -1
-                          aaaa0088       9424         -1         -1
-                          aaaa0089       9438         -1         -1
-                          aaaa0090       9452         -1         -1
-                          aaaa0091       9466         -1         -1
-                          aaaa0092       9480         -1         -1
-                          aaaa0093       9494         -1         -1
-                          aaaa0094       9508         -1         -1
-                          aaaa0095       9522         -1         -1
-                          aaaa0096       9536         -1         -1
-                          aaaa0097       9550         -1         -1
-                          aaaa0098       9564         -1         -1
-                          aaaa0099       9578         -1         -1
+                          aaaa0012       2216          3          4
+                          aaaa0025       2398          4          5
+                          aaaa0038       2580          5          6
+                          aaaa0051       2762          6          7
+                          aaaa0064       2944          7          9
+                          aaaa0077       8276          9         10

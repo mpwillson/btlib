@@ -20,12 +20,14 @@ int bmodky(int blk,int loc,int val)
 {
     int idx,ioerr;
 
-    if (loc >= ZMXKEY || loc < 0)
-        bterr("BMODKY",QLOCTB,loc);
+    if (loc >= ZMXKEY || loc < 0) {
+        bterr("BMODKY",QLOCTB,itostr(loc));
+    }
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0)
-            bterr("BMODKY",QRDBLK,ioerr);
+        if (idx < 0) {
+            bterr("BMODKY",QRDBLK,itostr(blk));
+        }
         else {
             ((btact->memrec)+idx)->valblk[loc] = val;
             ((btact->cntrl)+idx)->writes++;

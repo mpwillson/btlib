@@ -23,7 +23,7 @@ int btlock(BTA *b)
 {
     int result;
     
-    bterr("",0,0);
+    bterr("",0,NULL);
 
     if ((result=bvalap("BTLOCK",b)) != 0) return(result);
 
@@ -31,7 +31,7 @@ int btlock(BTA *b)
     if (btact->shared) {
         /* only lock if shared */
         if (!block()) {
-            bterr("BTLOCK",QBUSY,0);
+            bterr("BTLOCK",QBUSY,NULL);
         }
     }
     return(btgerr());
@@ -52,7 +52,7 @@ int btunlock(BTA *b)
 {
     int result;
     
-    bterr("",0,0);
+    bterr("",0,NULL);
 
     if ((result=bvalap("BTUNLOCK",b)) != 0) return(result);
 

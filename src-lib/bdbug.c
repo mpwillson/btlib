@@ -23,12 +23,12 @@ int bdbug(BTA * b,char *cmd,int blkno)
     int tblks,tnkeys;
     DATBLK *d;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((ioerr=bvalap("BDBUG",b)) != 0) return(ioerr);
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BDBUG",QBUSY,0);
+            bterr("BDBUG",QBUSY,NULL);
             goto fin;
         }
     }
@@ -36,7 +36,7 @@ int bdbug(BTA * b,char *cmd,int blkno)
     btact = b;          /* set context pointer */
     
     if (btact->idxunt == NULL) {
-        bterr("BDBUG",QNOBTF,0);
+        bterr("BDBUG",QNOBTF,NULL);
         goto fin;
     }
     if (strcmp(cmd,"super") == 0) {
@@ -132,7 +132,7 @@ int bdbug(BTA * b,char *cmd,int blkno)
                         ((btact->memrec)+i)->lnkblk[j+1]);
         }
         else {
-            bterr("BDBUG",QRDBLK,blkno);
+            bterr("BDBUG",QRDBLK,itostr(blkno));
         }
     }
     else if (strcmp(cmd,"stack") == 0) {
@@ -141,7 +141,7 @@ int bdbug(BTA * b,char *cmd,int blkno)
             fprintf(stdout,"%10d%10d\n",i,btact->cntxt->stk.stk[i]);
     }
     else {
-        bterr("BDBUG",QBADOP,0);
+        bterr("BDBUG",QBADOP,NULL);
     }
   fin:
     if (btact->shared) bulock();

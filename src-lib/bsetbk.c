@@ -20,10 +20,11 @@
 int bsetbk(int blk,int type,int misc,int nxblk,int nkeys,int nblks)
 {
     int ioerr,idx;
-
+    
     ioerr = brdblk(blk,&idx);
-    if (idx < 0)
-        bterr("BSETBK",QRDBLK,ioerr);
+    if (idx < 0) {
+        bterr("BSETBK",QRDBLK,itostr(blk));
+    }
     else {
         ((btact->memrec)+idx)->infblk[ZBTYPE] = type;
         ((btact->memrec)+idx)->infblk[ZMISC] = misc;

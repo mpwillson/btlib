@@ -19,18 +19,18 @@
 
 BTA *btopn(char *fid, int mode, int shared)
 {
-    int ioerr;
+    int status;
     int ok;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
 
     btact = bnewap(fid);
     if (btact == NULL) {
-        bterr("BTOPN",QNOACT,0);
+        bterr("BTOPN",QNOACT,NULL);
         return(NULL);
     }
     if ((btact->idxunt = fopen(fid,"r+b")) == NULL) {
-        bterr("BTOPN",QNOOPN,0);
+        bterr("BTOPN",QNOOPN,NULL);
         return (NULL);
     }
     strcpy(btact->idxfid,fid);
@@ -45,21 +45,17 @@ BTA *btopn(char *fid, int mode, int shared)
 
     /* always lock file; shared will unlock at routine exit */
     if (!block()) {
-        bterr("BTOPN",QBUSY,0);
+        bterr("BTOPN",QBUSY,NULL);
         goto fin;
     }
     /* read in super root */
     if (brdsup() != 0) goto fin;
 
     /* change to default root */
-    ioerr = btchgr(btact,"$$default",&ok);
-    if (ioerr != 0) goto fin;
-    if (ok)
-        btact->cntxt->super.smode = mode;
-    else {
-        bterr("BTOPN",QNODEF,0);
-        goto fin;
-    }
+    status = btchgr(btact,"$$default");
+    if (status != 0) goto fin;
+    btact->cntxt->super.smode = mode;
+
     if (btgerr() != 0) 
         goto fin;
     if (shared) bulock();

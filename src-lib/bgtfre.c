@@ -29,8 +29,9 @@ int bgtfre()
         /* get one off the free list */
         blk = btact->cntxt->super.sfreep;
         ioerr = brdblk(blk,&idx);
-        if (idx < 0)
-            bterr("BGTFRE",QRDBLK,ioerr);
+        if (idx < 0) {
+            bterr("BGTFRE",QRDBLK,itostr(blk));
+        }
         else {
             btact->cntxt->super.sfreep = bgtinf(blk,ZNXBLK);
         }

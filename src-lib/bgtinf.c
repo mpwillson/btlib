@@ -21,11 +21,11 @@ int bgtinf(int blk,int type)
 
     val = 0;
     if (type >= ZINFSZ)
-        bterr("BGTINF",QINFER,0);
+        bterr("BGTINF",QINFER,NULL);
     else {
         ioerr = brdblk(blk,&idx);
         if (idx < 0)
-            bterr("BGTINF",QRDBLK,0);
+            bterr("BGTINF",QRDBLK,NULL);
         else
             val = ((btact->memrec)+idx)->infblk[type];
 

@@ -154,7 +154,11 @@
 #define QUNLCK  42
 #define QLRUER  43
 #define QDAERR  44
+
 #define QEMPTY  45
+#define QDUP    46
+#define QNOKEY  47
+#define QNOWRT  48
 
 /*
     To find out how stdin is hooked (file, pipe or terminal)

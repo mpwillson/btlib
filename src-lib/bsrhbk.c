@@ -35,7 +35,7 @@ int bsrhbk(int blk,char *key,int *loc,int *val,int *link1,int *link2,
 
     ioerr = brdblk(blk,&idx);
     if (idx < 0) {
-        bterr("BSRHBK",QRDBLK,ioerr);
+        bterr("BSRHBK",QRDBLK,itostr(blk));
         goto fin;
     }
     nkeys = ((btact->memrec)+idx)->infblk[ZNKEYS];

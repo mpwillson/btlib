@@ -116,7 +116,7 @@ int bulock(void)
         if (btact->fd >= 0) {
             lck.l_type = F_UNLCK;
             if (fcntl(btact->fd,F_SETLK,&lck) == -1) {
-                bterr("BULOCK",QUNLCK,0);
+                bterr("BULOCK",QUNLCK,NULL);
             }
         }
         btact->lckcnt = 0;

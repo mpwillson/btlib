@@ -39,7 +39,7 @@ int bsptbk(int blk,int *newblk)
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
         if (result != 0) {
-            bterr("BSPTBK",QSPKEY,0);
+            bterr("BSPTBK",QSPKEY,NULL);
             goto fin;
         }
         /* insert at first position in root */
@@ -69,7 +69,7 @@ int bsptbk(int blk,int *newblk)
         fprintf(stderr,"Promoted key: %s into parent block %d\n",tkey,pblk);
 #endif      
         if (result != 0) {
-            bterr("BSPTBK",QSPKEY,0);
+            bterr("BSPTBK",QSPKEY,NULL);
             goto fin;
         }
         /* truncate old block */

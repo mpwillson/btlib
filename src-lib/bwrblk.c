@@ -18,13 +18,14 @@ int bwrblk(int blk)
 {
 
     int i,ioerr;
-
+    
     ioerr = 0;
     for (i=0;i<ZMXBLK;i++)
         if (((btact->cntrl)+i)->inmem == blk) break;
 
-    if (i == ZMXBLK) 
-        bterr("BWRBLK",QWRMEM,blk);
+    if (i == ZMXBLK) {
+        bterr("BWRBLK",QWRMEM,itostr(blk));
+    }
     else {
         if (((btact->cntrl)+i)->writes != 0) {
             ioerr = fseek(btact->idxunt,(long) blk*ZBLKSZ,0);

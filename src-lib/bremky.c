@@ -19,7 +19,7 @@ void bremky(int blk,int pos)
 
     ioerr = brdblk(blk,&idx);
     if (idx < 0) {
-        bterr("BREMKY",QRDBLK,ioerr);
+        bterr("BREMKY",QRDBLK,itostr(blk));
         goto fin;
     }
     ((btact->memrec)+idx)->infblk[ZNKEYS]--;

@@ -30,7 +30,7 @@ int bacini(BTA *b)
     bclrst();
     return(0);
 err:
-    bterr("BACINI",QNOMEM,0);
+    bterr("BACINI",QNOMEM,NULL);
     return(QNOMEM);
 }
 

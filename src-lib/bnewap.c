@@ -22,7 +22,7 @@ BTA *bnewap(char *fid)
     for (i=0;i<ZMXACT;i++)
         if (strcmp(fid,btat[i].idxfid) == 0) break;
     if (i < ZMXACT) {
-        bterr("BNEWAP",QINERR,0);
+        bterr("BNEWAP",QINERR,NULL);
         return(NULL);
     }
 

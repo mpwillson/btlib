@@ -21,7 +21,7 @@ void balblk()
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
                &llink,&rlink,&result);
         if (result != 0) {
-            bterr("BALBLK",QBALSE,0);
+            bterr("BALBLK",QBALSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(rlink,ZNKEYS);
@@ -37,7 +37,7 @@ void balblk()
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,
                &val,&llink,&rlink,&result);
         if (result != 0) {
-            bterr("BALBLK",QBALSE,0);
+            bterr("BALBLK",QBALSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(llink,ZNKEYS);

@@ -215,20 +215,19 @@ int main(int argc,char *argv[])
         }
         /* check for Find */
         else if (strcmp(arg[0],"f") == 0) {
-            ierr = bfndky(btp,arg[1],&i,&found);
-            if (found)
+            ierr = bfndky(btp,arg[1],&i);
+            if (ierr == 0)
                 printf("Key: '%s' = %d\n",arg[1],i);
-            else {
+            else if (ierr == QNOKEY) {
                 if (strcmp(arg[1],EMPTY) != 0)
                     printf("No such key as '%s'\n",arg[1]);
             }
         }
         /* check for Define */
         else if (strcmp(arg[0],"d") == 0 || strcmp(arg[0],"def") == 0) {
-
             i = atoi(arg[2]);
-            ierr = binsky(btp,arg[1],i,&found);
-            if (!found) printf("Key '%s' exists\n",arg[1]);
+            ierr = binsky(btp,arg[1],i);
+            if (ierr == QDUP) printf("Key '%s' exists\n",arg[1]);
         }
         /*  check for Stats */
         else if (strcmp(arg[0],"s") == 0) {
@@ -237,21 +236,20 @@ int main(int argc,char *argv[])
         }
         /*  check for Next (key) */
         else if (strcmp(arg[0],"n") == 0) {
-            ierr = bnxtky(btp,key,&i,&found);
-            if (ierr == 0) {
-                if (!found)
-                    printf("No more keys\n");
-                else
-                    printf("Key: '%s' = %d\n",key,i);
+            ierr = bnxtky(btp,key,&i);
+            if (ierr == QNOKEY) {
+                printf("No more keys\n");
             }
+            else {
+                printf("Key: '%s' = %d\n",key,i);
+            }   
         }
         /*  check for List (of keys) */
         else if (strcmp(arg[0],"l") == 0) {
-            found = TRUE;
             ierr = 0;
-            while (ierr == 0 && found) {
-                ierr = bnxtky(btp,key,&i,&found);
-                if (ierr == 0 && found) printf("Key: '%s' = %d\n",key,i);
+            while (ierr == 0) {
+                ierr = bnxtky(btp,key,&i);
+                if (ierr == 0) printf("Key: '%s' = %d\n",key,i);
             }
         }
         /*  check for ? (help) */
@@ -299,8 +297,8 @@ int main(int argc,char *argv[])
         }
         /*  check for Remove (key) */
         else if (strcmp(arg[0],"r") == 0) {
-            ierr = bdelky(btp,arg[1],&found); 
-            if (!found) printf("Key: '%s' not found\n",arg[1]);
+            ierr = bdelky(btp,arg[1]); 
+            if (ierr != 0) printf("Key: '%s' not found\n",arg[1]);
         }
         /*  check for Prompt (toggle) */
         else if (strcmp(arg[0],"p") == 0) {
@@ -329,18 +327,18 @@ int main(int argc,char *argv[])
         }
         /* check for Define Root command */
         else if (strcmp(arg[0],"dr") == 0) {
-            ierr = btcrtr(btp,arg[1],&found);
-            if (!found) printf("Can't create root: '%s'\n",arg[1]);
+            ierr = btcrtr(btp,arg[1]);
+            if (ierr != 0) printf("Can't create root: '%s'\n",arg[1]);
         }
         /* check for Change Root command */
         else if (strcmp(arg[0],"cr") == 0) {
-            ierr = btchgr(btp,arg[1],&found);
-            if (!found) printf("Can't change root to: '%s'\n",arg[1]);
+            ierr = btchgr(btp,arg[1]);
+            if (ierr == QNOKEY) printf("Can't change root to: '%s'\n",arg[1]);
         }
         /* check for Remove Root command */
         else if (strcmp(arg[0],"rr") == 0) {
-            ierr = btdelr(btp,arg[1],&found);
-            if (!found && ierr == 0) printf("No such root as '%s'\n",arg[1]);
+            ierr = btdelr(btp,arg[1]);
+            if (ierr != 0) printf("No such root as '%s'\n",arg[1]);
         }
         /* check for File List command */
         else if (strcmp(arg[0],"fl") == 0) {
@@ -359,50 +357,47 @@ int main(int argc,char *argv[])
             if (arg[2][0] == '*') {
                 blk = get_data(arg[2]+1);
                 if (blk != NULL) {
-                    ierr = btins(btp,arg[1],blk->bptr,blk->size,&found);
+                    ierr = btins(btp,arg[1],blk->bptr,blk->size);
                 }
                 else {
                     fprintf(stderr,"bt: no such data block: %s\n",arg[2]+1);
                 }
             }
             else {
-                ierr = btins(btp,arg[1],arg[2],strlen(arg[2]),&found);
+                ierr = btins(btp,arg[1],arg[2],strlen(arg[2]));
             }
-            if (!found) printf("Key '%s' exists\n",arg[1]);
+            if (ierr == QDUP) printf("Key '%s' exists\n",arg[1]);
         }
         /* check for Find Data (fd) command */
         else if (strcmp(arg[0],"fd") == 0) {
             if (strcmp(arg[2],"d") == 0) {
                 /* display retrieved record */
-                ierr = btrecs(btp,arg[1],&i,&found);
-                if (ierr == 0) {
-                    if (!found) {
-                        if (strcmp(arg[1],EMPTY) != 0) 
-                            fprintf(stderr,"No such key as '%s'\n",arg[1]);
-                    }
-                    else {
-                        rbuf = (char *) malloc(i+1);
-                        if (rbuf == NULL) {
-                            fprintf(stderr,"bt: unable to allocate memory\n");
-                            continue;
-                        }
-                        ierr = btsel(btp,arg[1],rbuf,i,&i,&found);
-                        *(rbuf+i) = '\0';
-                        printf("%s",rbuf);
-                        free(rbuf);
-                        printf("\n");
-                    }
+                ierr = btrecs(btp,arg[1],&i);
+                if (ierr == QNOKEY) {
+                    if (strcmp(arg[1],EMPTY) != 0) 
+                        fprintf(stderr,"No such key as '%s'\n",arg[1]);
                 }
-                
+                else {
+                    rbuf     = (char *) malloc(i+1);
+                    if (rbuf == NULL) {
+                        fprintf(stderr,"bt: unable to allocate memory\n");
+                        continue;
+                    }
+                    ierr = btsel(btp,arg[1],rbuf,i,&i);
+                    *(rbuf+i) = '\0';
+                    printf("%s",rbuf);
+                    free(rbuf);
+                    printf("\n");
+                }
             }
             else {
-                ierr = btsel(btp,arg[1],buff,80,&i,&found);
+                ierr = btsel(btp,arg[1],buff,80,&i);
                 if (ierr == 0 && i >= 0) {
-                    if (found) {
+                    if (ierr == 0) {
                         buff[(i==80?i-1:i)] = '\0';
                         printf("Data returned: '%s'\n",buff);
                     }
-                    else {
+                    else if (ierr == QNOKEY) {
                         if (strcmp(arg[1],EMPTY) != 0)
                             fprintf(stderr,"No such key as '%s'\n",arg[1]);
                     }
@@ -416,28 +411,28 @@ int main(int argc,char *argv[])
             if (arg[2][0] == '*') {
                 blk = get_data(arg[2]+1);
                 if (blk != NULL) {
-                    ierr = btupd(btp,arg[1],blk->bptr,blk->size,&found);
+                    ierr = btupd(btp,arg[1],blk->bptr,blk->size);
                 }
                 else {
                     fprintf(stderr,"bt: no such data block: %s\n",arg[2]+1);
                 }
             }
             else {
-                ierr = btupd(btp,arg[1],arg[2],strlen(arg[2]),&found);
+                ierr = btupd(btp,arg[1],arg[2],strlen(arg[2]));
             }
-            if (!found) {
+            if (ierr == QNOKEY) {
                 fprintf(stderr,"No such key as '%s'\n",arg[1]);
             }
         }
         /* check for Remove Data (rd) command */
         else if (strcmp(arg[0],"rd") == 0) {
-            ierr = btdel(btp,arg[1],&found);
-            if (!found) printf("Key '%s' not found\n",arg[1]);
+            ierr = btdel(btp,arg[1]);
+            if (ierr == QNOKEY) printf("Key '%s' not found\n",arg[1]);
         }
         /* Size data command? */
         else if (strcmp(arg[0],"sd") == 0) {
-            ierr = btrecs(btp,arg[1],&size,&found);
-            if (found) {
+            ierr = btrecs(btp,arg[1],&size);
+            if (ierr == QNOKEY) {
                 printf("Key '%s' record size: %d bytes\n",arg[1],size);
             }
             else {
@@ -449,8 +444,8 @@ int main(int argc,char *argv[])
             found = TRUE;
             ierr = 0;
             while (found && ierr == 0) {
-                ierr = btseln(btp,key,buff,80,&size,&found);
-                if (ierr==0 && found) {
+                ierr = btseln(btp,key,buff,80,&size);
+                if (ierr == 0) {
                     buff[(size==80?size-1:size)] = '\0';
                     printf("Key: '%s' - Data: '%s'\n",key,buff);
                 }
@@ -458,8 +453,8 @@ int main(int argc,char *argv[])
         }
         /* print next key and data */
         else if (strcmp(arg[0],"nd") == 0) {
-            ierr = btseln(btp,key,buff,80,&size,&found);
-            if (ierr==0 && found) {
+            ierr = btseln(btp,key,buff,80,&size);
+            if (ierr == 0) {
                 buff[size] = '\0';
                 printf("Key: '%s' - Data: '%s\n",key,buff);
             }
@@ -474,8 +469,8 @@ int main(int argc,char *argv[])
         }
         /* update value command */
         else if (strcmp(arg[0],"uv") == 0) {
-            ierr = bupdky(btp,arg[1],atoi(arg[2]),&found);
-            if (!found) {
+            ierr = bupdky(btp,arg[1],atoi(arg[2]));
+            if (ierr != 0) {
                 fprintf(stderr,"Can't update value for: '%s'\n",arg[1]);
             }
         }
@@ -487,9 +482,9 @@ int main(int argc,char *argv[])
         }
         
         /* check for error in B tree */
-        if (ierr != 0)  {
+        if (ierr != 0 && ierr != QDUP && ierr != QNOKEY)  {
             btcerr(&ierr,&ioerr,name,buff);
-            fprintf(stderr,"(%s) [%d] %s\n",name,ierr,buff);
+            fprintf(stdout,"(%s) [%d] %s\n",name,ierr,buff);
         }
     }
     return (0);

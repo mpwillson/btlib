@@ -19,11 +19,12 @@ int bstinf(int blk,int type,int val)
     int ioerr,idx;
 
     if (type >= ZINFSZ)
-        bterr("BSTINF",QINFER,0);
+        bterr("BSTINF",QINFER,NULL);
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0)
-            bterr("BSTINF",QRDBLK,ioerr);
+        if (idx < 0) {
+            bterr("BSTINF",QRDBLK,itostr(blk));
+        }
         else {
             ((btact->memrec)+idx)->infblk[type] = val;
             ((btact->cntrl)+idx)->writes++;
@@ -31,3 +32,5 @@ int bstinf(int blk,int type,int val)
     }
     return(0);
 }
+
+

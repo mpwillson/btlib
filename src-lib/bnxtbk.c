@@ -33,7 +33,7 @@ int bnxtbk(int *blk)
     while (btact->cntxt->lf.lfblk >= 0) {
         ioerr = brdblk(btact->cntxt->lf.lfblk,&idx);
         if (idx < 0) {
-            bterr("BNXTBK",QRDBLK,ioerr);
+            bterr("BNXTBK",QRDBLK,itostr(btact->cntxt->lf.lfblk));
             break;
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);

@@ -20,7 +20,7 @@ int btinit()
     static int btinited = FALSE;
 
     if (btinited) {
-        bterr("BTINIT",QINERR,0);
+        bterr("BTINIT",QINERR,NULL);
         return(QINERR);
     }
     

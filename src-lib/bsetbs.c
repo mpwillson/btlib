@@ -1,10 +1,10 @@
 /*
   bsetbs: alter busy state of in-memory block
 
-  void bsetbs(int blk,int status)
+  void bsetbs(int blk,int busy)
 
      blk    block which requires setting
-     status new status (1 for busy, 0 for flushable)
+     busy   new status (TRUE for busy, FALSE for flushable)
 
 */
 
@@ -13,18 +13,16 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bsetbs(int blk,int status)
+void bsetbs(int blk,int busy)
 {
-    int idx,ioerr;
+    int idx,status;
 
-    ioerr = brdblk(blk,&idx);
-    if (idx < 0)
-        bterr("BSETBS",QRDBLK,ioerr);
+    status = brdblk(blk,&idx);
+    if (idx < 0) {
+        bterr("BSETBS",QRDBLK,itostr(blk));
+    }
     else {
-        if (status == 1)
-            ((btact->cntrl)+idx)->busy = TRUE;
-        else
-            ((btact->cntrl)+idx)->busy = FALSE;
+        ((btact->cntrl)+idx)->busy = busy;
     }
     return;
 }

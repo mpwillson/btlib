@@ -42,14 +42,14 @@ int bqhead()
 int bqmove(int idx)
 {
     int i;
-
+    
 #if DEBUG >= 4
     printf("Before move of idx %d:  lruh: %d, lrut: %d\n",idx,btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
     for (i=0;i<ZMXBLK;i++) printf("lrunxt[%d] = %d  ",i,((btact->cntrl)+i)->lrunxt);
     printf("\n");
 #endif
     if (idx < 0) {
-        bterr("BQMOVE",QBADIX,idx);
+        bterr("BQMOVE",QBADIX,itostr(idx));
         goto fin;
     }
     if (idx == btact->cntxt->lru.lrut) return(0);
@@ -65,7 +65,7 @@ int bqmove(int idx)
         if (i >= 0)
             ((btact->cntrl)+i)->lrunxt = ((btact->cntrl)+idx)->lrunxt;
         else {
-            bterr("BQMOVE",QLRUER,idx);
+            bterr("BQMOVE",QLRUER,itostr(idx));
         }
     }
     ((btact->cntrl)+btact->cntxt->lru.lrut)->lrunxt = idx;
@@ -82,31 +82,3 @@ fin:
     return(0);
 }
 
-/*
-==================================================================
-Obsolete code?
-==================================================================
-void bqrem(idx)
-int idx;
-{
-    int i;
-     
-    if (idx == btact->cntxt->lru.lruh) {
-        btact->cntxt->lru.lruh = ((btact->cntrl)+idx)->lrunxt;
-        i = -1;
-    }
-    else {
-        i = btact->cntxt->lru.lruh;
-        while (i>=0) {
-            if (((btact->cntrl)+i)->lrunxt == idx) break;
-            i = ((btact->cntrl)+i)->lrunxt;
-        }
-        if (i>=0)
-            ((btact->cntrl)+i)->lrunxt = ((btact->cntrl)+idx)->lrunxt;
-        else
-            printf("bqrem: idx %d not in q\n",idx);
-    }
-    if (idx == btact->cntxt->lru.lrut) btact->cntxt->lru.lrut = i;
-}
-
-*/

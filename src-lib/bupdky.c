@@ -6,7 +6,6 @@
          b      pointer to BT context
          key    key to update
          val    new value of key 
-         ok     returned TRUE if key updated
          
      bupdky returns non-ZERO if error occurred
 
@@ -18,32 +17,30 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int bupdky(BTA *b, char *key,int val,int *ok)
+int bupdky(BTA *b, char *key,int val)
 {
-    int lval,ierr,found;
+    int lval,status;
 
-    bterr("",0,0);
-    if ((ierr=bvalap("BUPDKY",b)) != 0) return(ierr);
+    bterr("",0,NULL);
+    if ((status=bvalap("BUPDKY",b)) != 0) return(status);
 
     btact = b;
     if (btact->shared) {
         if (!block()) {
-            bterr("BUPDKY",QBUSY,0);
+            bterr("BUPDKY",QBUSY,NULL);
             goto fin;
         }
     }
 
-    if (b->cntxt->super.smode != 0) 
+    if (b->cntxt->super.smode != 0) {
         /* read only, can't update */
-        *ok = FALSE;
+        bterr("BUPDKY",QNOWRT,NULL);
+    }
     else {
-        ierr = bfndky(b,key,&lval,&found);
-        if (found && ierr == 0) {
+        status = bfndky(b,key,&lval);
+        if (status == 0) {
             bmodky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,val);
-            *ok = TRUE;
         }
-        else 
-            *ok = FALSE;
     }
 fin:
     if (btact->shared) bulock();

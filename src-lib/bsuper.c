@@ -17,11 +17,11 @@ int brdsup()
 
     ioerr = brdblk(ZSUPER,&idx);
     if (ioerr != 0) {
-        bterr("BRDSUP",QRDBLK,0);
+        bterr("BRDSUP",QRDBLK,NULL);
         goto fin;
     } 
     if (((btact->memrec)+idx)->infblk[ZBTYPE] != ZROOT) {
-        bterr("BRDSUP",QSRNR,0);
+        bterr("BRDSUP",QSRNR,NULL);
         ioerr = QSRNR;
         goto fin;
     }
@@ -41,7 +41,7 @@ int bwrsup()
 
     ioerr = brdblk(ZSUPER,&idx);
     if (ioerr != 0) {
-        bterr("BWRSUP",QRDSUP,ioerr);
+        bterr("BWRSUP",QRDSUP,itostr(ZSUPER));
         goto fin;
     }
     nkeys = bgtinf(ZSUPER,ZNKEYS);
@@ -51,7 +51,7 @@ int bwrsup()
         btact->cntxt->super.sblkmx);
     ioerr = bwrblk(ZSUPER);
     if (ioerr != 0) {
-        bterr("BWRSUP",QWRSUP,ioerr);
+        bterr("BWRSUP",QWRSUP,itostr(ZSUPER));
         goto fin;
     }
     return(0);

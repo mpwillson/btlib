@@ -22,6 +22,8 @@
  *      Created.
  *  KCP             2.0 030722  mpw
  *      Operates on all roots in a B Tree file, not just $$default.
+ *  KCP             2.1 040530  mpw
+ *      Uses bt-2.0 API
  */
 
 #include <stdlib.h>
@@ -39,10 +41,8 @@ char *prog;
 
 int main(int argc, char *argv[])
 {
-    int found,
-        i,
-        ierr, ioerr,
-        moreroots;
+    int i,
+        status, ioerr;
     BTA *in, *out;
     char current_root[ZKYLEN];
     char fname[20],msg[80];
@@ -67,38 +67,39 @@ int main(int argc, char *argv[])
         fprintf(stderr,"%s: unable to open new file '%s'\n",prog,argv[2]);
         exit(-1);
     }
-    ierr = btchgr(in,SUPER,&found);
-    if (ierr != 0 || !found) goto fin;
+    status = btchgr(in,SUPER);
+    if (status != 0) goto fin;
 
     /* position at beginning of superroot */
     current_root[0] = '\0';
-    ierr = bfndky(in,current_root,&i,&found);
-    if (ierr != 0) goto fin;
+    status = bfndky(in,current_root,&i);
+    /* if a root named with the null key exists, 0 is a valid return,
+       otherwise we expect QNOKEY */
+    if (!(status == QNOKEY || status == 0)) goto fin;
     /* get first entry */
-    ierr = bnxtky(in,current_root,&i,&found);
-    if (ierr != 0 || !found) goto fin;
-    moreroots = TRUE;
+    status = bnxtky(in,current_root,&i);
+    if (status != 0) goto fin;
     /* cycle through the roots */
-    while (moreroots) {
+    while (status == 0) {
         if (strcmp(current_root,SUPER) != 0) {
-            if ((ierr=copyroot(in,out,current_root)) != 0) goto fin;
-            ierr = btchgr(in,SUPER,&found);
-            if (ierr != 0) goto fin;
+            if ((status=copyroot(in,out,current_root)) != 0) goto fin;
+            status = btchgr(in,SUPER);
+            if (status != 0) goto fin;
         }
         /* no context maintained when switching roots, so need to
            position afresh */
-        ierr = bfndky(in,current_root,&i,&found);
-        ierr = bnxtky(in,current_root,&i,&moreroots);
-        if (ierr != 0) goto fin;
+        status = bfndky(in,current_root,&i);
+        status = bnxtky(in,current_root,&i);
     }
+    if (status == QNOKEY) status = 0;
   fin:
-    if (ierr != 0) {
-        btcerr(&ierr,&ioerr,fname,msg);
+    if (status != 0) {
+        btcerr(&status,&ioerr,fname,msg);
         fprintf(stderr,"%s: btree error (%d) [%s] - %s\n",
-                argv[0],ierr,fname,msg);
+                argv[0],status,fname,msg);
     }
-    ierr = btcls(in);
-    if (ierr == 0) ierr = btcls(out);
+    status = btcls(in);
+    if (status == 0) status = btcls(out);
     
     return(0);
 
@@ -107,7 +108,7 @@ int main(int argc, char *argv[])
 int copyroot(BTA* in, BTA* out, char *rootname)
 {
     static int bufsiz = 1024;
-    int ierr, ok, found, i, rsiz;
+    int status, i, rsiz;
     static char *buf = NULL;
     char key[ZKYLEN];
 
@@ -115,33 +116,35 @@ int copyroot(BTA* in, BTA* out, char *rootname)
         kalloc(&buf,bufsiz);
     }
 
-    ierr = btchgr(in,rootname,&ok);
-    if (ierr != 0) return ierr;
-    ierr = btcrtr(out,rootname,&ok);
-    if (ierr != 0) return ierr;
-    
-    ierr = bfndky(in,"",&i,&found);
-    if (ierr != 0) return ierr;
-    
-    found = TRUE;
-    while (found) {
-        ierr = btseln(in,key,buf,bufsiz,&rsiz,&found);
-        if (ierr != 0) return ierr;
-        if (!found) break;
+    status = btchgr(in,rootname);
+    if (status != 0) return status;
+    status = btcrtr(out,rootname);
+    /* ok to get duplicate key error if creating $$default */
+    if (!(status == QDUP || status == 0)) return status;
+    /* ok to get no key error */
+    status = bfndky(in,"",&i);
+    if (!(status == QNOKEY || status == 0)) return status;
+    status = 0;
+    while (status == 0) {
+        status = btseln(in,key,buf,bufsiz,&rsiz);
+        if (status != 0) continue;
         
         while (bufsiz == rsiz) {
             /* assume the record is bigger than the buffer,
+             * so increase buffer size
              * repeat until we read ok, or run out of memory */
             free(buf);
             bufsiz += bufsiz;
             kalloc(&buf,bufsiz);
-            ierr = btsel(in,key,buf,bufsiz,&rsiz,&found);
-            if (ierr != 0) return ierr;
+            status = btsel(in,key,buf,bufsiz,&rsiz);
+            if (status != 0) return status;
         }
-        ierr = btins(out,key,buf,rsiz,&ok);
-        if (ierr != 0) return ierr;
+        status = btins(out,key,buf,rsiz);
     }
-    return 0;
+    if (status == QNOKEY)
+        return 0;
+    else
+        return status;
 }
 
 void kalloc(char **buf,int bufsiz)

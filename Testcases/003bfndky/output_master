@@ -998,15 +998,15 @@ Key: 'qnhz000996' = 0
 Key: '|oKQ000997' = 0
 Key: 'hUqW000998' = 0
 Key: 'QT^]000999' = 0
-  Number of blocks:         17
+  Number of blocks:         62
   # free blocks:             0
   First free:               -1
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
- No. of blocks:            16
- Max. poss. keys:        1616
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
+ No. of blocks:            61
+ Max. poss. keys:        1525
  Actual keys:            1000
- Occupancy (%):         61.88
+ Occupancy (%):         65.57

@@ -1,146 +1,151 @@
-Key: 'aaaa0000' = 8192
-Key: 'aaaa0001' = 8206
-Key: 'aaaa0002' = 8220
-Key: 'aaaa0003' = 8234
-Key: 'aaaa0004' = 8248
-Key: 'aaaa0005' = 8262
-Key: 'aaaa0006' = 8276
-Key: 'aaaa0007' = 8290
-Key: 'aaaa0008' = 8304
-Key: 'aaaa0009' = 8318
-Key: 'aaaa0010' = 8332
-Key: 'aaaa0011' = 8346
-Key: 'aaaa0012' = 8360
-Key: 'aaaa0013' = 8374
-Key: 'aaaa0014' = 8388
-Key: 'aaaa0015' = 8402
-Key: 'aaaa0016' = 8416
-Key: 'aaaa0017' = 8430
-Key: 'aaaa0018' = 8444
-Key: 'aaaa0019' = 8458
-Key: 'aaaa0020' = 8472
-Key: 'aaaa0021' = 8486
-Key: 'aaaa0022' = 8500
-Key: 'aaaa0023' = 8514
-Key: 'aaaa0024' = 8528
-Key: 'aaaa0025' = 8542
-Key: 'aaaa0026' = 8556
-Key: 'aaaa0027' = 8570
-Key: 'aaaa0028' = 8584
-Key: 'aaaa0029' = 8598
-Key: 'aaaa0030' = 8612
-Key: 'aaaa0031' = 8626
-Key: 'aaaa0032' = 8640
-Key: 'aaaa0033' = 8654
-Key: 'aaaa0034' = 8668
-Key: 'aaaa0035' = 8682
-Key: 'aaaa0036' = 8696
-Key: 'aaaa0037' = 8710
-Key: 'aaaa0038' = 8724
-Key: 'aaaa0039' = 8738
-Key: 'aaaa0040' = 8752
-Key: 'aaaa0041' = 8766
-Key: 'aaaa0042' = 8780
-Key: 'aaaa0043' = 8794
-Key: 'aaaa0044' = 8808
-Key: 'aaaa0045' = 8822
-Key: 'aaaa0046' = 8836
-Key: 'aaaa0047' = 8850
-Key: 'aaaa0048' = 8864
-Key: 'aaaa0049' = 8878
-Key: 'aaaa0050' = 8892
-Key: 'aaaa0051' = 8906
-Key: 'aaaa0052' = 8920
-Key: 'aaaa0053' = 8934
-Key: 'aaaa0054' = 8948
-Key: 'aaaa0055' = 8962
-Key: 'aaaa0056' = 8976
-Key: 'aaaa0057' = 8990
-Key: 'aaaa0058' = 9004
-Key: 'aaaa0059' = 9018
-Key: 'aaaa0060' = 9032
-Key: 'aaaa0061' = 9046
-Key: 'aaaa0062' = 9060
-Key: 'aaaa0063' = 9074
-Key: 'aaaa0064' = 9088
-Key: 'aaaa0065' = 9102
-Key: 'aaaa0066' = 9116
-Key: 'aaaa0067' = 9130
-Key: 'aaaa0068' = 9144
-Key: 'aaaa0069' = 9158
-Key: 'aaaa0070' = 9172
-Key: 'aaaa0071' = 9186
-Key: 'aaaa0072' = 9200
-Key: 'aaaa0073' = 9214
-Key: 'aaaa0074' = 9228
-Key: 'aaaa0075' = 9242
-Key: 'aaaa0076' = 9256
-Key: 'aaaa0077' = 9270
-Key: 'aaaa0078' = 9284
-Key: 'aaaa0079' = 9298
-Key: 'aaaa0080' = 9312
-Key: 'aaaa0081' = 9326
-Key: 'aaaa0082' = 9340
-Key: 'aaaa0083' = 9354
-Key: 'aaaa0084' = 9368
-Key: 'aaaa0085' = 9382
-Key: 'aaaa0086' = 9396
-Key: 'aaaa0087' = 9410
-Key: 'aaaa0088' = 9424
-Key: 'aaaa0089' = 9438
-Key: 'aaaa0090' = 9452
-Key: 'aaaa0091' = 9466
-Key: 'aaaa0092' = 9480
-Key: 'aaaa0093' = 9494
-Key: 'aaaa0094' = 9508
-Key: 'aaaa0095' = 9522
-Key: 'aaaa0096' = 9536
-Key: 'aaaa0097' = 9550
-Key: 'aaaa0098' = 9564
-Key: 'aaaa0099' = 9578
-Key: 'key1' = 9592
-Key: 'key2' = 12288
-Key: 'key3' = 13942
-  Number of blocks:          6
+Key: 'aaaa0000' = 2048
+Key: 'aaaa0001' = 2062
+Key: 'aaaa0002' = 2076
+Key: 'aaaa0003' = 2090
+Key: 'aaaa0004' = 2104
+Key: 'aaaa0005' = 2118
+Key: 'aaaa0006' = 2132
+Key: 'aaaa0007' = 2146
+Key: 'aaaa0008' = 2160
+Key: 'aaaa0009' = 2174
+Key: 'aaaa0010' = 2188
+Key: 'aaaa0011' = 2202
+Key: 'aaaa0012' = 2216
+Key: 'aaaa0013' = 2230
+Key: 'aaaa0014' = 2244
+Key: 'aaaa0015' = 2258
+Key: 'aaaa0016' = 2272
+Key: 'aaaa0017' = 2286
+Key: 'aaaa0018' = 2300
+Key: 'aaaa0019' = 2314
+Key: 'aaaa0020' = 2328
+Key: 'aaaa0021' = 2342
+Key: 'aaaa0022' = 2356
+Key: 'aaaa0023' = 2370
+Key: 'aaaa0024' = 2384
+Key: 'aaaa0025' = 2398
+Key: 'aaaa0026' = 2412
+Key: 'aaaa0027' = 2426
+Key: 'aaaa0028' = 2440
+Key: 'aaaa0029' = 2454
+Key: 'aaaa0030' = 2468
+Key: 'aaaa0031' = 2482
+Key: 'aaaa0032' = 2496
+Key: 'aaaa0033' = 2510
+Key: 'aaaa0034' = 2524
+Key: 'aaaa0035' = 2538
+Key: 'aaaa0036' = 2552
+Key: 'aaaa0037' = 2566
+Key: 'aaaa0038' = 2580
+Key: 'aaaa0039' = 2594
+Key: 'aaaa0040' = 2608
+Key: 'aaaa0041' = 2622
+Key: 'aaaa0042' = 2636
+Key: 'aaaa0043' = 2650
+Key: 'aaaa0044' = 2664
+Key: 'aaaa0045' = 2678
+Key: 'aaaa0046' = 2692
+Key: 'aaaa0047' = 2706
+Key: 'aaaa0048' = 2720
+Key: 'aaaa0049' = 2734
+Key: 'aaaa0050' = 2748
+Key: 'aaaa0051' = 2762
+Key: 'aaaa0052' = 2776
+Key: 'aaaa0053' = 2790
+Key: 'aaaa0054' = 2804
+Key: 'aaaa0055' = 2818
+Key: 'aaaa0056' = 2832
+Key: 'aaaa0057' = 2846
+Key: 'aaaa0058' = 2860
+Key: 'aaaa0059' = 2874
+Key: 'aaaa0060' = 2888
+Key: 'aaaa0061' = 2902
+Key: 'aaaa0062' = 2916
+Key: 'aaaa0063' = 2930
+Key: 'aaaa0064' = 2944
+Key: 'aaaa0065' = 2958
+Key: 'aaaa0066' = 2972
+Key: 'aaaa0067' = 2986
+Key: 'aaaa0068' = 3000
+Key: 'aaaa0069' = 3014
+Key: 'aaaa0070' = 3028
+Key: 'aaaa0071' = 8192
+Key: 'aaaa0072' = 8206
+Key: 'aaaa0073' = 8220
+Key: 'aaaa0074' = 8234
+Key: 'aaaa0075' = 8248
+Key: 'aaaa0076' = 8262
+Key: 'aaaa0077' = 8276
+Key: 'aaaa0078' = 8290
+Key: 'aaaa0079' = 8304
+Key: 'aaaa0080' = 8318
+Key: 'aaaa0081' = 8332
+Key: 'aaaa0082' = 8346
+Key: 'aaaa0083' = 8360
+Key: 'aaaa0084' = 8374
+Key: 'aaaa0085' = 8388
+Key: 'aaaa0086' = 8402
+Key: 'aaaa0087' = 8416
+Key: 'aaaa0088' = 8430
+Key: 'aaaa0089' = 8444
+Key: 'aaaa0090' = 8458
+Key: 'aaaa0091' = 8472
+Key: 'aaaa0092' = 8486
+Key: 'aaaa0093' = 8500
+Key: 'aaaa0094' = 8514
+Key: 'aaaa0095' = 8528
+Key: 'aaaa0096' = 8542
+Key: 'aaaa0097' = 8556
+Key: 'aaaa0098' = 8570
+Key: 'aaaa0099' = 8584
+Key: 'key1' = 12288
+Key: 'key2' = 14336
+Key: 'key3' = 16384
+  Number of blocks:         17
   # free blocks:             0
   First free:               -1
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
   Block:         1
   Misc:          0
-  Nxblk:         3
-  Nkeys:         1
+  Nxblk:        16
+  Nkeys:         6
   Nblks:         0
                                Key        Val      Llink      Rlink
-                          aaaa0050       8892          4          5
-Key: 'key1' = 9592
-Key: 'key2' = 12288
-Key: 'key3' = 13942
-  Number of blocks:          6
-  # free blocks:             4
-  First free:                3
+                          aaaa0012       2216          3          4
+                          aaaa0025       2398          4          5
+                          aaaa0038       2580          5          6
+                          aaaa0051       2762          6          7
+                          aaaa0064       2944          7          9
+                          aaaa0077       8276          9         10
+Key: 'key1' = 12288
+Key: 'key2' = 14336
+Key: 'key3' = 16384
+  Number of blocks:         17
+  # free blocks:            15
+  First free:               14
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
   Block:         1
   Misc:          0
   Nxblk:        -1
   Nkeys:         0
   Nblks:         0
                                Key        Val      Llink      Rlink
-  Number of blocks:          6
-  # free blocks:             4
-  First free:                3
+  Number of blocks:         17
+  # free blocks:            15
+  First free:               13
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
   Block:         1
   Misc:          0
   Nxblk:        -1

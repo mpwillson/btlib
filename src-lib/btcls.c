@@ -18,7 +18,7 @@ int btcls(BTA* b)
 {
     int ioerr;
   
-    bterr("",0,0);
+    bterr("",0,NULL);
 
     if ((ioerr=bvalap("BTCLS",b)) != 0) return(ioerr);
 
@@ -34,7 +34,7 @@ int btcls(BTA* b)
     /* close index file and free context memory */
     ioerr = fclose(btact->idxunt);
     if (ioerr != 0) {
-        bterr("BTCLS",QCLSIO,0);
+        bterr("BTCLS",QCLSIO,NULL);
     }
     else {
         btact->idxunt = NULL;
@@ -57,7 +57,7 @@ int btsync()
         for (i=0;i<ZMXBLK;i++) {
             ioerr = bwrblk(((btact->cntrl)+i)->inmem);
             if (ioerr != 0) {
-                bterr("BTSYNC",QWRBLK,ioerr);
+                bterr("BTSYNC",QWRBLK,itostr(((btact->cntrl)+i)->inmem));
                 goto fin;
             }
         } 

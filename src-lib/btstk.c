@@ -24,7 +24,7 @@ int bpull()
     int val;
 
     if (btact->cntxt->stk.stkptr < 0) 
-        bterr("BPULL",QSTKUF,0);
+        bterr("BPULL",QSTKUF,NULL);
     else {
         val = btact->cntxt->stk.stk[btact->cntxt->stk.stkptr];
         btact->cntxt->stk.stkptr--;
@@ -35,7 +35,7 @@ int bpull()
 int bpush(int val)
 {
     if (btact->cntxt->stk.stkptr >= STKMAX) {
-        bterr("BPUSH",QSTKOF,0);
+        bterr("BPUSH",QSTKOF,NULL);
     }
     else {
         btact->cntxt->stk.stkptr++;

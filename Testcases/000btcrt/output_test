@@ -3,6 +3,6 @@
   First free:               -1
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25

@@ -28,7 +28,7 @@ int bcpybk(int tblk,int fblk,int ts,int fs,int n)
     /* get to-block in memory */
     ioerr = brdblk(tblk,&tidx);
     if (tidx < 0) {
-        bterr("BCPYBK",QCPBLK,ioerr);
+        bterr("BCPYBK",QCPBLK,NULL);
         goto fin;
     }
     /* wire it down to ensure that it isn't replaced by from-block */
@@ -38,7 +38,7 @@ int bcpybk(int tblk,int fblk,int ts,int fs,int n)
     /* can un-busy to-block now */
     bsetbs(tblk,0);
     if (fidx < 0) {
-        bterr("BCPYBK",QCPBLK,ioerr); 
+        bterr("BCPYBK",QCPBLK,NULL); 
         goto fin;
     }
     /* copy keys and links */

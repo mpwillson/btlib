@@ -1,48 +1,49 @@
 /*
   binsky:  inserts key into index (duplicates not permitted)
 
-  int binsky(BTA *b, char *key,int val,int *ok)
+  int binsky(BTA *b, char *key,int val)
 
      b      pointer to BT context      
      key    key to insert
      val    value of key 
-     ok     returned TRUE if key inserted
 
    binsky returns non-ZERO if error occurred
 
 
 */
 
-#include "bc.h"
-#include "bt.h"
 #include "btree.h"
 #include "btree_int.h"
-int binsky(BTA *b, char *key,int val,int *ok)
-{
-    int lval,ierr,found;
 
-    bterr("",0,0);
-    if ((ierr=bvalap("BINSKY",b)) != 0) return(ierr);
+int binsky(BTA *b, char *key,int val)
+{
+    int lval,status;
+
+    bterr("",0,NULL);
+    if ((status=bvalap("BINSKY",b)) != 0) return(status);
 
     btact = b;
     if (btact->shared) {
         if (!block()) {
-            bterr("BINSKY",QBUSY,0);
+            bterr("BINSKY",QBUSY,NULL);
             goto fin;
         }
     }
 
-    if (b->cntxt->super.smode != 0) 
+    if (b->cntxt->super.smode != 0) {
         /* read only, can't insert */
-        *ok = FALSE;
+        bterr("BINSKY",QNOWRT,NULL);
+    }
     else {
-        ierr = bfndky(b,key,&lval,&found);
-        if (!found && ierr == 0) {
+        status = bfndky(b,key,&lval);
+        if (status == QNOKEY) {
+            /* QNOKEY is not an error in this context; remove it */
+            bterr("",0,NULL);
             bputky(btact->cntxt->lf.lfblk,key,val,ZNULL,ZNULL);
-            *ok = TRUE;
         }
-        else 
-            *ok = FALSE;
+        else {
+            bterr("BINSKY",QDUP,key);
+        }
     }
 fin:
     if (btact->shared) bulock();

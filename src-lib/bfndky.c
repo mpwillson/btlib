@@ -1,12 +1,11 @@
 /*
     bfndky: finds key in index
 
-    int bfndky(BTA *b,char *key,int *val,int *found)
+    int bfndky(BTA *b,char *key,int *val)
 
         b      index file context pointer
         key    key to search for
         val    returned with key value, if key found
-        found  returned TRUE if exact match
      
     index is left positioned at next key (for use by bnxtky)
      
@@ -21,20 +20,20 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int bfndky(BTA *b,char *key,int *val,int *found)
+int bfndky(BTA *b,char *key,int *val)
 {
-    int cblk,index,link1,link2,result,newblk,nokeys;
+    int cblk, index, link1, link2, result, newblk, nokeys, status;
     char lkey[ZKYLEN];
     
-    bterr("",0,0);
-    *found = FALSE;
+    bterr("",0,NULL);
+    status = QNOKEY;
     if ((result=bvalap("BFNDKY",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BFNDKY",QBUSY,0);
+            bterr("BFNDKY",QBUSY,NULL);
             goto fin;
         }
     }
@@ -60,7 +59,7 @@ int bfndky(BTA *b,char *key,int *val,int *found)
             /* split if block full and updating permitted */
             bsptbk(cblk,&newblk);
             if (newblk < 0) {
-                bterr("BFNDKY",QSPLIT,0);
+                bterr("BFNDKY",QSPLIT,NULL);
                 break;
             }
             /* if split occured, then must re-examine parent */
@@ -91,7 +90,7 @@ int bfndky(BTA *b,char *key,int *val,int *found)
                 continue;
             }
             else {
-                *found = TRUE;
+                status = 0;
                 btact->cntxt->lf.lfexct = TRUE;
                 break;
             }
@@ -99,5 +98,7 @@ int bfndky(BTA *b,char *key,int *val,int *found)
     }  
 fin:
     if (btact->shared) bulock();
+    /* non-zero status indicates no such key found */
+    if (status) bterr("BFNDKY",QNOKEY,NULL);
     return(btgerr());
 }

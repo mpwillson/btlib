@@ -69,32 +69,29 @@
  *      char *key   pointer to key string
  *      char *data  pointer to data
  *      int dsize   size of data record (in bytes)
- *      int *ok     return status of btins
- *                  (TRUE - btins ok, FALSE - btins failed)
  *
  * btins returns 0 if no errors encountered, error code otherwise.
- * Note that an btins can fail without an error (e.g. duplicate key)
  *------------------------------------------------------------------------
  */
 
-int btins(BTA *b,char *key, char *data, int dsize,int *ok)
+int btins(BTA *b,char *key, char *data, int dsize)
 {
-    int ierr, result;
+    int status;
     unsigned draddr = 0;
 
-    bterr("",0,0);
-    if ((result=bvalap("BTINS",b)) != 0) return(result);
+    bterr("",0,NULL);
+    if ((status=bvalap("BTINS",b)) != 0) return(status);
 
     btact = b;  /* set context pointer */
     
     if (!dataok(btact)) {
-        bterr("BTINS",QDAERR,0);
+        bterr("BTINS",QDAERR,NULL);
         goto fin;
     }
         
     if (btact->shared) {
         if (!block()) {
-            bterr("BTINS",QBUSY,0);
+            bterr("BTINS",QBUSY,NULL);
             goto fin;
         }
     }
@@ -106,15 +103,15 @@ int btins(BTA *b,char *key, char *data, int dsize,int *ok)
         fprintf(stderr,"draddr = %x\n",draddr);
 #endif
         if (draddr != ZNULL) {
-            ierr = binsky(btact,key,draddr,ok);
-            if (ierr != 0 || !*ok){
+            status = binsky(btact,key,draddr);
+            if (status != 0){
                 /* can't insert new key, therefore must delete data */
-                ierr = bdeldt(draddr);
+                status = bdeldt(draddr);
             }
         }
     }
     else {
-        bterr("BTINS",QEMPTY,0);
+        bterr("BTINS",QEMPTY,NULL);
     }
     
 fin:
@@ -130,41 +127,38 @@ fin:
  *      char *key   pointer to key string
  *      char *data  pointer to data
  *      int dsize   size of data record (in bytes)
- *      int *ok     return status of update
- *                  (TRUE - update ok, FALSE - update failed)
  *
  * btupd returns 0 if no errors encountered, error code otherwise.
- * Note that an btupd can fail without an error (e.g. non-existent key)
  *------------------------------------------------------------------------
  */
 
-int btupd(BTA *b,char *key, char *data, int dsize,int *ok)
+int btupd(BTA *b,char *key, char *data, int dsize)
 {
-    int ierr, draddr, result;
+    int status, draddr, result;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (!dataok(btact)) {
-        bterr("BTUPD",QDAERR,0);
+        bterr("BTUPD",QDAERR,NULL);
         goto fin;
     }
     
     if (btact->shared) {
         if (!block()) {
-            bterr("BTUPD",QBUSY,0);
+            bterr("BTUPD",QBUSY,NULL);
             goto fin;
         }
     }
 
     /* find key in btree */
-    ierr = bfndky(btact,key,&draddr,ok);
-    if (ierr != 0 || !*ok) goto fin;
+    status = bfndky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     /* update data in btree */
-    ierr = bupddt(draddr,data,dsize);
+    status = bupddt(draddr,data,dsize);
 
 fin:
     if (btact->shared) bulock();
@@ -181,38 +175,35 @@ fin:
  *      int dsize   size of data record expected (in bytes)
  *      int *size   size of data record actually return (in bytes)
  *                  No more than dsize bytes will be returned.
- *      int *ok     return status of btsel
- *                  (TRUE - btsel ok, FALSE - btsel failed)
  *
  * btsel returns 0 if no errors encountered, error code otherwise.
- * Note that an btsel can fail without an error (e.g. non-existent key)
  *------------------------------------------------------------------------
  */
 
-int btsel(BTA *b,char *key, char *data, int dsize,int *rsize,int *ok)
+int btsel(BTA *b,char *key, char *data, int dsize,int *rsize)
 {
-    int ierr, draddr, result;
+    int status, draddr, result;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((result=bvalap("BTSEL",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (!dataok(btact)) {
-        bterr("BTSEL",QDAERR,0);
+        bterr("BTSEL",QDAERR,NULL);
         goto fin;
     }
     
     if (btact->shared) {
         if (!block()) {
-            bterr("BTSEL",QBUSY,0);
+            bterr("BTSEL",QBUSY,NULL);
             goto fin;
         }
     }
 
     /* find key in btree */
-    ierr = bfndky(btact,key,&draddr,ok);
-    if (ierr != 0 || !*ok) goto fin;
+    status = bfndky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     /* TBD check for valid data pointer */
 
@@ -230,43 +221,40 @@ fin:
  *
  *      BTA *b      btree context handle
  *      char *key   pointer to key string
- *      int *ok     return status of delete
- *                  (TRUE - delete ok, FALSE - delete failed)
  *
  * btdel returns 0 if no errors encountered, error code otherwise.
- * Note that a delete can fail without an error (e.g. non-existent key)
- *------------------------------------------------------------------------
+  *------------------------------------------------------------------------
  */
 
-int btdel(BTA *b,char *key,int *ok)
+int btdel(BTA *b,char *key)
 {
-    int ierr, draddr, result;
+    int status, draddr, result;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((result=bvalap("BTDEL",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (!dataok(btact)) {
-        bterr("BTDEL",QDAERR,0);
+        bterr("BTDEL",QDAERR,NULL);
         goto fin;
     }
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BTDEL",QBUSY,0);
+            bterr("BTDEL",QBUSY,NULL);
             goto fin;
         }
     }
 
     /* find key in btree */
-    ierr = bfndky(btact,key,&draddr,ok);
-    if (ierr != 0 || !*ok) goto fin;
+    status = bfndky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     /* delete data record first */
-    ierr = bdeldt(draddr);
-    if (ierr == 0) {
-        ierr = bdelky(btact,key,ok);
+    status = bdeldt(draddr);
+    if (status == 0) {
+        status = bdelky(btact,key);
     }
 
 fin:
@@ -280,30 +268,30 @@ fin:
  *------------------------------------------------------------------------
  */
 
-int btseln(BTA *b,char *key, char *data, int dsize,int *rsize,int *ok)
+int btseln(BTA *b,char *key, char *data, int dsize,int *rsize)
 {
-    int ierr, draddr, result;
+    int status, draddr, result;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((result=bvalap("BTSELN",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (!dataok(btact)) {
-        bterr("BTSELN",QDAERR,0);
+        bterr("BTSELN",QDAERR,NULL);
         goto fin;
     }
 
     if (b->shared) {
         if (!block()) {
-            bterr("SELNEXT",QBUSY,0);
+            bterr("BTSELN",QBUSY,NULL);
             goto fin;
         }
     }
 
     /* return next key in btree */
-    ierr = bnxtky(btact,key,&draddr,ok);
-    if (ierr != 0 || !*ok) goto fin;
+    status = bnxtky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     /* TBD check for valid data pointer */
 
@@ -323,29 +311,29 @@ fin:
  *------------------------------------------------------------------------
  */
 
-int btrecs(BTA *b, char *key, int *rsize, int *ok)
+int btrecs(BTA *b, char *key, int *rsize)
 {
-    int ierr, draddr, result;
+    int status, draddr, result;
 
-    bterr("",0,0);
+    bterr("",0,NULL);
     if ((result=bvalap("BTRECS",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
     if (!dataok(btact)) {
-        bterr("BTRECS",QDAERR,0);
+        bterr("BTRECS",QDAERR,NULL);
         goto fin;
     }
     
     if (btact->shared) {
         if (!block()) {
-            bterr("BTRECS",QBUSY,0);
+            bterr("BTRECS",QBUSY,NULL);
             goto fin;
         }
     }
  
-    ierr = bfndky(btact,key,&draddr,ok);
-    if (ierr !=0 || !*ok) goto fin;
+    status = bfndky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     *rsize = brecsz(draddr);
 
@@ -374,7 +362,7 @@ int btrecs(BTA *b, char *key, int *rsize, int *ok)
 
 int bseldt(int draddr, char *data, int dsize) 
 {
-    int dblk, ierr, idx,
+    int dblk, status, idx,
         segsz = 0, cpsz = -1;
     int offset = 0;
     int totsz = 0;
@@ -387,12 +375,12 @@ int bseldt(int draddr, char *data, int dsize)
         cnvdraddr(draddr,&dblk,&offset);
 
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
-            bterr("BSELDT",QNOTDA,0);
+            bterr("BSELDT",QNOTDA,NULL);
             totsz = -1;
             goto fin;
         }
 
-        ierr = brdblk(dblk,&idx);
+        status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 #if DEBUG > 0
         fprintf(stderr,"BSELDT: Using draddr x%x (%d,%d), found %x\n",
@@ -420,7 +408,7 @@ fin:
 
 int bdeldt(unsigned draddr)
 {
-    int dblk, ierr;
+    int dblk, status;
     int size, offset;
 
     while (draddr != 0) {
@@ -428,15 +416,15 @@ int bdeldt(unsigned draddr)
         cnvdraddr(draddr,&dblk,&offset);
     
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
-            bterr("BDELDT",QNOTDA,0);
+            bterr("BDELDT",QNOTDA,NULL);
             return(QNOTDA);
         }
         getseginfo(draddr,&size,&draddr);
     
-        ierr = deldat(dblk,offset);
+        status = deldat(dblk,offset);
     }
     
-    return(ierr);
+    return(status);
 }
 
 /*------------------------------------------------------------------------
@@ -451,7 +439,7 @@ int bdeldt(unsigned draddr)
 
 int bupddt(unsigned draddr, char *data, int dsize) 
 {
-    int dblk, ierr, idx, segsz, cpsz = ZNULL;
+    int dblk, status, idx, segsz, cpsz = ZNULL;
     int offset;
     int freesz;
     int remsz = dsize;
@@ -465,12 +453,12 @@ int bupddt(unsigned draddr, char *data, int dsize)
         fprintf(stderr,"Update processing blk: %d, offset: %d\n",dblk,offset);
 #endif      
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
-            bterr("BUPDDT",QNOTDA,0);
+            bterr("BUPDDT",QNOTDA,NULL);
             goto fin;
         }
         getseginfo(draddr,&segsz,&draddr);
 
-        ierr = brdblk(dblk,&idx);
+        status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 
         cpsz = ((segsz>remsz)?remsz:segsz);
@@ -502,7 +490,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
          */
         draddr = binsdt(data,remsz);
         /* insert returned data address into original last segment */
-        ierr = brdblk(dblk,&idx);
+        status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
         wrint(draddr,d->data+offset+2);
         ((btact->cntrl)+idx)->writes++;
@@ -541,7 +529,7 @@ int binsdt(char *data, int dsize)
     }
 
     if (dblk == ZNULL) {
-        bterr("BINSDT",QNOBLK,0);
+        bterr("BINSDT",QNOBLK,NULL);
         goto fin;
     }
 
@@ -559,7 +547,7 @@ int binsdt(char *data, int dsize)
             /* space below min seg size; need new block */
             nblk = mkdblk();
             if (nblk == ZNULL) {
-                bterr("BINSDT",QNOBLK,0);
+                bterr("BINSDT",QNOBLK,NULL);
                 goto fin;
             }
             /* maintain double-linked list of data blocks to allow
@@ -593,13 +581,14 @@ int binsdt(char *data, int dsize)
 
 int deldat(int blk,int offset) 
 {
-    int ierr, freesz, size, idx;
+    int status, freesz, size, idx;
     int pblk, nblk;
+    
     DATBLK *d;
 
-    ierr = brdblk(blk,&idx);
-    if (ierr != 0) {
-        return(ierr);
+    status = brdblk(blk,&idx);
+    if (status != 0) {
+        return(status);
     }
     freesz = bgtinf(blk,ZMISC);
     d = (DATBLK *) (btact->memrec)+idx;
@@ -626,8 +615,9 @@ int deldat(int blk,int offset)
         }
     }
     else if (freesz < 0 || freesz > ZBLKSZ-(ZINFSZ*ZBPW)) {
-        /* shouldn't have a negative count or greater than max free space*/
-        bterr("BDELDT",QNEGSZ,freesz);
+        /* shouldn't have a negative count or greater than max free
+         * space*/
+        bterr("BDELDT",QNEGSZ,itostr(freesz));
     }
     else {
         bstinf(blk,ZMISC,freesz);
@@ -637,11 +627,11 @@ int deldat(int blk,int offset)
 
 int insdat(int blk,char *data, int dsize, unsigned prevseg)
 {
-    int offset, ierr, idx, freesz;
+    int offset, status, idx, freesz;
     DATBLK *d;
 
     offset = bgtinf(blk,ZNKEYS);
-    ierr = brdblk(blk,&idx);
+    status = brdblk(blk,&idx);
     d = (DATBLK *) (btact->memrec)+idx;
     wrsz(dsize,d->data+offset);
     wrint(prevseg,d->data+offset+2);
@@ -675,7 +665,7 @@ int brecsz(unsigned draddr)
 #endif
         /* ensure we are pointing at a data block */
         if (bgtinf(blk,ZBTYPE) != ZDATA) {
-            bterr("BRECSZ",QNOTDA,0);
+            bterr("BRECSZ",QNOTDA,NULL);
             return(0);
         }
         getseginfo(draddr,&segsz,&newdraddr);
@@ -686,7 +676,7 @@ int brecsz(unsigned draddr)
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
                segment */
-            bterr("BRECSZ",QDLOOP,0);
+            bterr("BRECSZ",QDLOOP,NULL);
             return(0);
         }
         draddr = newdraddr;
@@ -800,14 +790,14 @@ unsigned mkdraddr(int dblk, int offset)
 int getseginfo(unsigned draddr, int *size, unsigned *nextseg) 
 {
     int blk, offset;
-    int ierr,  idx;
+    int status,  idx;
     DATBLK *d;
 
     cnvdraddr(draddr,&blk,&offset);
     
-    ierr = brdblk(blk,&idx);
-    if (ierr != 0) {
-        return(ierr);
+    status = brdblk(blk,&idx);
+    if (status != 0) {
+        return(status);
     }
 
     d = (DATBLK *) (btact->memrec)+idx;

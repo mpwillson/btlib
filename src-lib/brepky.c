@@ -23,12 +23,14 @@ int brepky(int blk,int loc,char *key,int val,int link1,int link2)
 {
     int idx,ioerr;
 
-    if (loc >= ZMXKEY)
-        bterr("BREPKY",QLOCTB,loc);
+    if (loc >= ZMXKEY || loc < 0) {
+        bterr("BREPKY",QLOCTB,itostr(loc));
+    }
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0)
-            bterr("BREPKY",QRDBLK,ioerr);
+        if (idx < 0) {
+            bterr("BREPKY",QRDBLK,itostr(blk));
+        }
         else {
             strcpy(((btact->memrec)+idx)->keyblk[loc],key);
             ((btact->memrec)+idx)->valblk[loc] = val;

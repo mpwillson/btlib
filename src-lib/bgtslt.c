@@ -30,12 +30,12 @@ int bgtslt()
         idx = bqhead();
     }
     if (idx < 0)
-        bterr("BGTSLT",QNOMEM,0);
+        bterr("BGTSLT",QNOMEM,NULL);
     else {
         /* flush block to disk if slot not empty */
         if (((btact->cntrl)+idx)->inmem >= 0)
             if (bwrblk(((btact->cntrl)+idx)->inmem) != 0)
-                bterr("BGTSLT",QWRBLK,0);
+                bterr("BGTSLT",QWRBLK,NULL);
     }
 #if DEBUG >= 2
     printf("bgtslt: found idx of %d\n",idx);

@@ -23,16 +23,16 @@
 BTA *btcrt(char *fid, int nkeys,int shared)
 {
     int idx,ioerr,nblks,i;
-
-    bterr("",0,0);
+    
+    bterr("",0,NULL);
 
     btact = bnewap(fid);
     if (btact == NULL) {
-        bterr("BTCRT",QNOACT,0);
+        bterr("BTCRT",QNOACT,NULL);
         goto fin;
     }
     if ((btact->idxunt = fopen(fid,"w+b")) == NULL) {
-        bterr("BTCRT",QCRTIO,0);
+        bterr("BTCRT",QCRTIO,NULL);
         goto fin;
     }
     btact->shared = shared;
@@ -46,7 +46,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
 
     /* unconditional lock newly created file */
     if (!block()) {
-        bterr("BTCRT",QBUSY,0);
+        bterr("BTCRT",QBUSY,NULL);
         return(NULL);
     }
 
@@ -72,7 +72,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     /* write it out */
     ioerr = bwrblk(ZSUPER);
     if (ioerr != 0) {
-        bterr("BTCRT",QWRSUP,ioerr);
+        bterr("BTCRT",QWRSUP,itostr(ZSUPER));
         goto fin;
     }
 
@@ -84,12 +84,12 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     bsetbk(1,ZROOT,0,ZNULL,0,0);
     ioerr = bwrblk(1);
     if (ioerr != 0) {
-        bterr("BTCRT",QWRBLK,ioerr);
+        bterr("BTCRT",QWRBLK,itostr(1));
         goto fin;
     }
     ioerr = brdblk(1,&idx);
     if (ioerr != 0) {
-        bterr("BTCRT",QRDBLK,ioerr);
+        bterr("BTCRT",QRDBLK,itostr(1));
         goto fin;
     }
     bsetbs(1,1);

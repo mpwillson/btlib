@@ -1,10 +1,9 @@
 /*      bdelky:  deletes key in index
 
-        int bdelky(BTA *b,char *key,int *ok)
+        int bdelky(BTA *b,char *key)
 
              b       index context pointer
              key     name of key to delete 
-             ok      returned TRUE if deletion occurred 
 */
 
 #include "bc.h"
@@ -12,29 +11,29 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int bdelky(BTA *b,char *key,int *ok)
+int bdelky(BTA *b,char *key)
 {
 
-    int val,ierr;
+    int val,status;
 
-    bterr("",0,0);
-    if ((ierr=bvalap("BDELKY",b)) != 0) return(ierr);
+    bterr("",0,NULL);
+    if ((status=bvalap("BDELKY",b)) != 0) return(status);
     btact = b;
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BDELKY",QBUSY,0);
+            bterr("BDELKY",QBUSY,NULL);
             goto fin;
         }
     }
 
     if (b->cntxt->super.smode != 0) {
-        *ok = FALSE;
+        bterr("BDELKY",QNOWRT,NULL);
     }
     else {
-        ierr = bfndky(b,key,&val,ok);
-        if (*ok && (ierr == 0)) {
-            bdelk1(key,ok);
+        status = bfndky(b,key,&val);
+        if (status == 0) {
+            status = bdelk1(key);
         }
     }
 fin:

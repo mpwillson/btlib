@@ -1,10 +1,12 @@
 /*
   bdelk1:  deletes key in index (does the real work)
 
-  void bdelk1(char *key,int *ok)
+  int bdelk1(char *key)
 
         key    name of key to delete
-        ok     returned TRUE if deletion occurred 
+
+   bdelky returns 0 on succesful deletion, error-code otherwise
+   
 */
 
 #include <stdio.h>
@@ -14,21 +16,20 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bdelk1(char *key,int *ok)
+int bdelk1(char *key)
 {
     int cblk,link1,link2,llink,rlink,val,result,blk,pos,type;
     char tkey[ZKYLEN];
 
-    *ok = FALSE;
     if (!btact->cntxt->lf.lfexct) {
-        bterr("BDELK1",QDELEX,0);
+        bterr("BDELK1",QDELEX,NULL);
         goto fin;
     }
     pos = btact->cntxt->lf.lfpos;
     blk = btact->cntxt->lf.lfblk;
     bsrhbk(blk,tkey,&pos,&val,&llink,&rlink,&result);
     if (result != 0 || strcmp(tkey,key) != 0) {
-        bterr("BDELK1",QDELER,0);
+        bterr("BDELK1",QDELER,NULL);
         goto fin;
     }
     if (llink != ZNULL) {
@@ -42,14 +43,13 @@ void bdelk1(char *key,int *ok)
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&(btact->cntxt->lf.lfpos),
                &val,&link1,&link2,&result);
         if (result != 0) {
-            bterr("BDELK1",QDELRP,0);
+            bterr("BDELK1",QDELRP,NULL);
             goto fin;
         }
         brepky(blk,pos,tkey,val,llink,rlink);
         llink = ZNULL;
     }
     bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
-    *ok = TRUE;
 
     type = bgtinf(btact->cntxt->lf.lfblk,ZBTYPE);
     if (type == ZROOT) goto fin;
@@ -66,5 +66,5 @@ void bdelk1(char *key,int *ok)
         bdemte(&cblk);
     }
 fin:
-    return;
+    return (btgerr());
 }

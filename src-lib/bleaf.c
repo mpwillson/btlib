@@ -17,8 +17,9 @@ int bleaf(int dir)
     int idx,ioerr;
 
     ioerr = brdblk(btact->cntxt->lf.lfblk,&idx);
-    if (idx < 0)
-        bterr("BLEAF",QRDBLK,ioerr);
+    if (idx < 0) {
+        bterr("BLEAF",QRDBLK,itostr(btact->cntxt->lf.lfblk));
+    }
     else {
         if (bgtinf(btact->cntxt->lf.lfblk,ZNKEYS) == 0) return 0;
         while (((btact->memrec)+idx)->lnkblk[btact->cntxt->lf.lfpos] != ZNULL) {
@@ -28,7 +29,7 @@ int bleaf(int dir)
                 ((btact->memrec)+idx)->lnkblk[btact->cntxt->lf.lfpos];
             ioerr = brdblk(btact->cntxt->lf.lfblk,&idx);
             if (idx < 0) {
-                bterr("BLEAF",QRDBLK,ioerr);
+                bterr("BLEAF",QRDBLK,itostr(btact->cntxt->lf.lfblk));
                 break;
             }
             if (dir == 0) 
@@ -37,7 +38,6 @@ int bleaf(int dir)
             else {
                 /* proceed to rightmost leaf */
                  btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
-                 /*lfpos++; */
             }
         }
     }

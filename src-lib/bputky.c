@@ -22,21 +22,22 @@ int bputky(int blk,char *key,int val,int link1,int link2)
 {
     int i,idx,ioerr;
     char lkey[ZKYLEN];
-
+    
 #if DEBUG >= 1
     fprintf(stderr,
             "bputky: blk = %d, key = %s, val = %d, link1 = %d, link2 = %d\n",
             blk,key,val,link1,link2);
 #endif
     ioerr = brdblk(blk,&idx);
-    if (idx < 0)
-        bterr("BPUTKY",QRDBLK,ioerr);
+    if (idx < 0) {
+        bterr("BPUTKY",QRDBLK,itostr(blk));
+    }
     else {
         /* get local copy of key, truncated if necessary */
         strncpy(lkey,key,ZKYLEN);
         lkey[ZKYLEN-1] = '\0';
         if (((btact->memrec)+idx)->infblk[ZNKEYS] == ZMXKEY) {
-            bterr("BPUTKY",QBLKFL,blk);
+            bterr("BPUTKY",QBLKFL,itostr(blk));
             goto fin;
         }
         if (((btact->memrec)+idx)->infblk[ZNKEYS] == 0) {

@@ -8,7 +8,7 @@
 extern void bclrlf(void);
 extern void bclrst(void);
 extern int bcpybk(int,int,int,int,int);
-extern void bterr(char *,int,int);
+extern void bterr(char *,int,char*);
 extern int btgerr(void);
 extern int bgtinf(int,int);
 extern int bgtfre(void);
@@ -34,7 +34,7 @@ extern int bwrblk(int);
 
 extern void balblk(void);
 extern void balbk1(int,int,int,char *,int);
-extern void bdelk1(char *,int *);
+extern int bdelk1(char *);
 extern void bdemte(int *);
 extern void bjnblk(int *);
 extern void bjoin(int,int,char *,int);
@@ -75,3 +75,4 @@ extern int dataok(BTA*);
 
 extern void setaddrsize(int);
 
+extern char* itostr(int);

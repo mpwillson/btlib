@@ -27,7 +27,7 @@ void bjnblk(int *cblk)
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
                &llink,&rlink,&result);
         if (result != 0) {
-            bterr("BJNBLK",QJNSE,0);
+            bterr("BJNBLK",QJNSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(rlink,ZNKEYS);
@@ -42,7 +42,7 @@ void bjnblk(int *cblk)
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
                &llink,&rlink,&result);
         if (result != 0) {
-            bterr("BJNBLK",QJNSE,0);
+            bterr("BJNBLK",QJNSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(llink,ZNKEYS);

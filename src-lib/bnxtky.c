@@ -5,7 +5,6 @@
     b       index file context pointer
     key     returned with next key
     val     returned with value of key
-    found   returned FALSE if no more keys
 
   bnxtky returns non-ZERO if an error occurred
 
@@ -19,31 +18,31 @@
 #include "btree_int.h"
 #include "btree.h"
 
-int bnxtky(BTA* b,char *key,int *val,int *found)
+int bnxtky(BTA* b,char *key,int *val)
 {
-    int idx,nkeys,ierr;
+    int idx,nkeys,status;
+    int found;
 
-    *found = FALSE;
-    bterr("",0,0);
-    if ((ierr=bvalap("BNXTKY",b)) != 0) return(ierr);
+    found = FALSE;
+    bterr("",0,NULL);
+    if ((status=bvalap("BNXTKY",b)) != 0) return(status);
 
     btact = b;          /* set global context pointer */
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BNXTKY",QBUSY,0);
+            bterr("BNXTKY",QBUSY,NULL);
             goto fin;
         }
         /* position to last found key via bfndky, since context could
          * have been invalidated by other updates */
-        bfndky(b,btact->cntxt->lf.lfkey,val,found);
-        *found = FALSE;
+        status = bfndky(b,btact->cntxt->lf.lfkey,val);
     }
 
-    while (btact->cntxt->lf.lfblk >= 0 && !(*found)) {
-        ierr = brdblk(btact->cntxt->lf.lfblk,&idx);
+    while (btact->cntxt->lf.lfblk >= 0 && !found) {
+        status = brdblk(btact->cntxt->lf.lfblk,&idx);
         if (idx < 0) {
-            bterr("BNXTKY",QRDBLK,ierr);
+            bterr("BNXTKY",QRDBLK,itostr(btact->cntxt->lf.lfblk));
             break;
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
@@ -68,7 +67,7 @@ int bnxtky(BTA* b,char *key,int *val,int *found)
         }
         /* return key at this position */
         if (btact->cntxt->lf.lfpos < nkeys) {
-            *found = TRUE;
+            found = TRUE;
             strcpy(key,((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos]);
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
@@ -77,6 +76,10 @@ int bnxtky(BTA* b,char *key,int *val,int *found)
         }
         /* if rlink to process, walk to leftmost leaf of this branch */
         bleaf(0);
+    }
+    if (btact->cntxt->lf.lfblk < 0) {
+        /* end of index reached */
+        bterr("BNXTKY",QNOKEY,NULL);
     }
 fin:
     if (btact->shared) bulock();

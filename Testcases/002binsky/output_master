@@ -1,15 +1,15 @@
-  Number of blocks:         17
+  Number of blocks:         60
   # free blocks:             0
   First free:               -1
   Current root blk:          1
   Current root nm:  $$default
-  Block overhead:            8
-  Block size:             4096
-  Keys per block:          101
- No. of blocks:            16
- Max. poss. keys:        1616
+  Block overhead:            0
+  Block size:             1024
+  Keys per block:           25
+ No. of blocks:            59
+ Max. poss. keys:        1475
  Actual keys:            1000
- Occupancy (%):         61.88
+ Occupancy (%):         67.80
 Key 'AYI}000000' exists
 Key 'rtJ^000001' exists
 Key 'OJWh000002' exists

@@ -39,7 +39,7 @@ void bdemte(int *cblk)
             bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
                    &link1,&link2,&result);
             if (result != 0) {
-                bterr("BDEMTE",QDEMSE,0);
+                bterr("BDEMTE",QDEMSE,NULL);
                 goto fin;
             }
 #if DEBUG >= 1
@@ -59,7 +59,7 @@ void bdemte(int *cblk)
             if (nkeys == ZMXKEY) {
                 bsptbk(jblk,&newblk);
                 if (newblk == ZNULL) {
-                    bterr("BDEMTE",QDEMSP,0);
+                    bterr("BDEMTE",QDEMSP,NULL);
                     goto fin;
                 }
                 if (rblke) {

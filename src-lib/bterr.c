@@ -22,6 +22,7 @@
 
 static int qerror;
 static int qcode;
+static char qarg[72];
 static int syserror;
 
 static char qname[72];
@@ -36,15 +37,15 @@ char *msgblk[] = {
     " I/O error reading super root",
     " I/O error writing super root",
     " I/O error opening index file",
-    " I/O error reading block",
+    " I/O error reading block %s",
     " An index file is already open",
     " Can't split full block",
-    " Bad info block index used",
+    " Bad info block index used: %s",
     " Unable to acquire a free memory block",
     " Stack underflow",
     " Stack overflow",
     " Can't insert key at block",
-    " Replace location out of range",
+    " Replace location out of range: %s",
     " Split: search for middle key failed",
     " Requested write block not in memory",
     " Balance: search for key failed",
@@ -65,7 +66,7 @@ char *msgblk[] = {
     " File is busy",
     " Function prohibited in shared access mode",
     " No block available for data storage",
-    " Data block usage gone negative",
+    " Data block usage gone bad: %s",
     " Corrupt data segment header encountered",
     " Unable to open index file",
     " Circular data segment pointer encountered",
@@ -73,6 +74,9 @@ char *msgblk[] = {
     " LRU queue corrupt - index not in list",
     " Data record action not permitted for current root",
     " Data record must not be of zero length",
+    " Key \"%s\" already exists in index",
+    " Key \"%s\" does not exist in index",
+    " Write access to index prohibited",
     " No message exists for this error code"
 };
 
@@ -95,7 +99,7 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
         }
     }
     else {
-        sprintf(msg,"%s",msgblk[qerror]);
+        sprintf(msg,msgblk[qerror],qarg);
     }
     
     return;
@@ -103,23 +107,23 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 /*
   bterr: save error and io codes and return
 
-  void bterr(char *name,int ierr,int code)
+  void bterr(char *name,int ierr,char* arg)
 
     name   name of function which detected the error
     ierr   error code
-    code   relevant additional code (usually i/o error)
+    arg    argument to use with error message
 
-  To reset saved error codes, use a call of the form bterr("",0,0);
+  To reset saved error codes, use a call of the form bterr("",0,NULL);
 */
 
-void bterr(char *name,int ierr,int code)
+void bterr(char *name,int ierr,char* arg)
 {
 
     if (qerror == 0 || strlen(name) == 0) {
         syserror = FALSE;
         strcpy(qname,name);
         qerror = ierr;
-        qcode = code;
+        if (arg != NULL) strcpy(qarg,arg);
         if (errno != 0 && qcode == 0) {
             syserror = TRUE;
             qcode = errno; /* set to system errorcode */
