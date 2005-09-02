@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.9 2004/09/26 13:07:39 mark Exp $
+ * $Id: bc.h,v 1.10 2004/10/05 17:47:56 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -200,8 +200,8 @@
 #define QF2BIG  52
 
 /*
-    To find out how stdin is hooked (file, pipe or terminal)
-    we need to examine the FILE struct.
+    To determine a file descriptor for locking, we need to examine the
+    FILE struct.
     
     FILE structs vary between systems.  Cygwin and FreeBSD define file
     number as _file.  This is the default and may well cause compile
