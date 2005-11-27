@@ -55,10 +55,10 @@ include 	${DEP}
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
 bt:	${SRC_MAIN}/bt.c ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} ${LIB_FILE} -o $@ $^
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
-	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
+	${CC} ${CFLAGS} -o $@ $^
 
 clean:
 	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe .dep

@@ -1,12 +1,12 @@
 /*
- * $Id: btopn.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: btopn.c,v 1.7 2004/10/02 16:10:09 mark Exp $
  *
  * btopn: opens existing B tree index
  *
  * Parameters:
  *   fid     name of file to open
  *   mode    if ZERO, index file can be updated
- *   shared  set TRUE is index file is to be shared
+ *   shared  set TRUE if index file is to be shared
  *
  * Returns zero if no errors, error code otherwise
  *

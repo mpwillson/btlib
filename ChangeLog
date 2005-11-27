@@ -1,3 +1,8 @@
+2005-10-30  Mark Willson  <mark@gold>
+
+	* bclrlf.c: Initialise lfblk
+	* bnxtky.c: Handle calls if bfndky has not been called before
+
 2004-09-25  Mark Willson  <mark@gold>
 
 	* Detect and fail gracefully when the index file reaches maximum
