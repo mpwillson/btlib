@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.10 2004/10/05 17:47:56 mark Exp $
+ * $Id: bc.h,v 1.11 2005/09/02 16:45:56 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -189,7 +189,7 @@
 #define QLRUER  43
 #define QDAERR  44
 
-#define QEMPTY  45
+#define QDNEG   45
 #define QDUP    46
 #define QNOKEY  47
 #define QNOWRT  48

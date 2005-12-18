@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.10 2004/10/03 19:38:48 mark Exp $
+ * $Id: btdata.c,v 1.11 2004/10/05 17:48:23 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -123,8 +123,8 @@ int btins(BTA *b,char *key, char *data, int dsize)
         }
     }
 
-    /* insert data in btree if record has data */
-    if (dsize > 0) {
+    /* insert data in btree if record has zero or more bytes*/
+    if (dsize >= 0) {
         draddr = binsdt(data,dsize);
 #if DEBUG > 0
         fprintf(stderr,"draddr = %x\n",draddr);
@@ -138,7 +138,7 @@ int btins(BTA *b,char *key, char *data, int dsize)
         }
     }
     else {
-        bterr("BTINS",QEMPTY,NULL);
+        bterr("BTINS",QDNEG,NULL);
     }
     
 fin:
@@ -166,9 +166,9 @@ int btupd(BTA *b,char *key, char *data, int dsize)
     bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
 
-    if (dsize <= 0) {
-        bterr("BTUPD",QEMPTY,NULL);
-        return QEMPTY;
+    if (dsize < 0) {
+        bterr("BTUPD",QDNEG,NULL);
+        return QDNEG;
     }
 
     btact = b;      /* set context pointer */
@@ -575,14 +575,14 @@ int binsdt(char *data, int dsize)
     }
 
     /* process the data record */
-    while (remsize > 0) {
+    while (remsize >= 0) {
         /* free size is space left from first free byte onwards */
         freesz = (ZBLKSZ-(ZINFSZ*ZBPW))-bgtinf(dblk,ZNKEYS);
         if (freesz >= remsize+ZDOVRH) {
             /* segment fits in active block */
             segptr -= remsize;
             offset = insdat(dblk,segptr,remsize,segaddr);
-            remsize = 0;
+            remsize = -1;
         }
         else if (freesz < (ZDOVRH+ZDSGMN)) {
             /* space below min seg size; need new block */
@@ -712,7 +712,7 @@ int brecsz(unsigned draddr)
         getseginfo(draddr,&segsz,&newdraddr);
         
 #if DEBUG > 0       
-        fprintf(stderr,"\tSeg size: %d, next seg: %0x\n",segsz,draddr);
+        fprintf(stderr,"\tSeg size: %d, next seg: %0x\n",segsz,newdraddr);
 #endif      
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
