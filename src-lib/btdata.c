@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.11 2004/10/05 17:48:23 mark Exp $
+ * $Id: btdata.c,v 1.12 2005/12/18 20:39:54 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -13,9 +13,12 @@
  *  NOTES
  *      Data blocks will be returned to the free list only when they
  *      are completely empty.  No attempt is made to reclaim space
- *      when a data record is deleted, so a btree database is likely
- *      to grow over time.  To clean up a btree database, it must be
- *      copied to a new (and empty) btree database.
+ *      when a data record is deleted.  However when all the segments
+ *      in a block have been deleted, the entire block is returend to
+ *      the free list.  This strategy means that a btree database is
+ *      likely to grow over time.  To clean up a btree database and
+ *      recover all wasterd space, it must be copied to a new (and
+ *      empty) btree database.
  *
  *      A data record address is held in a ZBPW byte field (as this is
  *      the maximum size of a data value stored with a key in the
@@ -105,6 +108,7 @@ int btins(BTA *b,char *key, char *data, int dsize)
 {
     int status;
     unsigned draddr = 0;
+    int dontcare;
 
     bterr("",0,NULL);
     if ((status=bvalap("BTINS",b)) != 0) return(status);
@@ -123,6 +127,13 @@ int btins(BTA *b,char *key, char *data, int dsize)
         }
     }
 
+    /* does key already exist? */
+    status = bfndky(btact,key,&dontcare);
+    if (status != QNOKEY) {
+        bterr("BTINS",QDUP,NULL);
+        goto fin;
+    }
+    
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
         draddr = binsdt(data,dsize);
@@ -478,7 +489,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
         
     DATBLK *d;
 
-    while (draddr != 0 && remsz > 0) {
+    while (draddr != 0 && remsz >= 0) {
         /* unpick blk/offset pointer */
         cnvdraddr(draddr,&dblk,&offset);
 #if DEBUG > 0
@@ -507,6 +518,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
             freesz = bgtinf(dblk,ZMISC);
             freesz += (segsz-cpsz);
             bstinf(dblk,ZMISC,freesz);
+            if (cpsz == 0) remsz = -1;
         }
         remsz -= cpsz;
         data += cpsz;
