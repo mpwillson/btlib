@@ -1,6 +1,6 @@
 BT Library README File
 
-5th October, 2004
+27th December, 2004
 
 CONTENTS
     INTRODUCTION
@@ -35,7 +35,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
         cd ~/dev               
-        tar xzf ~/downloads/bt-2.0.2.tar.gz
+        tar xzf ~/downloads/bt-2.0.3.tar.gz
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -116,3 +116,4 @@ RELEASE HISTORY
     31st May,       2004        2.0     Major API revision
      8th September, 2004        2.0.1   Bug fix release
      5th October,   2004        2.0.2   Bug fix release
+    28th December,  2005        2.0.3   Bug fix release
