@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.9 2004/10/02 16:10:09 mark Exp $
+ * $Id: bterr.c,v 1.10 2004/10/05 17:48:23 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -94,7 +94,7 @@ char *msgblk[] = {
     " Unlock operation failed",
     " LRU queue corrupt - index not in list",
     " Data record action not permitted for current root",
-    " Data record must not be of zero length",
+    " Data record length cannot be negative",
     " Key \"%s\" already exists in index",
     " Key \"%s\" does not exist in index",
     " Write access to index prohibited",

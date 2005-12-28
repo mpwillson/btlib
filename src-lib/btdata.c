@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.12 2005/12/18 20:39:54 mark Exp $
+ * $Id: btdata.c,v 1.13 2005/12/27 15:22:22 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -129,8 +129,11 @@ int btins(BTA *b,char *key, char *data, int dsize)
 
     /* does key already exist? */
     status = bfndky(btact,key,&dontcare);
-    if (status != QNOKEY) {
+    if (status == 0) {
         bterr("BTINS",QDUP,NULL);
+        goto fin;
+    }
+    else if (status != QNOKEY) {
         goto fin;
     }
     

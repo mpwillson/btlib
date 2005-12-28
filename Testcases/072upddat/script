@@ -1,0 +1,12 @@
+#
+# Define data records, then replace all with zero length records
+#
+c test_db
+e ../defdata.bt
+e ../upddata.bt
+f
+ld
+e ../upddata1.bt
+f
+ld
+q
