@@ -1,7 +1,7 @@
 2005-12-27  Mark Willson  <mark@gold>
 
 	* btdata.c: Allow zero-length data records to be stored.  Fix
-	index file block leak when define a duplicate key.  
+	index file block leak when attempting to define a duplicate key.  
 
 2005-10-30  Mark Willson  <mark@gold>
 
