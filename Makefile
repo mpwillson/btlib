@@ -13,6 +13,8 @@
 #	Revised dependency handling - use 'make depend' to recreate if necessary
 # BTMAKE    04Oct02 1.4 mpw
 #   Added compile for big file tester
+# BTMAKE	05Dec27 1.6 mpw
+#	Added release target
 
 DEBUG=-g
 
@@ -34,6 +36,9 @@ CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR}
 
 LIBS=
 
+# location of release tarfile (see release target)
+RELTMP=/tmp
+
 # activate this macro to ignore ld errors
 #LDFLAGS=-Xlinker -noinhibit-exec
 
@@ -44,7 +49,7 @@ OBJ := ${patsubst %.c,%.o,${SRC}}
 HDR := ${wildcard ${INC_DIR}/*.h}
 
 
-.PHONY: all clean test_init test_run depend 
+.PHONY: all clean test_init test_run depend release
 
 .INTERMEDIATE: ${OBJ}
 
@@ -86,3 +91,14 @@ bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
 
 bigtdel:  ${TESTCASES}/bigtdel.c ${LIB_FILE}
 	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
+
+release:
+ifndef REL
+	${error Target release must be defined e.g. REL=release-2-0-2}
+endif
+	reldir=`echo $$REL|sed -e 's/release-//;s/-/./g;s/^/bt-/'` ;\
+	mkdir -p ${RELTMP}/$$reldir ; \
+	cvs export -d ${RELTMP}/$$reldir -r $$REL bt ; \
+	cd ${RELTMP} ; \
+	tar czf $$reldir.tar.gz $$reldir ; \
+	rm -rf $$reldir
