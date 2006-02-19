@@ -87,10 +87,10 @@ test_init:
 
 # Build big file tester
 bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
-	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
+	${CC} ${CFLAGS} -o $@ $^
 
 bigtdel:  ${TESTCASES}/bigtdel.c ${LIB_FILE}
-	${CC} ${CFLAGS} ${LIB_FILE} -o $@ $^
+	${CC} ${CFLAGS} -o $@ $^
 
 release:
 ifndef REL
