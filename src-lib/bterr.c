@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.10 2004/10/05 17:48:23 mark Exp $
+ * $Id: bterr.c,v 1.11 2005/12/28 13:58:09 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -102,6 +102,7 @@ char *msgblk[] = {
     " Index file is incompatible with this version: %s",
     " Data capacity exceeded at block: %s",
     " Index file is at maximum size",
+    " Unable to set alarm for locking",
     " No message exists for this error code"
 };
 
