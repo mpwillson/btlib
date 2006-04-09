@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.11 2005/09/02 16:45:56 mark Exp $
+ * $Id: bc.h,v 1.12 2005/12/18 20:40:19 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -54,6 +54,8 @@
 #define ZTHRES 3
 /* number of bt indexes that may be open concurrently */
 #define ZMXACT 5
+/* number of seconds to wait for locked file to unlock */
+#define ZSLEEP 5
 
 /* End implementation defined constants */
 
@@ -199,6 +201,7 @@
 #define QDAOVR  51
 #define QF2BIG  52
 
+#define QBADAL  53
 /*
     To determine a file descriptor for locking, we need to examine the
     FILE struct.
