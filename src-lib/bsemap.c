@@ -1,5 +1,5 @@
 /*
- * $Id: bsemap.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bsemap.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * block   - locks active BT file
  * bunlock - unlocks active BT file
@@ -36,9 +36,6 @@
 #include "bt.h"
 #include "btree_int.h"
 
-#define ZMXTRY 5
-#define ZSLEEP 1
-#define MXFILE 72
 /* #undef DEBUG
    #define DEBUG 2 */
 
@@ -73,7 +70,8 @@ int block(void)
 
     lck.l_type = F_WRLCK;
     if (signal(SIGALRM,sigalrm_handler) == SIG_ERR) {
-        fprintf(stderr,"can't set signal SIGALRM\n");
+        bterr("BLOCK",QBADAL,NULL);
+        return(FALSE);
     }   
 
     /* save current signal mask in environment; enables proper repeat
@@ -85,7 +83,7 @@ int block(void)
         return(FALSE);
     }
 
-    alarm(ZMXTRY);
+    alarm(ZSLEEP);
     
     if (fcntl(btact->fd,F_SETLKW,&lck) == -1) {
         signal(SIGALRM,SIG_DFL);
