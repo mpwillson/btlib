@@ -1,16 +1,15 @@
 /*
- * $Id: bstinf.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: bstinf.c,v 1.7 2004/10/02 16:10:09 mark Exp $
  *
  *
-  bstinf: set information about block
-
-  int bstinf(int blk,int type,int val)
-
-    blk    block for which information must be set
-    type   type of information to set
-    val    info value
-
-*
+ *  bstinf: set information about block
+ *
+ *  int bstinf(int blk,int type,int val)
+ *
+ *     blk    block for which information must be set
+ *     type   type of information to set
+ *     val    info value
+ *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -29,6 +28,7 @@
  * along with the B Tree library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #define MASK 2**((ZBPW/2)*ZBYTEW)-1
 
 
