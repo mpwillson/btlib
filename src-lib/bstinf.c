@@ -1,5 +1,5 @@
 /*
- * $Id: bstinf.c,v 1.7 2004/10/02 16:10:09 mark Exp $
+ * $Id: bstinf.c,v 1.8 2006-05-14 19:51:47 mark Exp $
  *
  *
  *  bstinf: set information about block
@@ -29,13 +29,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define MASK 2**((ZBPW/2)*ZBYTEW)-1
-
-
 #include "bc.h"
 #include "bt.h"
 #include "btree_int.h"
 #include <math.h>
+
+#define MASK 2**((ZBPW/2)*ZBYTEW)-1
 
 int bstinf(int blk,int type,int val)
 {
