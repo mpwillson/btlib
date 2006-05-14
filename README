@@ -11,7 +11,7 @@ CONTENTS
     RELEASE HISTORY
 
 INTRODUCTION
-    The BT library is a set of C language functions which implement an
+    The BT library is a set of C language functions that implement a
     generalised index file capability, based on the B Tree indexing
     scheme. The B Tree was originally described by Bayer and
     McCraight. A B tree is a multiway balanced tree: i.e. there is
@@ -21,13 +21,13 @@ INTRODUCTION
     The BT functions implement a 'classical' B tree, not one of the
     later varients (B* or B+ tree).
 
-    The B Tree is stored in a disk file. The file can contain
-    many B Trees, each of which is referred to by a name assigned by
+    The B Tree is stored in a disk file. The file can contain many B
+    Trees, each of which is referred to by a unique name assigned by
     the user (or application). The system allows many such files to
     exist.
 
     In order for BT to function efficiently on many hardware
-    platforms, the important constants relating to disk block size,
+    platforms, the important variables relating to disk block size,
     maximum number of keys per block, etc. are defined as constants,
     and may be modifed prior to compilation.
 
@@ -48,15 +48,16 @@ COMPILING
         lib                 holds BT library archive
         Testcases           driver and master output files for testing
 
-    The BT library (and a test harness and copy utility) are built by
-    make.  Build the library for your machine by issuing the following
-    commands:
-        make clean
-        make
+    The BT library, a test harness (bt) and a copy utility (kcp) are
+    built by make.  Build the library for your machine by issuing the
+    following commands: 
+
+       make clean make
 
     The BT library is a standard UNIX object archive, built by ar.
 
     It is possible to smoke test the newly built library by:
+       
        make test_run
 
     All tests should pass.
@@ -65,7 +66,7 @@ INSTALLING
     Copy the BT library archive (./lib/libbt.a) to a convenient system
     library location (e.g. /usr/local/lib).  The standard BT header
      files (./inc/{bc.h,bt.h,btree.h}) must also be placed in a local
-    system include location (e.g. /usr/local/include).
+    system include directory (e.g. /usr/local/include).
 
     Programs can then be compiled and linked against the library by a
     command of the form: 
@@ -78,6 +79,7 @@ NOTES
     Should you change any of the compile time constants in ./inc/bc.h,
     it will be necessary to regenerate the output templates used for
     test output verification.  These can be re-created by:
+
          make test_init
 
     It is strongly advised that you manually verify the output_master
@@ -95,7 +97,7 @@ ERRORS
     email mark@hydrus.org.uk with relevant details.
 
 LICENCE
-    Copyright (C) 2003, 2004, 2005  Mark Willson
+    Copyright (C) 2003, 2004, 2005, 2006  Mark Willson
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
