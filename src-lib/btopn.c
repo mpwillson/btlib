@@ -1,5 +1,5 @@
 /*
- * $Id: btopn.c,v 1.7 2004/10/02 16:10:09 mark Exp $
+ * $Id: btopn.c,v 1.8 2005/11/27 14:24:56 mark Exp $
  *
  * btopn: opens existing B tree index
  *
@@ -49,12 +49,12 @@ BTA *btopn(char *fid, int mode, int shared)
     }
     if ((btact->idxunt = fopen(fid,"r+b")) == NULL) {
         bterr("BTOPN",QNOOPN,NULL);
-        return (NULL);
+        goto fin1;
     }
     strcpy(btact->idxfid,fid);
     if (bacini(btact) != 0) {
         fclose(btact->idxunt);
-        return(NULL);
+        goto fin1;
     }
     
     btact->shared = shared;
@@ -80,6 +80,7 @@ BTA *btopn(char *fid, int mode, int shared)
     return(btact);
 fin:
     if (shared) bulock();
+fin1:
     bacfre(btact);
     return(NULL);
 }

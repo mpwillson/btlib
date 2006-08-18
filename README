@@ -34,6 +34,7 @@ INTRODUCTION
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
+
         cd ~/dev               
         tar xzf ~/downloads/bt-2.0.3.tar.gz
 
@@ -41,6 +42,7 @@ COMPILING
     this already.
 
     The key sub-directories are as follows:
+ 
         src-lib             C source for BT library routines
         src-main            C source for BT test harness and copy
                             utility
@@ -70,6 +72,7 @@ INSTALLING
 
     Programs can then be compiled and linked against the library by a
     command of the form: 
+
          cc -o yak -lbt yak.c 
 
     Alternatively, just put these files somewhere convenient in your
