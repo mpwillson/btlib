@@ -1,7 +1,6 @@
 2006-08-18  Mark Willson  <mark@gold>
 
-	* btopn.c: Fix memory leak when opening non-existent files or other
-	initialisation errors.
+	* btopn.c: Fix memory leak on btact initialisation error.
 
 2006-04-09  Mark Willson  <mark@gold>
 

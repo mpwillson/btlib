@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btcrt.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -49,25 +49,26 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     btact = bnewap(fid);
     if (btact == NULL) {
         bterr("BTCRT",QNOACT,NULL);
-        goto fin;
+        return NULL;
     }
     if ((btact->idxunt = fopen(fid,"w+b")) == NULL) {
         bterr("BTCRT",QCRTIO,NULL);
-        goto fin;
+        return NULL;
     }
     btact->shared = shared;
     strcpy(btact->idxfid,fid);
 
     /* initialise bt context areas */
     if (bacini(btact) != 0) 
-        goto fin;
+        return NULL;
+    
     /* set current root to ZNULL to indicate creation in progress */
     btact->cntxt->super.scroot = ZNULL;
 
     /* unconditional lock newly created file */
     if (!block()) {
         bterr("BTCRT",QBUSY,NULL);
-        return(NULL);
+        goto fin1;
     }
 
 
@@ -128,9 +129,13 @@ BTA *btcrt(char *fid, int nkeys,int shared)
         return(NULL);
     else 
         return(btact);
+
+    /* error encountered - unlock and close file */
 fin:
-    /* error - free memory */
     if (shared) bulock();
+    fclose(btact->idxunt);
+fin1:
+    /* free memory */
     bacfre(btact);
     return(NULL);
 }
