@@ -1,5 +1,5 @@
 /*
- * $Id: btque.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btque.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * B tree routines to handle least recently used queue for blocks
  *
@@ -27,8 +27,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bqadd(idx)
-int idx;
+void bqadd(int idx)
 {
     if (btact->cntxt->lru.lruh < 0) 
         btact->cntxt->lru.lruh = idx;

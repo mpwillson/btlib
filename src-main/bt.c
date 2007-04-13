@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: bt.c,v 1.7 2004/10/03 19:40:21 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -59,21 +59,19 @@ struct _blist *bhead = NULL;
  * Local function prototypes
  *------------------------------------------------------------------------
  */
-BTA *get();
+BTA *get(char*);
 void list();
 void list_data();
-void add_data_file();
-struct _blist *get_data();
-int add_data();
+void add_data_file(char*,char*);
+struct _blist *get_data(char*);
+int add_data(char*,int);
 int add(char *, BTA *);
 int del_data(char *);
 int del(BTA *);
-struct _blist *cpfm();
-char *strsave();
-int pushcf();
+struct _blist *cpfm(char*);
+char *strsave(char*);
+int pushcf(FILE*);
 FILE* pullcf();
-
-
 /*
  *------------------------------------------------------------------------
  */
@@ -564,7 +562,7 @@ int del(BTA *b)
 }
 
 /* print list of active index files */
-void list(char *f)
+void list()
 {
     struct _plist *p;
 

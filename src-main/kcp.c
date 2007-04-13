@@ -1,5 +1,5 @@
 /*
- *  $Id: kcp.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ *  $Id: kcp.c,v 1.7 2004/10/05 17:48:44 mark Exp $
  *  
  *  NAME
  *      kcp - copies B Tree index/data files
@@ -62,8 +62,8 @@
 
 #define SUPER "$$super"
 
-void kalloc();
-int copyroot();
+void kalloc(char**,int);
+int copyroot(BTA*,BTA*,char*);
 
 char *prog;
 

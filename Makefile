@@ -15,6 +15,8 @@
 #   Added compile for big file tester
 # BTMAKE	05Dec27 1.6 mpw
 #	Added release target
+# BTMAKE    070413  1.8 mpw
+#   Revised linking 
 
 DEBUG=-g
 
@@ -26,7 +28,8 @@ SRC_DIR=./src-lib
 SRC_MAIN=./src-main
 # BT archive in LIB_DIR
 LIB_DIR=./lib
-LIB_FILE=${LIB_DIR}/libbt.a
+LIB_NAME=bt
+LIB_FILE=${LIB_DIR}/lib${LIB_NAME}.a
 # Testcases in TESTCASES
 TESTCASES=./Testcases
 # Computed dependencies in DEP
@@ -34,7 +37,7 @@ DEP=.dep
 
 CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR}
 
-LIBS=
+LIBS=-L${LIB_DIR} -l${LIB_NAME}
 
 # location of release tarfile (see release target)
 RELTMP=/tmp
@@ -48,7 +51,6 @@ OBJ := ${patsubst %.c,%.o,${SRC}}
 
 HDR := ${wildcard ${INC_DIR}/*.h}
 
-
 .PHONY: all clean test_init test_run depend release
 
 .INTERMEDIATE: ${OBJ}
@@ -60,10 +62,10 @@ include 	${DEP}
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
 bt:	${SRC_MAIN}/bt.c ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${LIBS} 
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
 
 clean:
 	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe .dep
@@ -87,10 +89,10 @@ test_init:
 
 # Build big file tester
 bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${CFLAGS} -o $@ ${TESTCASES}/bigt.c ${LIBS}
 
 bigtdel:  ${TESTCASES}/bigtdel.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${CFLAGS} -o $@ ${TESTCASES}/bigtdel.c ${LIBS}
 
 release:
 ifndef REL
