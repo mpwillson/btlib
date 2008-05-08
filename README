@@ -14,12 +14,12 @@ INTRODUCTION
     The BT library is a set of C language functions that implement a
     generalised index file capability, based on the B Tree indexing
     scheme. The B Tree was originally described by Bayer and
-    McCraight. A B tree is a multiway balanced tree: i.e. there is
+    McCraight. A B tree is a multi-way balanced tree: i.e. there is
     more than one key per node, and all leaf nodes are the same
     distance from the root node.
 
     The BT functions implement a 'classical' B tree, not one of the
-    later varients (B* or B+ tree).
+    later variants (B* or B+ tree).
 
     The B Tree is stored in a disk file. The file can contain many B
     Trees, each of which is referred to by a unique name assigned by
@@ -29,7 +29,10 @@ INTRODUCTION
     In order for BT to function efficiently on many hardware
     platforms, the important variables relating to disk block size,
     maximum number of keys per block, etc. are defined as constants,
-    and may be modifed prior to compilation.
+    and may be modified prior to compilation.
+
+    The BT library has been tested on GNU/Linux (Debian Etch), FreeBSD
+    6.3, OpenSolaris 2008-05 and Cygwin.
 
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
@@ -122,3 +125,4 @@ RELEASE HISTORY
      8th September, 2004        2.0.1   Bug fix release
      5th October,   2004        2.0.2   Bug fix release
     28th December,  2005        2.0.3   Bug fix release
+    10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
