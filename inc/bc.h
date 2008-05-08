@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.12 2005/12/18 20:40:19 mark Exp $
+ * $Id: bc.h,v 1.13 2006-04-09 16:08:44 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -202,21 +202,5 @@
 #define QF2BIG  52
 
 #define QBADAL  53
-/*
-    To determine a file descriptor for locking, we need to examine the
-    FILE struct.
-    
-    FILE structs vary between systems.  Cygwin and FreeBSD define file
-    number as _file.  This is the default and may well cause compile
-    failures for other systems.
-*/
-
-
-#ifdef __linux__
-    #define FILENO _fileno
-#else
-    #define FILENO _file
-#endif
-
 
 #endif /* _btconst_ */

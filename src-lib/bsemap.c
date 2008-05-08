@@ -1,5 +1,5 @@
 /*
- * $Id: bsemap.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bsemap.c,v 1.7 2006-04-09 16:08:19 mark Exp $
  *
  * block   - locks active BT file
  * bunlock - unlocks active BT file
@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <string.h>
 #include <signal.h>
 #include <setjmp.h>

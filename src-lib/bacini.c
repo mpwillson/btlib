@@ -1,5 +1,5 @@
 /*
- * $Id: bacini.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bacini.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  *  bacini: Initialise BTA structure, malloc'ing space as required
  *
@@ -36,7 +36,7 @@ int bacini(BTA *b)
 {
 
     /* get file descriptor for bt file (used for file locking) */
-    btact->fd = btact->idxunt->FILENO;
+    btact->fd = fileno(btact->idxunt);
     btact->lckcnt = 0;
     
     if ((b->cntrl=(CNTRL *) malloc(sizeof(CNTRL)*ZMXBLK)) == NULL)

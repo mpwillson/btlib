@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.7 2004/10/03 19:40:21 mark Exp $
+ * $Id: bt.c,v 1.8 2007-04-13 10:00:24 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -93,7 +93,7 @@ int main(int argc,char *argv[])
     quit = FALSE;
     unit = stdin;
 
-    if (fstat(unit->FILENO,&statbuf) == 0) {
+    if (fstat(fileno(unit),&statbuf) == 0) {
         if ((statbuf.st_mode & S_IFMT) == S_IFCHR) prompt = TRUE;
     }
     else {
@@ -686,7 +686,7 @@ struct _blist *cpfm(char *fn)
         return(NULL);
     }
     /* get file info*/
-    if (fstat(in->FILENO,&statbuf) != 0) {
+    if (fstat(fileno(in),&statbuf) != 0) {
         fprintf(stderr,"bt: fstat failed for file '%s'\n",fn);
         fclose(in);
         return(NULL);

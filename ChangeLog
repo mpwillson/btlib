@@ -1,3 +1,14 @@
+2008-05-08    <mark@OPAL>
+
+	* bt.c: Replace use of FILENO macro by fileno function.
+
+	* bacini.c: Replace use of FILENO macro by fileno function.
+
+	* bc.h: Remove macro defining FILENO - replaced by standard C
+	library function fileno.
+
+	* bsemap.c: Included file <sys/fcntl.h> replaced by <fcntl.h>.
+
 2006-08-18  Mark Willson  <mark@gold>
 
 	* btopn.c: Fix memory leak on btact initialisation error.
