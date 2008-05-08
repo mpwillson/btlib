@@ -34,5 +34,6 @@ q
 EOF
 ../../kcp test_db new_db
 echo "Files should now differ"
-diff test_db new_db
+# Make diff output for binary files same on Linux as on other systems
+diff test_db new_db|sed -e "s/Binary file/File/"
 rm new_db

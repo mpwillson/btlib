@@ -199,4 +199,4 @@ Key: 'aaaa0097' - Data: 'aaaa0097'
 Key: 'aaaa0098' - Data: 'aaaa0098'
 Key: 'aaaa0099' - Data: 'aaaa0099'
 Files should now differ
-Binary files test_db and new_db differ
+Files test_db and new_db differ
