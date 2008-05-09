@@ -16,7 +16,9 @@ f
 ld
 q
 EOF
-diff test_db new_db
+echo "Files should not differ"
+diff -s test_db new_db
+echo "Changing new_db..."
 ../../bt <<EOF
 o test_db
 rd aaaa0057

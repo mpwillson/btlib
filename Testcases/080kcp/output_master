@@ -198,5 +198,8 @@ Key: 'aaaa0096' - Data: 'aaaa0096'
 Key: 'aaaa0097' - Data: 'aaaa0097'
 Key: 'aaaa0098' - Data: 'aaaa0098'
 Key: 'aaaa0099' - Data: 'aaaa0099'
+Files should not differ
+Files test_db and new_db are identical
+Changing new_db...
 Files should now differ
 Files test_db and new_db differ

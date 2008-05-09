@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.13 2005/12/27 15:22:22 mark Exp $
+ * $Id: btdata.c,v 1.14 2005/12/28 13:58:09 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
