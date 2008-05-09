@@ -12,9 +12,9 @@ if [ -r $1/script ]; then
 		../../bt <script >output_test 2>&1
 		diff output_master output_test >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			echo -e "$1: \tpassed"
+			printf "$1: \tpassed\n"
 		else
-			echo -e "$1: \tFAILED <--------------------------"
+			printf "$1: \tFAILED <--------------------------\n"
 		fi
 	fi
 # check for shell script
@@ -26,11 +26,11 @@ elif [ -r $1/script.sh ]; then
 		sh ./script.sh >output_test 2>&1
 		diff output_master output_test >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			echo -e "$1: \tpassed"
+			printf "$1: \tpassed\n"
 		else
-			echo -e "$1: \tFAILED <--------------------------"
+			printf "$1: \tFAILED <--------------------------\n"
 		fi    
     fi
 else
-	echo -e "$1: \tno script file"
+	printf "$1: \tno script file\n"
 fi
