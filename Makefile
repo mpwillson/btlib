@@ -20,7 +20,7 @@
 # BTMAKE    080509  mpw
 #	Make dependency file handling cleaner: ${DEP} is dependent on ${SRC}
 
-# $Id:$
+# $Id: Makefile,v 1.9 2008-05-09 11:00:23 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 #DEBUG=-g
@@ -62,7 +62,8 @@ HDR := ${wildcard ${INC_DIR}/*.h}
 
 all:	depend bt kcp TAGS
 
-include 	${DEP}
+# include dependencies (no message if it doesn't exist)
+-include 	${DEP}
 
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
