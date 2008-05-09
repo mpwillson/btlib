@@ -1,6 +1,6 @@
 BT Library README File
 
-27th December, 2005
+10th May, 2008
 
 CONTENTS
     INTRODUCTION
@@ -32,19 +32,18 @@ INTRODUCTION
     and may be modified prior to compilation.
 
     The BT library has been tested on GNU/Linux (Debian Etch), FreeBSD
-    6.3, OpenSolaris 2008-05 and Cygwin.
+    6.3, OpenSolaris 2008.05 and Cygwin.
 
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        cd ~/dev               
-        tar xzf ~/downloads/bt-2.0.3.tar.gz
+        tar xzf bt-2.0.4.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
 
-    The key sub-directories are as follows:
+    The key sub-directories under the bt source directory are as follows:
  
         src-lib             C source for BT library routines
         src-main            C source for BT test harness and copy
@@ -54,10 +53,10 @@ COMPILING
         Testcases           driver and master output files for testing
 
     The BT library, a test harness (bt) and a copy utility (kcp) are
-    built by make.  Build the library for your machine by issuing the
-    following commands: 
+    built by GNU make.  Build the library for your machine by issuing the
+    following command: 
 
-       make clean make
+       make
 
     The BT library is a standard UNIX object archive, built by ar.
 
@@ -66,6 +65,8 @@ COMPILING
        make test_run
 
     All tests should pass.
+
+    If you need to rebuild, issue the command "make clean && make".
 
 INSTALLING
     Copy the BT library archive (./lib/libbt.a) to a convenient system
