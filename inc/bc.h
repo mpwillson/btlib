@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.13 2006-04-09 16:08:44 mark Exp $
+ * $Id: bc.h,v 1.14 2008-05-08 14:33:42 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -184,7 +184,7 @@
 #define QNOBLK  37
 #define QNEGSZ  38
 #define QNOTDA  39
-#define QNOOPN  40
+#define QNOOPN  40 /* unused */
 
 #define QDLOOP  41
 #define QUNLCK  42

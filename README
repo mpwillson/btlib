@@ -7,7 +7,8 @@ CONTENTS
     COMPILING
     INSTALLING
     NOTES
-    ERRORS
+    BUGS
+    ERROR REPORTING
     RELEASE HISTORY
 
 INTRODUCTION
@@ -99,7 +100,13 @@ NOTES
     BT is dependent on very little, but it does require the gcc
     compiler and GNU make.
 
-ERRORS
+BUGS
+    Shared file handling does not operate properly on Cygwin.  The timeout
+    alarm never fires, so a process waiting for shared access to a index
+    held exclusive by another process will wait until the exclusive lock
+    is released.
+
+ERROR REPORTING
     Should you encounter errors during use of the BT library, please
     email mark@hydrus.org.uk with relevant details.
 

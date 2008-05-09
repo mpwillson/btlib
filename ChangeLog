@@ -1,3 +1,10 @@
+2008-05-09  Mark Willson  <mark@gold>
+
+	* bterr.c: QNOOPN text changed to indicate unused.
+
+	* btopn.c: QNOOPN error code replaced by the correct error code of
+	QOPNIO.
+
 2008-05-08    <mark@OPAL>
 
 	* bt.c: Replace use of FILENO macro by fileno function.
