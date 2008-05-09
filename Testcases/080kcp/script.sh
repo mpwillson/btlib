@@ -7,35 +7,31 @@ e ../defdata.bt
 q
 EOF
 ../../kcp test_db new_db
+echo "Files should be identical"
 ../../bt <<EOF
 o new_db
-f
-ld
-cr test
-f
-ld
+s super
+s block 0
+o test_db
+s super
+s block 0
 q
 EOF
-echo "Files should not differ"
-diff -s test_db new_db
-echo "Changing new_db..."
+echo "Changing test_db..."
 ../../bt <<EOF
 o test_db
-rd aaaa0057
-rd aaaa0058
-rd aaaa0060
-rd aaaa0038
-rd aaaa0001
-cr test
-rd aaaa0057
-rd aaaa0058
-rd aaaa0060
-rd aaaa0038
-rd aaaa0001
+e ../remdata.bt
 q
 EOF
 ../../kcp test_db new_db
 echo "Files should now differ"
-# Make diff output for binary files same on Linux as on other systems
-diff test_db new_db|sed -e "s/Binary file/File/"
+../../bt <<EOF
+o new_db
+s super
+s block 0
+o test_db
+s super
+s block 0
+q
+EOF
 rm new_db
