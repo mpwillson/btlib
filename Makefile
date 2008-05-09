@@ -17,8 +17,13 @@
 #	Added release target
 # BTMAKE    070413  1.8 mpw
 #   Revised linking 
+# BTMAKE    080509  mpw
+#	Make dependency file handling cleaner: ${DEP} is dependent on ${SRC}
 
-DEBUG=-g
+# $Id:$
+
+# Uncomment the following line for a debug version of the library
+#DEBUG=-g
 
 # Headers in INC_DIR
 INC_DIR=./inc
@@ -51,11 +56,11 @@ OBJ := ${patsubst %.c,%.o,${SRC}}
 
 HDR := ${wildcard ${INC_DIR}/*.h}
 
-.PHONY: all clean test_init test_run depend release
+.PHONY: all depend clean test_init test_run release
 
 .INTERMEDIATE: ${OBJ}
 
-all:	bt kcp TAGS
+all:	depend bt kcp TAGS
 
 include 	${DEP}
 
@@ -68,15 +73,15 @@ kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
 
 clean:
-	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe .dep
+	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe ${OBJ}
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
 	@etags $^
 
-depend:
-	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
+depend: ${DEP}
+#	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
 
-.dep: 
+${DEP}: ${SRC}
 	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
 
 test_run:
