@@ -54,8 +54,8 @@ COMPILING
         Testcases           driver and master output files for testing
 
     The BT library, a test harness (bt) and a copy utility (kcp) are
-    built by GNU make.  Build the library for your machine by issuing the
-    following command: 
+    built by GNU make.  Build the library for your machine by cd'ing
+    to BT source directory and issuing the following command: 
 
        make
 
@@ -105,6 +105,8 @@ BUGS
     alarm never fires, so a process waiting for shared access to a index
     held exclusive by another process will wait until the exclusive lock
     is released.
+
+    On all platforms, shared file handling is clunky.
 
 ERROR REPORTING
     Should you encounter errors during use of the BT library, please
