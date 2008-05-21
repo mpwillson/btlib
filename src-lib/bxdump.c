@@ -1,5 +1,5 @@
 /*
- * $Id: bxdump.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bxdump.c,v 1.5 2004/10/02 16:10:09 mark Exp $
  *
  *
  * bxdump - dumps binary data in hex format (with character translation)
@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "btree_int.h"
 
 #define BYTELN 16
 
@@ -45,7 +46,7 @@ PQRSTUVWXYZ[.]^_\
 `abcdefghijklmno\
 pqrstuvwxyz...~.";
 
-int bxdump(char *p,int size)
+void bxdump(char *p,int size)
 {
    int bytecount,i,eof;
    int repeating = FALSE;
@@ -90,5 +91,5 @@ int bxdump(char *p,int size)
         }
         printf("*\n");
     }
-    return(0);
+    return;
 }

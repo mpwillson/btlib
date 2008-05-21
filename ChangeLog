@@ -1,3 +1,7 @@
+2008-05-21  Mark Willson  <mark@gold>
+
+	* bxdump.c: Make routine of type void, as defined in "btree_int.h"
+
 2008-05-09  Mark Willson  <mark@gold>
 
 	* bterr.c: QNOOPN text changed to indicate unused.
