@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.14 2005/12/28 13:58:09 mark Exp $
+ * $Id: btdata.c,v 1.15 2008-05-09 11:28:51 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -22,16 +22,16 @@
  *
  *      A data record address is held in a ZBPW byte field (as this is
  *      the maximum size of a data value stored with a key in the
- *      btree index), in the following format (for a 32 bit int, i.e. 4 bytes
- *      per word where bytes are 8 bits):
+ *      btree index), in the following format (for a 32 bit int,
+ *      i.e. 4 bytes per word where bytes are 8 bits):
  *      
  *      31                                             0
  *      +----------------------------+-----------------+
  *      |   block number             | byte offset     |
  *      +----------------------------+-----------------+
  *
- *      With the default block size of 1024 bytes, the byte offset is 10 bits
- *      wide, while the block number field is 22 bits wide.
+ *      With the default block size of 1024 bytes, the byte offset is
+ *      10 bits wide, while the block number field is 22 bits wide.
  *
  *      Note for implementations where the default int size is not 32
  *      bits (e.g. 16 bits), the amount left for the block
@@ -136,6 +136,9 @@ int btins(BTA *b,char *key, char *data, int dsize)
     else if (status != QNOKEY) {
         goto fin;
     }
+
+    /* clear error code */
+    bterr("",0,NULL);
     
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
