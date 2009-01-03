@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.15 2008-05-09 11:28:51 mark Exp $
+ * $Id: btdata.c,v 1.16 2008-05-23 17:11:40 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -17,7 +17,7 @@
  *      in a block have been deleted, the entire block is returend to
  *      the free list.  This strategy means that a btree database is
  *      likely to grow over time.  To clean up a btree database and
- *      recover all wasterd space, it must be copied to a new (and
+ *      recover all wasted space, it must be copied to a new (and
  *      empty) btree database.
  *
  *      A data record address is held in a ZBPW byte field (as this is
