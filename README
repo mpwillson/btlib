@@ -1,6 +1,6 @@
 BT Library README File
 
-10th May, 2008
+23rd May, 2010
 
 CONTENTS
     INTRODUCTION
@@ -32,14 +32,14 @@ INTRODUCTION
     maximum number of keys per block, etc. are defined as constants,
     and may be modified prior to compilation.
 
-    The BT library has been tested on GNU/Linux (Debian Etch), FreeBSD
-    6.3, OpenSolaris 2008.05 and Cygwin.
+    The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
+    7.3 and Cygwin.
 
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-2.0.4.tar.gz -C ~/dev
+        tar xzf bt-2.0.5.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -113,7 +113,7 @@ ERROR REPORTING
     email mark@hydrus.org.uk with relevant details.
 
 LICENCE
-    Copyright (C) 2003, 2004, 2005, 2008  Mark Willson
+    Copyright (C) 2003, 2004, 2005, 2008, 2010  Mark Willson
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -136,3 +136,4 @@ RELEASE HISTORY
      5th October,   2004        2.0.2   Bug fix release
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
+    23rd May,       2010        2.0.5.  Minor bug fixes

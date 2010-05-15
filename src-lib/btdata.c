@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.16 2008-05-23 17:11:40 mark Exp $
+ * $Id: btdata.c,v 1.17 2009-01-03 20:40:46 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -14,7 +14,7 @@
  *      Data blocks will be returned to the free list only when they
  *      are completely empty.  No attempt is made to reclaim space
  *      when a data record is deleted.  However when all the segments
- *      in a block have been deleted, the entire block is returend to
+ *      in a block have been deleted, the entire block is returned to
  *      the free list.  This strategy means that a btree database is
  *      likely to grow over time.  To clean up a btree database and
  *      recover all wasted space, it must be copied to a new (and
@@ -52,8 +52,8 @@
  *          Bytes 1 and 2: the size of the data segment in bytes
  *          (maximum size of a data segment is therefore 65536 bytes)
  *          
- *          Bytes 3-6: data record address of the next segment of this
- *          data record (0 if the last (or only) segment).
+ *          Bytes 3-6: address of the next segment of this data record
+ *          (0 if the last (or only) segment).
  *          
  *
  *  MODIFICATION HISTORY
