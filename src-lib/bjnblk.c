@@ -1,5 +1,5 @@
 /*
- * $Id: bjnblk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bjnblk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bjnblk: joins leaf blocks if possible
  *
@@ -31,9 +31,10 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bjnblk(int *cblk)
+void bjnblk(BTint *cblk)
 {
-    int nkeys,cnkeys,val,llink,rlink,result;
+    BTint val,llink,rlink;
+    int nkeys,cnkeys,result;
     char tkey[ZKYLEN];
 
     *cblk = btact->cntxt->lf.lfblk;

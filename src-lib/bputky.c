@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bputky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -36,14 +36,14 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bputky(int blk,char *key,int val,int link1,int link2)
+int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
 {
     int i,idx,ioerr;
     char lkey[ZKYLEN];
     
 #if DEBUG >= 1
     fprintf(stderr,
-            "bputky: blk = %d, key = %s, val = %d, link1 = %d, link2 = %d\n",
+            "bputky: blk = %lld, key = %s, val = %lld, link1 = %lld, link2 = %lld\n",
             blk,key,val,link1,link2);
 #endif
     ioerr = brdblk(blk,&idx);

@@ -1,5 +1,5 @@
 /*
- * $Id: bmkfre.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bmkfre.c,v 1.5 2004/10/02 16:10:08 mark Exp $
  * 
  *  bmkfre: return block to free list
  *
@@ -30,7 +30,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bmkfre(int blk)
+void bmkfre(BTint blk)
 {
     bsetbk(blk,ZFREE,0,btact->cntxt->super.sfreep,0,0);
     btact->cntxt->super.sfreep = blk;

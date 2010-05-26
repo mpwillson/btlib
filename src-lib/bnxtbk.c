@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtbk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bnxtbk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  *
  * bnxtbk:  returns next block from index file
@@ -33,10 +33,11 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bnxtbk(int *blk)
+int bnxtbk(BTint *blk)
 {
-    int idx,nkeys,ioerr;
-
+    int idx,ioerr;
+    BTint nkeys;
+    
     /* if blk is ZNULL, first call; initialise stack and position
     at leftmost leaf node */
     

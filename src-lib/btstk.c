@@ -1,5 +1,5 @@
 /*
- * $Id: btstk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btstk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
  * bpull: pull integer value off stack
@@ -40,9 +40,9 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bpull()
+BTint bpull()
 {
-    int val;
+    BTint val;
 
     if (btact->cntxt->stk.stkptr < 0) 
         bterr("BPULL",QSTKUF,NULL);
@@ -53,7 +53,7 @@ int bpull()
     return(val);
 }
 
-int bpush(int val)
+int bpush(BTint val)
 {
     if (btact->cntxt->stk.stkptr >= STKMAX) {
         bterr("BPUSH",QSTKOF,NULL);

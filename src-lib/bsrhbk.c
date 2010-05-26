@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bsrhbk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
   bsrhbk: searches block for key
@@ -48,18 +48,22 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bsrhbk(int blk,char *key,int *loc,int *val,int *link1,int *link2,
+int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
            int *result)
 {
-
-    int idx,lo,hi,md,nkeys,quit,ioerr;
+    int quit,idx,lo,hi,md,ioerr,nkeys;
 
     ioerr = brdblk(blk,&idx);
     if (idx < 0) {
         bterr("BSRHBK",QRDBLK,itostr(blk));
         goto fin;
     }
-    nkeys = ((btact->memrec)+idx)->infblk[ZNKEYS];
+    nkeys = (long) ((btact->memrec)+idx)->infblk[ZNKEYS];
+#if DEBUG > 0
+    printf("BSRHBK: blk: %lld, nkeys: %d\n",blk,nkeys);
+    printf("BSRHBK: loc: %d, val: %lld, link1: %lld, link2: %lld\n",
+           *loc,*val,*link1,*link2);
+#endif  
     if (*loc >= 0) {
         if (*loc >= nkeys) {
             /* requested loc not in block range */

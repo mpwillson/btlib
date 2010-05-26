@@ -1,5 +1,5 @@
 /*
- * $Id: btchgr.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btchgr.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
  * btchgr: change B tree root
@@ -39,7 +39,8 @@
 
 int btchgr(BTA *b,char *root)
 {
-    int svblk,blk,status;
+    BTint svblk,blk;
+    int status;
 
     bterr("",0,NULL);
 

@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bdelk1.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -37,7 +37,8 @@
 
 int bdelk1(char *key)
 {
-    int cblk,link1,link2,llink,rlink,val,result,blk,pos,type;
+    BTint cblk,link1,link2,llink,rlink,val,blk;
+    int result,pos,type;
     char tkey[ZKYLEN];
 
     if (!btact->cntxt->lf.lfexct) {

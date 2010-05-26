@@ -1,5 +1,5 @@
 /*
- * $Id: bsptbk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bsptbk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
   bsptbk: splits block into two
@@ -35,14 +35,19 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bsptbk(int blk,int *newblk)
+int bsptbk(BTint blk,BTint *newblk)
 {
-    int sp,sp2,type,val,link1,link2,blk1,blk2,pblk,result;
+    BTint val,link1,link2,blk1,blk2,pblk;
+    int sp,sp2,type;
+    int result;
     char tkey[ZKYLEN];
 
     *newblk = ZNULL;
     strcpy(tkey," ");
     type = bgtinf(blk,ZBTYPE);
+#if DEBUG > 0
+    printf("BSPTBK: splitting block %lld of type %d\n",blk,type);
+#endif    
     sp = ZMXKEY/2;
     sp2 = ZMXKEY%2==0?sp-1:sp;
     if (type == ZROOT) {
@@ -78,12 +83,11 @@ int bsptbk(int blk,int *newblk)
         *newblk = bgtfre();
         if (*newblk < 0) return (ZNULL);
         /* copy second half of block to new block */
-        bcpybk(*newblk,blk,0,sp+1,sp);
+        bcpybk(*newblk,blk,0,sp+1,sp2);
         /* get parent block from last found block */
         pblk = btact->cntxt->lf.lfblk;
         /* set info for new block */
-        bsetbk(*newblk,ZINUSE,0,pblk,sp,0);
-        /*  sp++; dont think this increment is required */
+        bsetbk(*newblk,ZINUSE,0,pblk,sp2,0);
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
 #if DEBUG >= 2

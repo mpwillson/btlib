@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bt.h,v 1.5 2004/10/05 17:47:56 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -32,7 +32,7 @@
   B tree cache manager structure
 */
 struct _cntrl {
-   int inmem;  /* holds block number of in-memory copy */
+   BTint inmem;  /* holds block number of in-memory copy */
    int busy;   /* if non-ZERO, block cannot be flushed to disk */
    int writes; /* if non-ZERO, number of writes to this block */
    int lrunxt;  /* index of next in-memory block for LRU queue */
@@ -52,12 +52,12 @@ struct _lru {
 */
 
 struct _memrec {
-   int infblk[ZINFSZ];
+   BTint infblk[ZINFSZ];
    char keyblk[ZMXKEY] [ZKYLEN];
-   int valblk[ZMXKEY];
-   int lnkblk[ZMXKEY+1];
+   BTint valblk[ZMXKEY];
+   BTint lnkblk[ZMXKEY+1];
 #if ZPAD != 0
-    int padblk[ZPAD];
+    BTint padblk[ZPAD];
 #endif
 };
 
@@ -66,7 +66,7 @@ typedef struct _memrec MEMREC;
 /* Structure describing a data block */
 
 struct _datblk {
-    int infblk[ZINFSZ];
+    BTint infblk[ZINFSZ];
     char data[ZBLKSZ-(ZINFSZ*ZBPW)];
 };
 
@@ -77,7 +77,7 @@ typedef struct _datblk DATBLK;
 
 struct _lf {
     char lfkey[ZKYLEN];
-    int lfblk;
+    BTint lfblk;
     int lfpos;
     int lfexct;
 };
@@ -102,17 +102,17 @@ struct _stat {
 
 struct _stk {
     int stkptr;
-    int stk[STKMAX];
+    BTint stk[STKMAX];
 };
 
 
 /* B tree: Super root information plus current root */
 
 struct _super {
-    int sblkmx;
-    int snfree;
-    int sfreep;
-    int scroot;
+    BTint sblkmx;
+    BTint snfree;
+    BTint sfreep;
+    BTint scroot;
     int smode;
     int smod;
     char scclas[ZKYLEN];
@@ -145,7 +145,7 @@ struct _btactive {
 
 typedef struct _btactive BTA;
 
-extern BTA btat[];                  /* might not need this if we can access
+extern BTA btat[];                  /* might not need this if we can access     
                                         everything through btact */
 
 extern BTA *btact;                  /* point to active index info */

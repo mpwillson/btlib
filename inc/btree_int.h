@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: btree_int.h,v 1.7 2004/10/05 17:47:56 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -26,39 +26,39 @@
 
 extern void bclrlf(void);
 extern void bclrst(void);
-extern int bcpybk(int,int,int,int,int);
+extern int bcpybk(BTint,BTint,int,int,int);
 extern void bterr(char *,int,char*);
 extern int btgerr(void);
-extern int bgtinf(int,int);
+extern BTint bgtinf(BTint,int);
 extern int bgtfre(void);
 extern int bgtslt(void);
 extern int bleaf(int);
-extern int bnxtbk(int *);
-extern int bpull(void);
-extern int bpush(int);
+extern int bnxtbk(BTint *);
+extern BTint bpull(void);
+extern int bpush(BTint);
 extern void bstkin(void);
-extern int bputky(int,char *,int,int,int);
+extern int bputky(BTint,char *,BTint,BTint,BTint);
 extern void bqadd(int);
 extern int bqhead(void);
 extern int bqmove(int);
 /* extern void bqrem(int);*/
-extern int brdblk(int,int *);
-extern int brepky(int,int,char *,int,int,int);
-extern int bsetbk(int,int,int,int,int,int);
-extern void bsetbs(int,int);
-extern int bstinf(int,int,int);
-extern int bsptbk(int,int *);
-extern int bsrhbk(int,char *,int *,int *,int *,int *,int *);
-extern int bwrblk(int);
+extern int brdblk(BTint,int *);
+extern int brepky(BTint,int,char *,BTint,BTint,BTint);
+extern int bsetbk(BTint,BTint,BTint,BTint,BTint,BTint);
+extern void bsetbs(BTint,int);
+extern int bstinf(BTint,int,BTint);
+extern int bsptbk(BTint,BTint *);
+extern int bsrhbk(BTint,char *,int *,BTint *,BTint *,BTint *,int *);
+extern int bwrblk(BTint);
 
 extern void balblk(void);
-extern void balbk1(int,int,int,char *,int);
+extern void balbk1(BTint,BTint,int,char *,BTint);
 extern int bdelk1(char *);
-extern void bdemte(int *);
-extern void bjnblk(int *);
-extern void bjoin(int,int,char *,int);
-extern void bmkfre(int);
-extern void bremky(int,int);
+extern void bdemte(BTint *);
+extern void bjnblk(BTint *);
+extern void bjoin(BTint,BTint,char *,BTint);
+extern void bmkfre(BTint);
+extern void bremky(BTint,int);
 
 extern BTA *bnewap(char *);
 extern int bacini(BTA *);
@@ -71,27 +71,27 @@ extern int bwrsup(void);
 extern int block(void);
 extern int bulock(void);
 extern int btsync(void);
-extern int bmodky(int,int,int);
+extern int bmodky(BTint,int,BTint);
 extern void bxdump(char *,int);
 
-extern int binsdt(char *,int dsize);
-extern int mkdblk(void);
+extern BTint mkdblk(void);
 extern int rdsz(char *);
-extern unsigned rdint(char *);
-extern void wrsz(int,char *);
-extern void wrint(unsigned i,char *);
-extern int binsdt(char *,int);
-extern int insdat(int,char *,int,unsigned);
-extern int bupddt(unsigned, char *, int);
-extern int bdeldt(unsigned);
-extern int deldat(int, int);
-extern int bseldt(int, char *, int);
-extern int brecsz(unsigned);
-extern void cnvdraddr(unsigned, int *, int *);
-extern  unsigned mkdraddr(int, int);
-extern int getseginfo(unsigned, int *, unsigned *);
+extern BTint rdint(char *);
+extern void wrsz(int, char *);
+extern void wrint(BTint, char *);
+extern BTint binsdt(char *,int);
+extern int insdat(BTint,char *,int,BTint);
+extern int bupddt(BTint, char *, int);
+extern int bdeldt(BTint);
+extern int deldat(BTint, int);
+extern int bseldt(BTint, char *, int);
+extern int brecsz(BTint);
+extern void cnvdraddr(BTint, BTint *, int *);
+extern  BTint mkdraddr(BTint, int);
+extern int getseginfo(BTint, int *, BTint *);
 extern int dataok(BTA*);
 
-extern void setaddrsize(int);
+extern void setaddrsize(BTint);
 
-extern char* itostr(int);
+extern char* itostr(BTint);
+

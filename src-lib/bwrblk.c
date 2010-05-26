@@ -1,5 +1,5 @@
 /*
- * $Id: bwrblk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bwrblk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * bwrblk: write block from memory to disk
  *
@@ -30,10 +30,12 @@
 #include "bc.h"
 #include "bt.h"
 #include "btree_int.h"
+#include <sys/types.h>
+#include <unistd.h>
 
-int bwrblk(int blk)
+int bwrblk(BTint blk)
 {
-
+    BTint pos;
     int i,ioerr;
     
     ioerr = 0;
@@ -45,20 +47,24 @@ int bwrblk(int blk)
     }
     else {
         if (((btact->cntrl)+i)->writes != 0) {
-            ioerr = fseek(btact->idxunt,(long) blk*ZBLKSZ,0);
-            if (ioerr == 0) {
+            pos = fseeko(btact->idxunt,blk*ZBLKSZ,SEEK_SET);
+            if (pos >= 0) {
                 if ((ioerr = fwrite((btact->memrec)+i,sizeof(char),
                         ZBLKSZ, btact->idxunt)) == ZBLKSZ) {
                     btact->cntxt->stat.xphywr++;
                     ioerr = 0;
 #if DEBUG > 0
-                    fprintf(stderr,"..writing block %d, from idx %d\n",blk,i);
+                    fprintf(stderr,"BWRBLK: writing block " ZINTFMT ", from idx %d\n",blk,i);
 #endif                  
                 }
                 else {
                     ioerr = -1;
                 }
             }
+            else {
+                ioerr = -1;
+            }
+            
         }
         else {
              btact->cntxt->stat.xlogwr++;

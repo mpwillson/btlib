@@ -19,11 +19,13 @@
 #   Revised linking 
 # BTMAKE    080509  mpw
 #	Make dependency file handling cleaner: ${DEP} is dependent on ${SRC}
+# BTMAKE    100525
+#   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.9 2008-05-09 11:00:23 mark Exp $
+# $Id: Makefile,v 1.10 2008-05-09 12:49:13 mark Exp $
 
 # Uncomment the following line for a debug version of the library
-#DEBUG=-g
+DEBUG=-g
 
 # Headers in INC_DIR
 INC_DIR=./inc
@@ -40,7 +42,12 @@ TESTCASES=./Testcases
 # Computed dependencies in DEP
 DEP=.dep
 
-CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR}
+# Turn on big file support ( > 2GB)
+ifdef LFS
+BIGFILE=-D_FILE_OFFSET_BITS=64
+endif
+
+CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR} ${BIGFILE}
 
 LIBS=-L${LIB_DIR} -l${LIB_NAME}
 
@@ -60,7 +67,7 @@ HDR := ${wildcard ${INC_DIR}/*.h}
 
 .INTERMEDIATE: ${OBJ}
 
-all:	depend bt kcp TAGS
+all:	depend bt kcp TAGS bigt bigtdel
 
 # include dependencies (no message if it doesn't exist)
 -include 	${DEP}

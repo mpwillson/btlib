@@ -1,5 +1,5 @@
 /*
- * $Id: bmodky.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bmodky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bmodky: replaces value of key at location loc in block
  *
@@ -36,7 +36,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bmodky(int blk,int loc,int val)
+int bmodky(BTint blk,int loc,BTint val)
 {
     int idx,ioerr;
 

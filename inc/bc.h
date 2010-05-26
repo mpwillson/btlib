@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.14 2008-05-08 14:33:42 mark Exp $
+ * $Id: bc.h,v 1.15 2008-05-09 18:25:29 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -23,6 +23,21 @@
 #ifndef _btconst_
 #define _btconst_
 
+/* Support for large files (> 2GB); define macro _FILE_OFFSET_BITS=64 */
+#if _FILE_OFFSET_BITS == 64 
+typedef long long BTint;
+#define BTINT_MAX 9223372036854775807LL
+#define ZINTFMT "%lld"
+#define LL(STR) STR "%20lld\n"
+#define Z20DFMT "%20lld"
+#else
+typedef int BTint;
+#define BTINT_MAX INT_MAX
+#define LL(STR) STR "%20d\n"
+#define Z20DFMT "%20d"
+#define ZINTFMT "%d"
+#endif
+
 /*
  *  B tree constants
  */
@@ -35,17 +50,23 @@
 
 /* Implementation defined constants */
 
-/* number of bytes per int */
-#define ZBPW 4
 /* bits per byte */
 #define ZBYTEW 8
+
+/* number of bytes per BTint */
+#if _FILE_OFFSET_BITS == 64 
+#define ZBPW 8
+#else
+#define ZBPW 4
+#endif
+
 
 /* maximum key size (bytes) */
 #define ZKYLEN 32
 /* number of in-memory blocks (3 is the minimum) */
 #define ZMXBLK  3
-/* block size in bytes */
-#define ZBLKSZ 1024
+/* block size in bytes (must be power of 2) */
+#define ZBLKSZ 8192
 /* number of keys per block */
 #define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW)) 
 /* number of pad words required */
@@ -71,8 +92,11 @@
 
 /* ZVERS must be incremented when structure of B Tree index file
  * changes */
-
+#if _FILE_OFFSET_BITS == 64 
+#define ZVERS 0x3
+#else
 #define ZVERS 0x2
+#endif
 
 /* ZBTYPE and ZBTVER share information word 0 */
 #define ZBTYPE 0
@@ -104,10 +128,10 @@
  *      information (six bytes for a 32 bit int implementation).
  *      These are used as follows:
  *
- *          Bytes 1 and 2: the size of the data record in bytes
- *          (maximum size of a data record is therefore 65536 bytes).
+ *          Bytes 1 and 2: the size of the data segment in bytes
+ *          (maximum size of a data segment is therefore 65536 bytes).
  *          
- *          Bytes 3-6: data record address of the next segment of this
+ *          Bytes 3-6: segment address of the next segment of this
  *          data record (0 if the last (or only) segment)).
  */
 
@@ -202,5 +226,8 @@
 #define QF2BIG  52
 
 #define QBADAL  53
+#define QDRANEG 54
+
+#define QBLKSZERR 55
 
 #endif /* _btconst_ */

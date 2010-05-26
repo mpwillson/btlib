@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: bsuper.c,v 1.7 2004/10/02 16:10:09 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -64,7 +64,8 @@ fin:
 /* update super root on disk */
 int bwrsup()
 {
-    int ioerr,idx,nkeys;
+    int ioerr,idx;
+    BTint nkeys;
 
     ioerr = brdblk(ZSUPER,&idx);
     if (ioerr != 0) {

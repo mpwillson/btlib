@@ -1,5 +1,5 @@
 /*
- * $Id: btcrtr.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btcrtr.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * btcrtr: creates a new root in index file
  *
@@ -36,7 +36,8 @@
 
 int btcrtr(BTA *b, char *root)
 {
-    int svblk,blk,status;
+    BTint svblk,blk;
+    int status;
 
     bterr("",0,NULL);
 

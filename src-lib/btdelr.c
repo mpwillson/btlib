@@ -1,5 +1,5 @@
 /*
- * $Id: btdelr.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btdelr.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * btdelr: delete root name from super root, and all the blocks
  *          belonging to the root.
@@ -36,8 +36,8 @@
 
 int btdelr(BTA *b,char *root)
 {
-    int svblk,blk,status;
-    int thisblk;
+    BTint svblk,blk,thisblk;
+    int status;
     
     bterr("",0,NULL);
     if ((status=bvalap("BTDELR",b)) != 0) return(status);

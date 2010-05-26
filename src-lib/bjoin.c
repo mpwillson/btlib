@@ -1,5 +1,5 @@
 /*
- * $Id: bjoin.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bjoin.c,v 1.5 2004/10/02 16:10:08 mark Exp $
  *
  * bjoin: bjoins keys in rblk to lblk (using tkey)
  *
@@ -36,7 +36,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bjoin(int lblk,int rblk,char *tkey,int val)
+void bjoin(BTint lblk,BTint rblk,char *tkey,BTint val)
 {
     int lnkeys,rnkeys;
 

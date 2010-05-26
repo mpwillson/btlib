@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.8 2007-04-13 10:00:24 mark Exp $
+ * $Id: bt.c,v 1.9 2008-05-08 14:35:23 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -80,6 +80,7 @@ FILE* pullcf();
 int main(int argc,char *argv[])
 {
     char buff[80],*arg[4],key[32],fid[72],name[6],*cp,*ps;
+    BTint val;
     int i,ierr,ioerr;
     int found,prompt,svp,quit,size;
     FILE *unit;
@@ -233,9 +234,9 @@ int main(int argc,char *argv[])
         }
         /* check for Find */
         else if (strcmp(arg[0],"f") == 0) {
-            ierr = bfndky(btp,arg[1],&i);
+            ierr = bfndky(btp,arg[1],&val);
             if (ierr == 0)
-                printf("Key: '%s' = %d\n",arg[1],i);
+                printf("Key: '%s' = " ZINTFMT "\n",arg[1],val);
             else if (ierr == QNOKEY) {
                 if (strcmp(arg[1],EMPTY) != 0)
                     printf("No such key as '%s'\n",arg[1]);
@@ -254,20 +255,20 @@ int main(int argc,char *argv[])
         }
         /*  check for Next (key) */
         else if (strcmp(arg[0],"n") == 0) {
-            ierr = bnxtky(btp,key,&i);
+            ierr = bnxtky(btp,key,&val);
             if (ierr == QNOKEY) {
                 printf("No more keys\n");
             }
             else {
-                printf("Key: '%s' = %d\n",key,i);
+                printf("Key: '%s' = " ZINTFMT "\n",key,val);
             }   
         }
         /*  check for List (of keys) */
         else if (strcmp(arg[0],"l") == 0) {
             ierr = 0;
             while (ierr == 0) {
-                ierr = bnxtky(btp,key,&i);
-                if (ierr == 0) printf("Key: '%s' = %d\n",key,i);
+                ierr = bnxtky(btp,key,&val);
+                if (ierr == 0) printf("Key: '%s' = " ZINTFMT "\n",key,val);
             }
         }
         /*  check for ? (help) */
@@ -487,7 +488,8 @@ int main(int argc,char *argv[])
         }
         /* update value command */
         else if (strcmp(arg[0],"uv") == 0) {
-            ierr = bupdky(btp,arg[1],atoi(arg[2]));
+            ierr = bupdky(btp,arg[1],atoi(arg[2])); /* only int
+                                                       update! */
             if (ierr != 0) {
                 fprintf(stderr,"Can't update value for: '%s'\n",arg[1]);
             }

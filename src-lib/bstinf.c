@@ -1,5 +1,5 @@
 /*
- * $Id: bstinf.c,v 1.8 2006-05-14 19:51:47 mark Exp $
+ * $Id: bstinf.c,v 1.9 2006-05-14 20:20:20 mark Exp $
  *
  *
  *  bstinf: set information about block
@@ -34,9 +34,7 @@
 #include "btree_int.h"
 #include <math.h>
 
-#define MASK 2**((ZBPW/2)*ZBYTEW)-1
-
-int bstinf(int blk,int type,int val)
+int bstinf(BTint blk,int type,BTint val)
 {
     int ioerr,idx;
 
@@ -51,7 +49,7 @@ int bstinf(int blk,int type,int val)
             switch (type) {
                 case ZBTYPE:
                     ((btact->memrec)+idx)->infblk[type] =
-                        (ZVERS << ((ZBPW/2)*ZBYTEW)) | val;
+                        (((BTint) ZVERS) << ((ZBPW/2)*ZBYTEW)) | val;
                 case ZBTVER:
                     break; /* always set implicitly by ZBTYPE */
                 default:

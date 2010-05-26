@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.17 2009-01-03 20:40:46 mark Exp $
+ * $Id: btdata.c,v 1.18 2010-05-15 11:01:51 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -86,10 +86,10 @@
 #include "btree.h"
 #include "btree_int.h"
 
-/*
-#undef DEBUG
-#define DEBUG 1 
-*/
+
+/* #undef DEBUG */
+/* #define DEBUG 1  */
+
 
 /*------------------------------------------------------------------------
  * The btins routine will insert key and an associated data record
@@ -107,8 +107,8 @@
 int btins(BTA *b,char *key, char *data, int dsize)
 {
     int status;
-    unsigned draddr = 0;
-    int dontcare;
+    BTint draddr = 0;
+    BTint dontcare;
 
     bterr("",0,NULL);
     if ((status=bvalap("BTINS",b)) != 0) return(status);
@@ -144,9 +144,13 @@ int btins(BTA *b,char *key, char *data, int dsize)
     if (dsize >= 0) {
         draddr = binsdt(data,dsize);
 #if DEBUG > 0
-        fprintf(stderr,"draddr = %x\n",draddr);
+        fprintf(stderr,"draddr = %llx\n",draddr);
 #endif
         if (draddr != ZNULL) {
+            if (draddr < 0) {
+                bterr("BTINS",QDRANEG,itostr(draddr));
+                goto fin;
+            }
             status = binsky(btact,key,draddr);
             if (status != 0){
                 /* can't insert new key, therefore must delete data */
@@ -178,7 +182,8 @@ fin:
 
 int btupd(BTA *b,char *key, char *data, int dsize)
 {
-    int status, draddr, result;
+    BTint draddr;
+    int status, result;
 
     bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
@@ -231,7 +236,8 @@ fin:
 
 int btsel(BTA *b,char *key, char *data, int dsize,int *rsize)
 {
-    int status, draddr, result;
+    BTint draddr;
+    int status, result;
 
     bterr("",0,NULL);
     if ((result=bvalap("BTSEL",b)) != 0) return(result);
@@ -254,7 +260,10 @@ int btsel(BTA *b,char *key, char *data, int dsize,int *rsize)
     status = bfndky(btact,key,&draddr);
     if (status != 0) goto fin;
 
-    /* TBD check for valid data pointer */
+    if (draddr < 0) {
+        bterr("BTSEL",QDRANEG,itostr(draddr));
+        goto fin;
+    }
 
     /* retrieve data from btree */
     *rsize = bseldt(draddr,data,dsize);
@@ -277,7 +286,8 @@ fin:
 
 int btdel(BTA *b,char *key)
 {
-    int status, draddr, result;
+    BTint draddr;
+    int status, result;
 
     bterr("",0,NULL);
     if ((result=bvalap("BTDEL",b)) != 0) return(result);
@@ -319,7 +329,8 @@ fin:
 
 int btseln(BTA *b,char *key, char *data, int dsize,int *rsize)
 {
-    int status, draddr, result;
+    BTint draddr;
+    int status, result;
 
     bterr("",0,NULL);
     if ((result=bvalap("BTSELN",b)) != 0) return(result);
@@ -362,7 +373,8 @@ fin:
 
 int btrecs(BTA *b, char *key, int *rsize)
 {
-    int status, draddr, result;
+    BTint draddr;
+    int status, result;
 
     bterr("",0,NULL);
     if ((result=bvalap("BTRECS",b)) != 0) return(result);
@@ -409,9 +421,10 @@ int btrecs(BTA *b, char *key, int *rsize)
  *------------------------------------------------------------------------
  */
 
-int bseldt(int draddr, char *data, int dsize) 
+int bseldt(BTint draddr, char *data, int dsize) 
 {
-    int dblk, status, idx,
+    BTint dblk;
+    int status, idx,
         segsz = 0, cpsz = -1;
     int offset = 0;
     int totsz = 0;
@@ -432,14 +445,15 @@ int bseldt(int draddr, char *data, int dsize)
         status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 #if DEBUG > 0
-        fprintf(stderr,"BSELDT: Using draddr x%x (%d,%d), found %x\n",
+        fprintf(stderr,"BSELDT: Using draddr 0x%llx (%lld,%d), found 0x%x\n",
                 draddr,dblk,offset,*(d->data+offset+ZDOVRH));
 #endif
 
         segsz = rdsz(d->data+offset);
         draddr = rdint(d->data+offset+ZDRSZ);
 #if DEBUG > 0
-        fprintf(stderr,"BSELDT: Seg size: %d, next draddr: %x\n",segsz,draddr);
+        fprintf(stderr,"BSELDT: Seg size: %d, next draddr: 0x%llx\n",
+                segsz,draddr);
 #endif
         cpsz = (segsz>sprem)?sprem:segsz;
 #if DEBUG > 0
@@ -455,10 +469,10 @@ fin:
     return(totsz);
 }
 
-int bdeldt(unsigned draddr)
+int bdeldt(BTint draddr)
 {
-    int dblk, status;
-    int size, offset;
+    BTint dblk;
+    int status, size, offset;
 
     while (draddr != 0) {
         /* unpick data pointer */
@@ -486,9 +500,10 @@ int bdeldt(unsigned draddr)
  *------------------------------------------------------------------------
  */
 
-int bupddt(unsigned draddr, char *data, int dsize) 
+int bupddt(BTint draddr, char *data, int dsize) 
 {
-    int dblk, status, idx, segsz, cpsz = ZNULL;
+    BTint dblk;
+    int status, idx, segsz, cpsz = ZNULL;
     int offset;
     int freesz;
     int remsz = dsize;
@@ -499,7 +514,8 @@ int bupddt(unsigned draddr, char *data, int dsize)
         /* unpick blk/offset pointer */
         cnvdraddr(draddr,&dblk,&offset);
 #if DEBUG > 0
-        fprintf(stderr,"Update processing blk: %d, offset: %d\n",dblk,offset);
+        fprintf(stderr,"Update processing blk: %lld, offset: %d\n",
+                dblk,offset);
 #endif      
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
             bterr("BUPDDT",QNOTDA,NULL);
@@ -519,7 +535,7 @@ int bupddt(unsigned draddr, char *data, int dsize)
         if (cpsz == remsz) {
             /* last (or only) segment */
             wrsz(cpsz,d->data+offset);
-            wrint((unsigned) 0,d->data+offset+ZDRSZ);
+            wrint(0,d->data+offset+ZDRSZ);
             /* update free space in block */
             freesz = bgtinf(dblk,ZMISC);
             freesz += (segsz-cpsz);
@@ -567,9 +583,10 @@ fin:
  *------------------------------------------------------------------------
  */
 
-int binsdt(char *data, int dsize)
+BTint binsdt(char *data, int dsize)
 {
-    int offset, dblk, nblk;
+    BTint dblk, nblk;
+    int offset;
     char *segptr = data+dsize;
     int remsize = dsize;
     int segaddr = 0;
@@ -638,10 +655,10 @@ int binsdt(char *data, int dsize)
     return(ZNULL);
 }
 
-int deldat(int blk,int offset) 
+int deldat(BTint blk,int offset) 
 {
     int status, freesz, size, idx;
-    int pblk, nblk;
+    BTint pblk, nblk;
     
     DATBLK *d;
 
@@ -654,7 +671,7 @@ int deldat(int blk,int offset)
     size = rdsz(d->data+offset);
     freesz += (size+ZDOVRH);
 #if DEBUG > 0
-    fprintf(stderr,"Deleting segment: blk %d, offset: %d\n",blk,offset);
+    fprintf(stderr,"Deleting segment: blk %lld, offset: %d\n",blk,offset);
     fprintf(stderr,"seg size: %d, free space now = %d, free target = %d\n",
             size,freesz,ZBLKSZ-(ZINFSZ*ZBPW));
 #endif  
@@ -684,9 +701,10 @@ int deldat(int blk,int offset)
     return (0);
 }
 
-int insdat(int blk,char *data, int dsize, unsigned prevseg)
+int insdat(BTint blk,char *data, int dsize, BTint prevseg)
 {
-    int offset, status, idx, freesz;
+    int offset;
+    int status, idx, freesz;
     DATBLK *d;
 
     offset = bgtinf(blk,ZNKEYS);
@@ -695,7 +713,7 @@ int insdat(int blk,char *data, int dsize, unsigned prevseg)
     wrsz(dsize,d->data+offset);
     wrint(prevseg,d->data+offset+ZDRSZ);
 #if DEBUG > 0
-    fprintf(stderr,"writing segment at block %d, offset %d, of size %d\n",
+    fprintf(stderr,"writing segment at block %lld, offset %d, of size %d\n",
             blk,offset,dsize);
 #endif  
     memcpy(d->data+offset+ZDOVRH,data,dsize);
@@ -710,16 +728,16 @@ int insdat(int blk,char *data, int dsize, unsigned prevseg)
  * ----------------------------------------------------------
  */
 
-int brecsz(unsigned draddr)
+int brecsz(BTint draddr)
 {
-    int blk, offset, segsz, recsz;
-    unsigned newdraddr;
+    BTint blk,newdraddr;
+    int offset, segsz, recsz;
     
     recsz = 0;
     while (draddr != 0) {
         cnvdraddr(draddr,&blk,&offset);
 #if DEBUG > 0
-        fprintf(stderr,"BRECSZ: Processing draddr: %0x, blk: %d, offset: %d\n",
+        fprintf(stderr,"BRECSZ: Processing draddr: 0x%llx, blk: %lld, offset: %d\n",
                 draddr,blk,offset);
 #endif
         /* ensure we are pointing at a data block */
@@ -730,7 +748,7 @@ int brecsz(unsigned draddr)
         getseginfo(draddr,&segsz,&newdraddr);
         
 #if DEBUG > 0       
-        fprintf(stderr,"\tSeg size: %d, next seg: %0x\n",segsz,newdraddr);
+        fprintf(stderr,"\tSeg size: %d, next seg: 0x%llx\n",segsz,newdraddr);
 #endif      
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
@@ -749,9 +767,9 @@ int brecsz(unsigned draddr)
  * ----------------------------------------------------------
  */
 
-int mkdblk(void)
+BTint mkdblk(void)
 {
-    int blk;
+    BTint blk;
 
     blk = bgtfre();
     if (blk != ZNULL ) {
@@ -783,7 +801,7 @@ int rdsz(char *a)
     return (s);
 }
 
-unsigned rdint(char *a)
+BTint rdint(char *a)
 {
     int i = 0,k;
 
@@ -802,7 +820,7 @@ void wrsz(int i, char *a)
     *a = (s>>8) & 0xff;
 }
 
-void wrint(unsigned i, char *a)
+void wrint(BTint i, char *a)
 {
     int k;
 
@@ -811,16 +829,17 @@ void wrint(unsigned i, char *a)
     }
 }
 
-int offsetmask;                 /* used to mask out block number
+BTint offsetmask;                 /* used to mask out block number
                                  * from data address */
 int offsetwidth;                /* number of bits needed to offer data
                                  * block segment offset */
 
 /*-----------------------------------------------------------------------
  * Determine and save data block addressing, based on block size
+ * Redundant (as of 20100525)
  *---------------------------------------------------------------------*/
 
-void setaddrsize(int blksz)
+void setaddrsize(BTint blksz)
 {
     int width = 0;
     offsetmask = blksz-1;
@@ -830,21 +849,24 @@ void setaddrsize(int blksz)
 
 /*------------------------------------------------------------------------
  * Convert data block address into block number and offset
+ * Assumes ZBLKSZ is a power of 2
  *----------------------------------------------------------------------*/
 
-void cnvdraddr(unsigned draddr, int *dblk, int *offset)
+void cnvdraddr(BTint draddr, BTint *dblk, int *offset)
 {
-    *dblk = draddr >> offsetwidth;
-    *offset = draddr & offsetmask;
+    *dblk = draddr/ZBLKSZ;
+    *offset = draddr & (ZBLKSZ-1);
 }
 
 /*------------------------------------------------------------------------
  * Convert data block number and data offset to draddr value
+ * Assumes ZBLKSZ is a power of 2
  *----------------------------------------------------------------------*/
 
-unsigned mkdraddr(int dblk, int offset)
+BTint mkdraddr(BTint dblk, int offset)
 {
-    return(dblk<<offsetwidth | offset);
+    BTint draddr = dblk*ZBLKSZ | offset;
+    return draddr;
 }
 
 /*------------------------------------------------------------------------
@@ -852,9 +874,10 @@ unsigned mkdraddr(int dblk, int offset)
  * indicated by draddr
  *----------------------------------------------------------------------*/
 
-int getseginfo(unsigned draddr, int *size, unsigned *nextseg) 
+int getseginfo(BTint draddr, int *size, BTint *nextseg) 
 {
-    int blk, offset;
+    BTint blk;
+    int offset;
     int status,  idx;
     DATBLK *d;
 

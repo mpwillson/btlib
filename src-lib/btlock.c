@@ -1,5 +1,5 @@
 /*
- * $Id: btlock.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: btlock.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * btlock: locks index file for exclusive use
  *

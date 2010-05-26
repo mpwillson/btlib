@@ -1,5 +1,5 @@
 /*
- * $Id: balbk1.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: balbk1.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * balbk1: balances keys between blocks 
  *
@@ -37,11 +37,11 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void balbk1(int lblk,int rblk,int diff,char *key,int val)
+void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
 {
 
-    int i,tblk,fblk,keypos,dir,tval,link1,link2,result;
-    int limit;
+    BTint tblk,fblk,tval,link1,link2;
+    int i,dir,keypos,result,limit;
     char tkey[ZKYLEN];
 
 #if DEBUG >= 1

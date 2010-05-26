@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btcrt.c,v 1.7 2006-09-06 19:17:45 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -35,6 +35,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "bc.h"
 #include "bt.h"
 #include "btree.h"
@@ -42,7 +45,8 @@
 
 BTA *btcrt(char *fid, int nkeys,int shared)
 {
-    int idx,ioerr,nblks,i;
+    BTint nblks;
+    int idx,ioerr,i;
     
     bterr("",0,NULL);
 
@@ -51,10 +55,23 @@ BTA *btcrt(char *fid, int nkeys,int shared)
         bterr("BTCRT",QNOACT,NULL);
         return NULL;
     }
+    /* fd = creat(fid,O_LARGE_FILE|O_CREAT|O_RDWR); */
+    /* if (fd > 0) { */
+    /*     if ((btact->idxunt = fdopen(fd,"w+b")) == NULL) { */
+    /*         bterr("BTCRT",QCRTIO,NULL); */
+    /*         return NULL; */
+    /*     } */
+    /* }    */
+    /* else { */
+    /*     bterr("BTCRT",QCRTIO,NULL); */
+    /*     return NULL; */
+    /* } */
+    
     if ((btact->idxunt = fopen(fid,"w+b")) == NULL) {
         bterr("BTCRT",QCRTIO,NULL);
         return NULL;
     }
+
     btact->shared = shared;
     strcpy(btact->idxfid,fid);
 
@@ -80,7 +97,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     /* set up super root */
     idx = bgtslt();
     ((btact->cntrl)+idx)->inmem = ZSUPER;
-    bsetbk(ZSUPER,ZROOT,btact->cntxt->super.snfree,
+    bsetbk((BTint) ZSUPER,(BTint) ZROOT,btact->cntxt->super.snfree,
         btact->cntxt->super.sfreep,2,
         btact->cntxt->super.sblkmx);
     

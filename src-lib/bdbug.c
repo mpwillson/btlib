@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.7 2004/09/26 13:07:39 mark Exp $
+ * $Id: bdbug.c,v 1.8 2004/10/02 16:10:08 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -37,12 +37,11 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define MASK (int) (pow(2,((ZBPW/2)*ZBYTEW))-1)
-
-int bdbug(BTA * b,char *cmd,int blkno)
+int bdbug(BTA * b,char *cmd,BTint blkno)
 {
-    int i,j,ioerr;
-    int tblks,tnkeys;
+    int idx,ioerr;
+    int i,j;
+    BTint tblks,tnkeys;
     DATBLK *d;
 
     bterr("",0,NULL);
@@ -63,32 +62,35 @@ int bdbug(BTA * b,char *cmd,int blkno)
     }
     if (strcmp(cmd,"super") == 0) {
         printf(
-            "  Number of blocks: %10d\n"
-            "  # free blocks:    %10d\n"
-            "  First free:       %10d\n"
-            "  Current root blk: %10d\n"
-            "  Current root nm:  %s\n"
-            "  Block overhead:   %10d\n"
-            "  Block size:       %10d\n"
-            "  Keys per block:   %10d\n",
-            btact->cntxt->super.sblkmx,btact->cntxt->super.snfree,
-            btact->cntxt->super.sfreep,btact->cntxt->super.scroot,
+            "  Number of blocks: " Z20DFMT "\n"
+            "  # free blocks:    " Z20DFMT "\n"
+            "  First free:       " Z20DFMT "\n"
+            "  Current root blk: " Z20DFMT "\n"
+            "  Current root nm:  %20s\n"
+            "  Block overhead:   %20d\n"
+            "  Block size:       %20d\n"
+            "  Keys per block:   %20d\n",
+            btact->cntxt->super.sblkmx,
+            btact->cntxt->super.snfree,
+            btact->cntxt->super.sfreep,
+            btact->cntxt->super.scroot,
             btact->cntxt->super.scclas,ZPAD,ZBLKSZ,ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
         fprintf(stdout,"  Index file: %s\n"
                 "  Shared?:    %10d\n"
                 "  Last key:   %s\n"
-                "  Last blk:   %10d\n"
+                "  Last blk:   " Z20DFMT "\n"
                 "  Last pos:   %10d\n"
                 "  LRU head:   %10d\n"
                 "  LRU tail:   %10d\n",
                 btact->idxfid,btact->shared,btact->cntxt->lf.lfkey,
                 btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
                 btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
-        fprintf(stdout,"      Mblk       Blk      Busy    Writes     Lrunxt\n");
+        fprintf(stdout,"%10s%20s%10s%10s%10s\n","Mblk","Blk","Busy","Writes",
+                "Lrunxt");
         for (i=0;i<ZMXBLK;i++)
-            fprintf(stdout,"%10d%10d%10d%10d%10d\n",
+            fprintf(stdout,"%10d" Z20DFMT "%10d%10d%10d\n",
                     i,((btact->cntrl)+i)->inmem,
                     ((btact->cntrl)+i)->busy,
                     ((btact->cntrl)+i)->writes,
@@ -115,52 +117,53 @@ int bdbug(BTA * b,char *cmd,int blkno)
         do {
             bnxtbk(&blkno);
             tblks++;
-            ioerr = brdblk(blkno,&i);
-            tnkeys += ((btact->memrec)+i)->infblk[ZNKEYS];
+            ioerr = brdblk(blkno,&idx);
+            tnkeys += ((btact->memrec)+idx)->infblk[ZNKEYS];
         } while (blkno != btact->cntxt->super.scroot);
         
         fprintf(stdout,
-                " No. of blocks:    %10d\n"
-                " Max. poss. keys:  %10d\n"
-                " Actual keys:      %10d\n"
-                " Occupancy (%c):    %10.2f\n",
+                " No. of blocks:    " Z20DFMT "\n"
+                " Max. poss. keys:  " Z20DFMT "\n"
+                " Actual keys:      " Z20DFMT "\n"
+                " Occupancy (%c):    %20.2f\n",
                 tblks, tblks*ZMXKEY,tnkeys,'%',
                 (double) tnkeys/(tblks*ZMXKEY)*100.0);
     }
     else if (strcmp(cmd,"block") == 0) {
-        ioerr = brdblk(blkno,&i);
-        if (i >= 0) {
-            fprintf(stdout,"  Block:%10d\n"
-                    "  Misc: %10d\n"
-                    "  Nxblk:%10d\n"
-                    "  Nkeys:%10d\n"
-                    "  Nblks:%10d\n",
-                    bgtinf(blkno,ZBTYPE),
-                    bgtinf(blkno,ZMISC),
-                    bgtinf(blkno,ZNXBLK),
-                    bgtinf(blkno,ZNKEYS),
-                    bgtinf(blkno,ZNBLKS));
+        ioerr = brdblk(blkno,&idx);
+        if (idx >= 0) {
+            fprintf(stdout,
+                    "%-12s" Z20DFMT "\n"
+                    "%-12s" Z20DFMT "\n"
+                    "%-12s" Z20DFMT "\n"
+                    "%-12s" Z20DFMT "\n"
+                    "%-12s" Z20DFMT "\n",
+                    "Block Type:",bgtinf(blkno,ZBTYPE),
+                    "Misc:",bgtinf(blkno,ZMISC),
+                    "Nxblk:",bgtinf(blkno,ZNXBLK),
+                    "Nkeys:",bgtinf(blkno,ZNKEYS),
+                    "Nblks:",bgtinf(blkno,ZNBLKS));
             if (bgtinf(blkno,ZBTYPE) == ZDATA) {
-                d = (DATBLK *) (btact->memrec)+i;
+                d = (DATBLK *) (btact->memrec)+idx;
                 bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
                 goto fin;
             }
-            fprintf(stdout,"  %32s %10s %10s %10s\n","Key","Val","Llink","Rlink");
-            for (j=0;j<((btact->memrec)+i)->infblk[ZNKEYS];j++)
-                fprintf(stdout,"  %32s %10d %10d %10d\n",
-                        ((btact->memrec)+i)->keyblk[j],
-                        ((btact->memrec)+i)->valblk[j],
-                        ((btact->memrec)+i)->lnkblk[j],
-                        ((btact->memrec)+i)->lnkblk[j+1]);
+            fprintf(stdout,"  %32s%20s%20s%20s\n","Key","Val","Llink","Rlink");
+            for (j=0;j<((btact->memrec)+idx)->infblk[ZNKEYS];j++)
+                fprintf(stdout,"  %32s " Z20DFMT Z20DFMT Z20DFMT "\n",
+                        ((btact->memrec)+idx)->keyblk[j],
+                        ((btact->memrec)+idx)->valblk[j],
+                        ((btact->memrec)+idx)->lnkblk[j],
+                        ((btact->memrec)+idx)->lnkblk[j+1]);
         }
         else {
             bterr("BDBUG",QRDBLK,itostr(blkno));
         }
     }
     else if (strcmp(cmd,"stack") == 0) {
-        fprintf(stdout,"     Level  Contents\n");
+        fprintf(stdout,"%10s%20s\n","Level","Contents");
         for (i=0;i<=btact->cntxt->stk.stkptr;i++)
-            fprintf(stdout,"%10d%10d\n",i,btact->cntxt->stk.stk[i]);
+            fprintf(stdout,"%10d" Z20DFMT "\n",i,btact->cntxt->stk.stk[i]);
     }
     else {
         bterr("BDBUG",QBADOP,NULL);

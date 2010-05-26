@@ -1,5 +1,5 @@
 /*
- * $Id: balblk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: balblk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * balblk: attempts to balance blocks
  *
@@ -29,7 +29,8 @@
 
 void balblk() 
 {
-    int nkeys,cnkeys,val,llink,rlink,result,diff,cblk;
+    BTint val,llink,rlink,cblk;
+    int nkeys,cnkeys,result,diff;
     char tkey[ZKYLEN];
 
     cblk = btact->cntxt->lf.lfblk;

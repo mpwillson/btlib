@@ -1,5 +1,5 @@
 /*
- * $Id: bremky.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bremky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bremky: deletes key (and rlink) at pos from blk
  *
@@ -32,7 +32,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bremky(int blk,int pos)
+void bremky(BTint blk,int pos)
 {
     int idx,i,ioerr;
 

@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.12 2006-04-09 16:09:21 mark Exp $
+ * $Id: bterr.c,v 1.13 2008-05-09 18:25:34 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -54,7 +54,7 @@ char *msgblk[] = {
     " Unable to close index file",
     " Unable to create index file",
     " Unable to read source or destination block ",
-    " I/O error writing block",
+    " I/O error writing block %s",
     " I/O error reading super root",
     " I/O error writing super root",
     " I/O error opening index file",
@@ -103,6 +103,8 @@ char *msgblk[] = {
     " Data capacity exceeded at block: %s",
     " Index file is at maximum size",
     " Unable to set alarm for locking",
+    " Data record address is negative: %s",
+    " Defined block size is not a power of 2: %s",
     " No message exists for this error code"
 };
 
@@ -123,6 +125,8 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
         else {
             sprintf(msg,"%s (Info: %d)",msgblk[qerror],qcode);
         }
+        if (strlen(qarg) != 0) sprintf(msg,msg,qarg);
+
     }
     else {
         sprintf(msg,msgblk[qerror],qarg);

@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: butil.c,v 1.5 2004/10/02 16:10:09 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
@@ -26,8 +26,8 @@
 
 static char buf[80];
 
-char* itostr(int v)
+char* itostr(BTint v)
 {
-    sprintf(buf,"%d",v);
+    sprintf(buf,ZINTFMT,v);
     return buf;
 }

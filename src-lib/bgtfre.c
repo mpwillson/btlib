@@ -1,5 +1,5 @@
 /*
- * $Id: bgtfre.c,v 1.7 2004/09/26 13:07:39 mark Exp $
+ * $Id: bgtfre.c,v 1.8 2004/10/02 16:10:08 mark Exp $
  *
  * bgtfre: gets free block
  *
@@ -32,9 +32,11 @@
 #include "btree_int.h"
 #include <limits.h>
 
+
 int bgtfre()
 {
-    int blk,idx,ioerr,faddr;
+    BTint blk,faddr;
+    int idx,ioerr;
     
     if (btact->cntxt->super.sfreep == ZNULL) {
         /* unix can create a new block at file end other systems may
@@ -42,7 +44,7 @@ int bgtfre()
         
         blk = btact->cntxt->super.sblkmx;
         faddr = blk*ZBLKSZ+ZBLKSZ;
-        if (faddr < 0 || faddr >= INT_MAX) {
+        if (faddr < 0 || faddr >= BTINT_MAX) {
             /* assume (possibly wrongly) that a file cannot be bigger
                (in terms of bytes) than the size of INT_MAX */
             bterr("BGTFRE",QF2BIG,NULL);

@@ -1,5 +1,5 @@
 /*
- * $Id: bdemte.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bdemte.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bdemte: if non-leaf block is empty, demote parent key
  *
@@ -32,9 +32,10 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bdemte(int *cblk)
+void bdemte(BTint *cblk)
 {
-    int nkeys,type,newblk,val,link1,link2,result,jblk,llink,rlink;
+    BTint newblk,val,link1,link2,jblk,llink,rlink;
+    int nkeys,type,result;
     int rblke;
     char tkey[ZKYLEN];
 

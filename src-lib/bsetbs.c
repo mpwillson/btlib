@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbs.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bsetbs.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  *
   bsetbs: alter busy state of in-memory block
@@ -34,7 +34,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bsetbs(int blk,int busy)
+void bsetbs(BTint blk,int busy)
 {
     int idx,status;
 

@@ -1,5 +1,5 @@
 /*
- * $Id: bgtinf.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: bgtinf.c,v 1.7 2004/10/02 16:10:08 mark Exp $
  *
  * bgtinf: get information about block
  *
@@ -33,11 +33,12 @@
 #include "bt.h"
 #include "btree_int.h"
 
-#define MASK ((1<<((ZBPW/2)*ZBYTEW))-1)
+#define MASK ((((BTint) 1)<<((ZBPW/2)*ZBYTEW))-1)
 
-int bgtinf(int blk,int type)
+BTint bgtinf(BTint blk,int type)
 {
-    int val,ioerr,idx;
+    BTint val;
+    int ioerr,idx;
 
     val = 0;
     if (type >= ZINFSZ)
@@ -45,7 +46,7 @@ int bgtinf(int blk,int type)
     else {
         ioerr = brdblk(blk,&idx);
         if (idx < 0) {
-            bterr("BGTINF",QRDBLK,NULL);
+            bterr("BGTINF",QRDBLK,itostr((long) blk));
         }
         else {
             switch (type) {

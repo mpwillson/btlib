@@ -1,5 +1,5 @@
 /*
- * $Id: bupdky.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bupdky.c,v 1.6 2004/10/02 16:10:09 mark Exp $
  *
  * bupdky:  updates value of  key
  *
@@ -34,9 +34,10 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int bupdky(BTA *b, char *key,int val)
+int bupdky(BTA *b, char *key,BTint val)
 {
-    int lval,status;
+    BTint lval;
+    int status;
 
     bterr("",0,NULL);
     if ((status=bvalap("BUPDKY",b)) != 0) return(status);

@@ -1,5 +1,5 @@
 /*
- * $Id: brepky.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: brepky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * brepky: replaces key at location loc in block
  *
@@ -37,7 +37,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int brepky(int blk,int loc,char *key,int val,int link1,int link2)
+int brepky(BTint blk,int loc,char *key,BTint val,BTint link1,BTint link2)
 {
     int idx,ioerr;
 

@@ -1,5 +1,5 @@
 /*
- * $Id: brdblk.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: brdblk.c,v 1.5 2004/10/02 16:10:08 mark Exp $
  *
  * brdblk: reads block from disk into memory
  *
@@ -33,8 +33,9 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int brdblk(int blk,int *idx)
+int brdblk(BTint blk,int *idx)
 {
+    BTint pos;
     int i,ioerr;
 
     ioerr = 0;
@@ -44,8 +45,8 @@ int brdblk(int blk,int *idx)
         if (((btact->cntrl)+i)->inmem == blk) {
             btact->cntxt->stat.xlogrd++;
             *idx = i;
-#if DEBUG >= 2
-            fprintf(stderr,"BRDBLK: found blk %d at index %d\n",blk,i);
+#if DEBUG > 0
+            fprintf(stderr,"BRDBLK: found blk " ZINTFMT " at index %d\n",blk,i);
 #endif
             goto fin;
         }
@@ -58,8 +59,8 @@ int brdblk(int blk,int *idx)
             
     if (i >= 0) {
         /* read block from disk */
-        ioerr = fseek(btact->idxunt,(long) blk*ZBLKSZ,0);
-        if (ioerr == 0) {
+        pos = fseeko(btact->idxunt, blk*ZBLKSZ,SEEK_SET);
+        if (pos >= 0) {
             if ((ioerr = fread((btact->memrec)+i,sizeof(char),
                                ZBLKSZ,btact->idxunt)) == ZBLKSZ) {
                 btact->cntxt->stat.xphyrd++;
@@ -67,12 +68,15 @@ int brdblk(int blk,int *idx)
                 ((btact->cntrl)+i)->inmem = blk;
                 *idx = i;
 #if DEBUG > 0
-                fprintf(stderr,"BRDBLK: reading block %d, into idx %d\n",blk,i);
+                fprintf(stderr,"BRDBLK: reading block " ZINTFMT ", into idx %d\n",blk,i);
 #endif              
             }
             else {
                 ioerr = -1;
             }
+        }
+        else {
+            ioerr = -1;
         }
     }
   fin:

@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.6 2004/09/26 13:07:39 mark Exp $
+ * $Id: bfndky.c,v 1.7 2004/10/02 16:10:08 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -39,9 +39,10 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int bfndky(BTA *b,char *key,int *val)
+int bfndky(BTA *b,char *key,BTint *val)
 {
-    int cblk, index, link1, link2, result, newblk, nokeys, status;
+    BTint cblk, link1, link2, newblk;
+    int index, result, nkeys, status;
     char lkey[ZKYLEN];
     
     bterr("",0,NULL);
@@ -73,8 +74,8 @@ int bfndky(BTA *b,char *key,int *val)
 #if DEBUG >= 2
         fprintf(stderr,"BFNDKY: searching block %d\n",cblk);
 #endif      
-        nokeys = bgtinf(cblk,ZNKEYS);
-        if (nokeys == ZMXKEY && btact->cntxt->super.smode == 0) {
+        nkeys = bgtinf(cblk,ZNKEYS);
+        if (nkeys == ZMXKEY && btact->cntxt->super.smode == 0) {
             /* split if block full and updating permitted */
             bsptbk(cblk,&newblk);
             if (newblk < 0) {

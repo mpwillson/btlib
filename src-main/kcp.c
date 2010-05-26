@@ -1,5 +1,5 @@
 /*
- *  $Id: kcp.c,v 1.7 2004/10/05 17:48:44 mark Exp $
+ *  $Id: kcp.c,v 1.8 2007-04-13 10:00:24 mark Exp $
  *  
  *  NAME
  *      kcp - copies B Tree index/data files
@@ -69,8 +69,8 @@ char *prog;
 
 int main(int argc, char *argv[])
 {
-    int i,
-        status, ioerr;
+    BTint i;
+    int status, ioerr;
     BTA *in, *out;
     char current_root[ZKYLEN];
     char fname[20],msg[80];
@@ -136,7 +136,8 @@ int main(int argc, char *argv[])
 int copyroot(BTA* in, BTA* out, char *rootname)
 {
     static int bufsiz = 1024;
-    int status, i, rsiz;
+    BTint i;
+    int status, rsiz;
     static char *buf = NULL;
     char key[ZKYLEN];
 

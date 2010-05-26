@@ -1,5 +1,5 @@
 /*
- * $Id: bvalap.c,v 1.4 2004/09/26 13:07:39 mark Exp $
+ * $Id: bvalap.c,v 1.5 2004/10/02 16:10:09 mark Exp $
  *
  * bvalap -  Validates the index context pointer passed
  *

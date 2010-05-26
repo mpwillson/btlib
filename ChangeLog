@@ -1,3 +1,7 @@
+2010-05-26  Mark Willson  <mark@amber>
+
+	* All: Added support for large files (> 2GB), as compile option.
+	
 2008-05-23  Mark Willson  <mark@gold>
 
 	* btdata.c: Reset error code in btins after determining existence of

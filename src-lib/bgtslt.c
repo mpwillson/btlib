@@ -1,5 +1,5 @@
 /*
- * $Id: bgtslt.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bgtslt.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bgtslt: frees in-memory slot and returns index
  *

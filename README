@@ -1,6 +1,6 @@
 BT Library README File
 
-23rd May, 2010
+26th May, 2010
 
 CONTENTS
     INTRODUCTION
@@ -32,6 +32,9 @@ INTRODUCTION
     maximum number of keys per block, etc. are defined as constants,
     and may be modified prior to compilation.
 
+    This version of BT supports large files (> 2GB), if built with the
+    Large File Support option.
+
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
     7.3 and Cygwin.
 
@@ -39,7 +42,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-2.0.5.tar.gz -C ~/dev
+        tar xzf bt-3.0.0.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -58,6 +61,10 @@ COMPILING
     to BT source directory and issuing the following command: 
 
        make
+
+    To build the LFS version of BT, issue the following command:
+
+       make all LFS=1
 
     The BT library is a standard UNIX object archive, built by ar.
 
@@ -137,3 +144,4 @@ RELEASE HISTORY
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
     23rd May,       2010        2.0.5   Minor bug fixes
+    26th May,       2010        3.0.0   Large file support (> 2GB)

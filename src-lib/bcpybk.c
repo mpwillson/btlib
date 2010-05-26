@@ -1,5 +1,5 @@
 /*
- * $Id: bcpybk.c,v 1.5 2004/09/26 13:07:39 mark Exp $
+ * $Id: bcpybk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
  *
  * bcpybk: copies contents of one block to another
  *
@@ -35,7 +35,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bcpybk(int tblk,int fblk,int ts,int fs,int n)
+int bcpybk(BTint tblk,BTint fblk,int ts,int fs,int n)
 {
     int tidx,fidx,inc,i,j,ioerr;
 
