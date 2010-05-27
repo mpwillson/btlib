@@ -5,20 +5,14 @@ dd key1 *data
 dd key2 *data
 dd key3 *data
 f
-l
-s super
-s block 1
+ld
 e ../remdata.bt
 f
-l
+ld
 rd key2
 rd key1
 rd key3
-s super
-s block 1
-# insert mnd delete more data
+# insert and delete more data
 e ../defdata.bt
 e ../remdata.bt
-s super
-s block 1
 q

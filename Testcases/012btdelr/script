@@ -7,7 +7,7 @@ dr root_3
 e ../inskeysrand.bt
 cr $$super
 f
-l
+lko
 cr $$default
 rr root_3
 rr root_2
@@ -16,5 +16,5 @@ rr root_1
 cr root_3
 cr $$super
 f
-l
+lko
 q

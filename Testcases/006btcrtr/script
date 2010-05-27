@@ -1,18 +1,20 @@
 c test_db
 dr root_1
 e ../inskeysrand.bt
-s space
+f
+lko
 dr root_2
 e ../inskeysrand.bt
-s space
+f
+lko
 dr root_3
 e ../inskeysord.bt
-s space
+f
+lko
 dr root_4
 e ../inskeysrord.bt
 cr $$super
 f
-l
-s space
+lko
 q
 

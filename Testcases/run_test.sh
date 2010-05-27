@@ -1,4 +1,5 @@
 #!/bin/sh
+DBNAME=test_db
 if [ ! -d $1 ]; then
 	echo $0: missing testcase directory
 	exit 1
@@ -6,12 +7,13 @@ fi
 # check for bt script
 if [ -r $1/script ]; then
 	cd $1
+    rm -f ${DBNAME}
 	if [ "$2" = "create_output_masters" ]; then
 		../../bt <script >output_master 2>&1
 	else
 		../../bt <script >output_test 2>&1
 		diff output_master output_test >/dev/null 2>&1
-		if [ $? -eq 0 ]; then
+		if [ $? -eq 0 -a -f ${DBNAME} ]; then
 			printf "$1: \tpassed\n"
 		else
 			printf "$1: \tFAILED <--------------------------\n"

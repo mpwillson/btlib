@@ -1,6 +1,4 @@
 c test_db
 e ../inskeysrand.bt
 e ../fndkeysrand.bt
-s super
-s space
 q

@@ -10,11 +10,11 @@ EOF
 echo "Files should be identical"
 ../../bt <<EOF
 o new_db
-s super
-s block 0
+f
+lko
 o test_db
-s super
-s block 0
+f
+lko
 q
 EOF
 echo "Changing test_db..."
@@ -27,11 +27,11 @@ EOF
 echo "Files should now differ"
 ../../bt <<EOF
 o new_db
-s super
-s block 0
+f
+lko
 o test_db
-s super
-s block 0
+f
+lko
 q
 EOF
 rm new_db

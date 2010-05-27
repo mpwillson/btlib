@@ -5,15 +5,11 @@ dd key1 *data
 dd key2 *data
 dd key3 *data
 f
-l
-s super
-s block 1
+ld
 e ../remdata.bt
 f
-l
+ld
 rd key2
 rd key1
 rd key3
-s super
-s block 1
 q

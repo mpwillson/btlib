@@ -5,7 +5,5 @@ dd key1 *data
 dd key2 *data
 dd key3 *data
 f
-l
-s super
-s block 1
+ld
 q

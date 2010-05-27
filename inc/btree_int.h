@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.7 2004/10/05 17:47:56 mark Exp $
+ * $Id: btree_int.h,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -30,7 +30,7 @@ extern int bcpybk(BTint,BTint,int,int,int);
 extern void bterr(char *,int,char*);
 extern int btgerr(void);
 extern BTint bgtinf(BTint,int);
-extern int bgtfre(void);
+extern BTint bgtfre(void);
 extern int bgtslt(void);
 extern int bleaf(int);
 extern int bnxtbk(BTint *);

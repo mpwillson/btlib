@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.4 2004/12/11 16:57:47 mark Exp $
+ * $Id: bigt.c,v 1.5 2010-05-26 12:39:16 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -114,7 +114,13 @@ int main(int argc, char *argv[])
   fin:
     btcerr(&errorcode,&ioerror,rname,msg);
     printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
-    btcls(bt);
+    bdbug(bt,"super",0);
+    bdbug(bt,"control",0);
+    status = btcls(bt);
+    if (status != 0) {
+        btcerr(&errorcode,&ioerror,rname,msg);
+        printf("btcls error: %d [%s]: %s\n",errorcode,rname,msg);
+    }
     return EXIT_FAILURE;
     
 }

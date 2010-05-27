@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.9 2008-05-08 14:35:23 mark Exp $
+ * $Id: bt.c,v 1.10 2010-05-26 12:39:16 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -271,6 +271,14 @@ int main(int argc,char *argv[])
                 if (ierr == 0) printf("Key: '%s' = " ZINTFMT "\n",key,val);
             }
         }
+        /*  check for ListKeysOnly */
+        else if (strcmp(arg[0],"lko") == 0) {
+            ierr = 0;
+            while (ierr == 0) {
+                ierr = bnxtky(btp,key,&val);
+                if (ierr == 0) printf("%s\n",key);
+            }
+        }
         /*  check for ? (help) */
         else if (strcmp(arg[0],"?") == 0) {
             printf("b <name> <size> create data block of size bytes\n");
@@ -290,8 +298,9 @@ int main(int argc,char *argv[])
             printf("                use d qualifier to display whole record\n");
             printf("fl              list open index files\n");
             printf("l               list keys from last find\n");
-            printf("lk              lock index file\n");
             printf("ld              list keys and data from last find\n");
+            printf("lk              lock index file\n");
+            printf("lko             list keys only from last find\n");
             printf("n               next key\n");
             printf("nd              next key and data\n");
             printf("o <file> [s]    open index file\n");

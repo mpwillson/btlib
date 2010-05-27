@@ -1,5 +1,5 @@
 /*
- * $Id: bgtfre.c,v 1.8 2004/10/02 16:10:08 mark Exp $
+ * $Id: bgtfre.c,v 1.9 2010-05-26 12:39:16 mark Exp $
  *
  * bgtfre: gets free block
  *
@@ -33,7 +33,7 @@
 #include <limits.h>
 
 
-int bgtfre()
+BTint bgtfre()
 {
     BTint blk,faddr;
     int idx,ioerr;
@@ -46,7 +46,7 @@ int bgtfre()
         faddr = blk*ZBLKSZ+ZBLKSZ;
         if (faddr < 0 || faddr >= BTINT_MAX) {
             /* assume (possibly wrongly) that a file cannot be bigger
-               (in terms of bytes) than the size of INT_MAX */
+               (in terms of bytes) than the size of BTINT_MAX */
             bterr("BGTFRE",QF2BIG,NULL);
             return ZNULL;
         }
@@ -54,7 +54,14 @@ int bgtfre()
         if ((idx = bgtslt()) >= 0) {
             bqmove(idx);
             ((btact->cntrl)+idx)->inmem = blk;
+            /* ensure room on disk to store new block */
+            ((btact->cntrl)+idx)->writes = 1;  /* force write */
+            if (bwrblk(blk) != 0) {
+                bterr("BGTFRE",QWRBLK,itostr(blk));
+                return ZNULL;
+            }
             btact->cntxt->super.sblkmx++;
+            btact->cntxt->stat.xgot++;
         }
         else 
             blk = ZNULL;

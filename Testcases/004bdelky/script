@@ -1,11 +1,20 @@
 c test_db
 e ../inskeysrand.bt
-s super
+f
+l
 e ../delkeysrand.bt
-s super
+f
+l
 e ../inskeysrand.bt
+f
+l
 e ../delkeysord.bt
+f
+l
 e ../inskeysrand.bt
+f
+l
 e ../delkeysrord.bt
-s super
+f 
+l
 q

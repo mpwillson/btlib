@@ -1,8 +1,8 @@
-Key: '$$default' = 1
-Key: '$$super' = 0
-Key: 'root_1' = 2
-Key: 'root_2' = 61
-Key: 'root_3' = 120
+$$default
+$$super
+root_1
+root_2
+root_3
 Can't change root to: 'root_3'
-Key: '$$default' = 1
-Key: '$$super' = 0
+$$default
+$$super

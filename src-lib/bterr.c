@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.13 2008-05-09 18:25:34 mark Exp $
+ * $Id: bterr.c,v 1.14 2010-05-26 12:39:16 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -112,6 +112,8 @@ char *msgblk[] = {
 
 void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 {
+    char tmpfmt[132];
+    
     strcpy(srname,qname);
     *ierr = qerror;
     *ioerr = qcode;
@@ -120,13 +122,18 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
     strcpy(msg,msgblk[qerror]);
     if (qcode != 0) {
         if (syserror) {
-            sprintf(msg,"%s (System error: %s)",msgblk[qerror],strerror(qcode));
+            sprintf(tmpfmt,"%s (System error: %s)",msgblk[qerror],
+                    strerror(qcode));
         }
         else {
-            sprintf(msg,"%s (Info: %d)",msgblk[qerror],qcode);
+            sprintf(tmpfmt,"%s (Info: %d)",msgblk[qerror],qcode);
         }
-        if (strlen(qarg) != 0) sprintf(msg,msg,qarg);
-
+        if (strlen(qarg) != 0) {
+            sprintf(msg,tmpfmt,qarg);
+        }
+        else {
+            strcpy(msg,tmpfmt);
+        }
     }
     else {
         sprintf(msg,msgblk[qerror],qarg);
@@ -143,7 +150,9 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
     ierr   error code
     arg    argument to use with error message
 
-  To reset saved error codes, use a call of the form bterr("",0,NULL);
+  Only the first error is recorded.  To reset saved error codes, use a
+  call of the form bterr("",0,NULL);
+  
 */
 
 void bterr(char *name, int errorcode, char* arg)
@@ -161,7 +170,7 @@ void bterr(char *name, int errorcode, char* arg)
         strcpy(qname,name);
         qerror = errorcode;
         if (arg != NULL) strcpy(qarg,arg);
-        if (errno != 0 && qcode == 0) {
+        if (errno != 0) {
             syserror = TRUE;
             qcode = errno; /* set to system errorcode */
             errno = 0;

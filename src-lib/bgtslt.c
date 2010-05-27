@@ -1,5 +1,5 @@
 /*
- * $Id: bgtslt.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bgtslt.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bgtslt: frees in-memory slot and returns index
  *
@@ -57,7 +57,7 @@ int bgtslt()
         /* flush block to disk if slot not empty */
         if (((btact->cntrl)+idx)->inmem >= 0)
             if (bwrblk(((btact->cntrl)+idx)->inmem) != 0)
-                bterr("BGTSLT",QWRBLK,NULL);
+                bterr("BGTSLT",QWRBLK,itostr(((btact->cntrl)+idx)->inmem));
     }
 #if DEBUG >= 2
     printf("bgtslt: found idx of %d\n",idx);

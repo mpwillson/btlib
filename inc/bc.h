@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.15 2008-05-09 18:25:29 mark Exp $
+ * $Id: bc.h,v 1.16 2010-05-26 12:39:16 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -63,10 +63,19 @@ typedef int BTint;
 
 /* maximum key size (bytes) */
 #define ZKYLEN 32
+
+#if _FILE_OFFSET_BITS==64
+/* number of in-memory blocks (assume LFS users are memory rich) */
+#define ZMXBLK  16
+/* block size in bytes for LFS users (must be power of 2) */
+#define ZBLKSZ 8192
+#else
 /* number of in-memory blocks (3 is the minimum) */
 #define ZMXBLK  3
 /* block size in bytes (must be power of 2) */
-#define ZBLKSZ 8192
+#define ZBLKSZ 1024
+#endif
+
 /* number of keys per block */
 #define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW)) 
 /* number of pad words required */

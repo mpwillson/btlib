@@ -30,10 +30,10 @@ INTRODUCTION
     In order for BT to function efficiently on many hardware
     platforms, the important variables relating to disk block size,
     maximum number of keys per block, etc. are defined as constants,
-    and may be modified prior to compilation.
+    and may be modified prior to compilation (see inc/bc.h).
 
     This version of BT supports large files (> 2GB), if built with the
-    Large File Support option.
+    Large File Support (LFS) option.
 
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
     7.3 and Cygwin.
@@ -56,15 +56,17 @@ COMPILING
         lib                 holds BT library archive
         Testcases           driver and master output files for testing
 
-    The BT library, a test harness (bt) and a copy utility (kcp) are
-    built by GNU make.  Build the library for your machine by cd'ing
-    to BT source directory and issuing the following command: 
+    The BT library, a test harness (bt), additional testing tools for
+    large files (bigt and bigtdel) and a copy utility (kcp) are built
+    by GNU make.  To build the BT library and associated programs for
+    up to 2GB file support, cd to the BT source directory and issue
+    the following command:
 
        make
 
     To build the LFS version of BT, issue the following command:
 
-       make all LFS=1
+       make LFS=1
 
     The BT library is a standard UNIX object archive, built by ar.
 

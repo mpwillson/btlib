@@ -98,23 +98,3 @@ Key: 'aaaa0096' - Data: 'aaaa0096'
 Key: 'aaaa0097' - Data: 'aaaa0097'
 Key: 'aaaa0098' - Data: 'aaaa0098'
 Key: 'aaaa0099' - Data: 'aaaa0099'
-  Number of blocks:         11
-  # free blocks:             0
-  First free:               -1
-  Current root blk:          1
-  Current root nm:  $$default
-  Block overhead:            0
-  Block size:             1024
-  Keys per block:           25
-  Block:         1
-  Misc:          0
-  Nxblk:         8
-  Nkeys:         6
-  Nblks:         0
-                               Key        Val      Llink      Rlink
-                          aaaa0012       2216          3          4
-                          aaaa0025       2398          4          5
-                          aaaa0038       2580          5          6
-                          aaaa0051       2762          6          7
-                          aaaa0064       2944          7          9
-                          aaaa0077       8276          9         10
