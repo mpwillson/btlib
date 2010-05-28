@@ -1,5 +1,5 @@
 /*
- * $Id: balbk1.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: balbk1.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * balbk1: balances keys between blocks 
  *
@@ -45,7 +45,8 @@ void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
     char tkey[ZKYLEN];
 
 #if DEBUG >= 1
-    printf("BALBK1: Balancing keys between lblk: %d, rblk: %d\n",lblk,rblk);
+    printf("BALBK1: Balancing keys between lblk: " ZINTFMT ", rblk: " ZINTFMT
+           "\n",lblk,rblk);
     printf("        with parent: %s\n",key);
 #endif
     if (diff < 0) {

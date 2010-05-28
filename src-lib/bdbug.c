@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.8 2004/10/02 16:10:08 mark Exp $
+ * $Id: bdbug.c,v 1.9 2010-05-26 12:39:16 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -61,7 +61,7 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
         goto fin;
     }
     if (strcmp(cmd,"super") == 0) {
-        printf(
+        fprintf(stdout,
             "  Number of blocks: " Z20DFMT "\n"
             "  # free blocks:    " Z20DFMT "\n"
             "  First free:       " Z20DFMT "\n"
@@ -77,13 +77,13 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             btact->cntxt->super.scclas,ZPAD,ZBLKSZ,ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
-        fprintf(stdout,"  Index file: %s\n"
-                "  Shared?:    %10d\n"
-                "  Last key:   %s\n"
+        fprintf(stdout,"  Index file: %20s\n"
+                "  Shared?:    %20d\n"
+                "  Last key:   %20s\n"
                 "  Last blk:   " Z20DFMT "\n"
-                "  Last pos:   %10d\n"
-                "  LRU head:   %10d\n"
-                "  LRU tail:   %10d\n",
+                "  Last pos:   %20d\n"
+                "  LRU head:   %20d\n"
+                "  LRU tail:   %20d\n",
                 btact->idxfid,btact->shared,btact->cntxt->lf.lfkey,
                 btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
                 btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
@@ -97,7 +97,8 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                     ((btact->cntrl)+i)->lrunxt);
     }
     else if (strcmp(cmd,"stats") == 0) {
-        fprintf(stdout,"  Logical reads:   %10d\n"
+        fprintf(stdout,
+                "  Logical reads:   %10d\n"
                 "  Logical writes:  %10d\n"
                 "  Physical reads:  %10d\n"
                 "  Physical writes: %10d\n"

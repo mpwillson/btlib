@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bputky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -43,7 +43,8 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
     
 #if DEBUG >= 1
     fprintf(stderr,
-            "bputky: blk = %lld, key = %s, val = %lld, link1 = %lld, link2 = %lld\n",
+            "bputky: blk = " ZINTFMT ", key = %s, val = " ZINTMFT
+            ", link1 = " ZINTFMT ", link2 = " ZINTFMT "\n",
             blk,key,val,link1,link2);
 #endif
     ioerr = brdblk(blk,&idx);

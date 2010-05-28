@@ -93,16 +93,6 @@ INSTALLING
     local development hierarchy.
 
 NOTES
-    Should you change any of the compile time constants in ./inc/bc.h,
-    it will be necessary to regenerate the output templates used for
-    test output verification.  These can be re-created by:
-
-         make test_init
-
-    It is strongly advised that you manually verify the output_master
-    files before believing the output of 'make test_run'.  These are
-    located in ./Testcases/*/output_master (i.e. one per testcase).
-
     Documentation on the BT API is available in docbook format and
     HTML, also downloadable from http://www.hydrus.org.uk.
 

@@ -1,5 +1,5 @@
 /*
- * $Id: btinit.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btinit.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * btinit: initialise B tree tables 
  *
@@ -50,7 +50,6 @@ int btinit()
         if ((blksz & 0x1) == 1) cnt++;
         blksz = blksz>>1;
     }
-        
     if (cnt != 1) {
         bterr("BTINIT",QBLKSZERR,itostr(ZBLKSZ));
         return(QBLKSZERR);
@@ -65,10 +64,6 @@ int btinit()
         btat[i].fd = -1;
     }
 
-    /* use block size to set data record address field widths (block
-       and offset) */
-    /* setaddrsize(ZBLKSZ); */
-    
     btinited = TRUE;
     return(0);
 }

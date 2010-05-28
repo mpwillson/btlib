@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.8 2005/03/29 20:31:34 mark Exp $
+ * $Id: bnxtky.c,v 1.9 2010-05-26 12:39:16 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -68,7 +68,7 @@ int bnxtky(BTA* b,char *key,BTint *val)
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
 #if DEBUG >= 1
-        printf("BNXTKY: lfblk: %d, lfpos: %d, nkeys: %d\n",
+        printf("BNXTKY: lfblk: " ZINTFMT ", lfpos: %d, nkeys: %d\n",
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,nkeys);
 #endif
         if (btact->cntxt->lf.lfpos >= nkeys || btact->cntxt->lf.lfpos < 0) {

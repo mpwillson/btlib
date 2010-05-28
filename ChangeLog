@@ -1,4 +1,15 @@
-2010-05-26  Mark Willson  <mark@amber>
+2010-05-28  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bgtfre.c: Write newly acquired block to file immediately to
+	ensure sufficient disk space exists.
+
+	* bsptbk.c: Fix off-by-one error when splitting non-root block
+	with even number of keys.
+
+	* bterr.c: Improve handling of diagnostics involving system errors.
+	Added new error messages.
+	
+2010-05-26  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* All: Added support for large files (> 2GB), as compile option.
 	

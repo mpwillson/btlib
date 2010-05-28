@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.7 2004/10/02 16:10:08 mark Exp $
+ * $Id: bfndky.c,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -72,7 +72,7 @@ int bfndky(BTA *b,char *key,BTint *val)
 
     while (cblk >= 0) {
 #if DEBUG >= 2
-        fprintf(stderr,"BFNDKY: searching block %d\n",cblk);
+        fprintf(stderr,"BFNDKY: searching block " ZINTFMT "\n",cblk);
 #endif      
         nkeys = bgtinf(cblk,ZNKEYS);
         if (nkeys == ZMXKEY && btact->cntxt->super.smode == 0) {

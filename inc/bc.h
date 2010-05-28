@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.16 2010-05-26 12:39:16 mark Exp $
+ * $Id: bc.h,v 1.17 2010-05-27 19:56:44 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -27,13 +27,13 @@
 #if _FILE_OFFSET_BITS == 64 
 typedef long long BTint;
 #define BTINT_MAX 9223372036854775807LL
+#define ZXFMT "%llx"
 #define ZINTFMT "%lld"
-#define LL(STR) STR "%20lld\n"
 #define Z20DFMT "%20lld"
 #else
 typedef int BTint;
 #define BTINT_MAX INT_MAX
-#define LL(STR) STR "%20d\n"
+#define ZXFMT "%x"
 #define Z20DFMT "%20d"
 #define ZINTFMT "%d"
 #endif

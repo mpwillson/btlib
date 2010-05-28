@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: bsrhbk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
   bsrhbk: searches block for key
@@ -60,9 +60,9 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
     }
     nkeys = (long) ((btact->memrec)+idx)->infblk[ZNKEYS];
 #if DEBUG > 0
-    printf("BSRHBK: blk: %lld, nkeys: %d\n",blk,nkeys);
-    printf("BSRHBK: loc: %d, val: %lld, link1: %lld, link2: %lld\n",
-           *loc,*val,*link1,*link2);
+    printf("BSRHBK: blk: " ZINTFMT ", nkeys: %d\n",blk,nkeys);
+    printf("BSRHBK: loc: %d, val: " ZINTFMT ", link1: " ZINTFMT ", link2: "
+           ZINTFMT "\n",*loc,*val,*link1,*link2);
 #endif  
     if (*loc >= 0) {
         if (*loc >= nkeys) {
@@ -116,8 +116,8 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
         *link1 = ((btact->memrec)+idx)->lnkblk[*loc];
         *link2 = ((btact->memrec)+idx)->lnkblk[*loc+1];
 #if DEBUG >=2
-        fprintf(stderr,"BSRHBK: val: %d, link1: %d, link2: %d\n",*val,
-                *link1,*link2);
+        fprintf(stderr,"BSRHBK: val: " ZINTFMT ", link1: " ZINTFMT ", link2: "
+                ZINTFMT "\n",*val,*link1,*link2);
 #endif      
     }
 fin:

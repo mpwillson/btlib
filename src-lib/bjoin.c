@@ -1,5 +1,5 @@
 /*
- * $Id: bjoin.c,v 1.5 2004/10/02 16:10:08 mark Exp $
+ * $Id: bjoin.c,v 1.6 2010-05-26 12:39:16 mark Exp $
  *
  * bjoin: bjoins keys in rblk to lblk (using tkey)
  *
@@ -41,8 +41,8 @@ void bjoin(BTint lblk,BTint rblk,char *tkey,BTint val)
     int lnkeys,rnkeys;
 
 #if DEBUG >= 1
-    printf("BJOIN: joining lblk: %d, rblk: %d, using parent: %s\n",
-            lblk,rblk,tkey);
+    printf("BJOIN: joining lblk: " ZINTFMT ", rblk: " ZINTFMT
+           ", using parent: %s\n",lblk,rblk,tkey);
 #endif
     bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
     bsetbs(lblk,1);

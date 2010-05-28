@@ -1,5 +1,5 @@
 /*
- * $Id: bwrblk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: bwrblk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bwrblk: write block from memory to disk
  *
@@ -54,7 +54,8 @@ int bwrblk(BTint blk)
                     btact->cntxt->stat.xphywr++;
                     ioerr = 0;
 #if DEBUG > 0
-                    fprintf(stderr,"BWRBLK: writing block " ZINTFMT ", from idx %d\n",blk,i);
+                    fprintf(stderr,"BWRBLK: writing block " ZINTFMT
+                            ", from idx %d\n",blk,i);
 #endif                  
                 }
                 else {

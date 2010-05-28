@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bdelk1.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -57,7 +57,7 @@ int bdelk1(char *key)
          * deleted key */
         bleaf(1);
 #if DEBUG >= 2
-        printf("BDELK1: After bleaf() lfblk: %d, lfpos: %d\n",
+        printf("BDELK1: After bleaf() lfblk: " ZINTFMT ", lfpos: %d\n",
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
 #endif
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&(btact->cntxt->lf.lfpos),

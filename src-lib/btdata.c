@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.18 2010-05-15 11:01:51 mark Exp $
+ * $Id: btdata.c,v 1.19 2010-05-26 12:39:16 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -143,9 +143,6 @@ int btins(BTA *b,char *key, char *data, int dsize)
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
         draddr = binsdt(data,dsize);
-#if DEBUG > 0
-        fprintf(stderr,"draddr = %llx\n",draddr);
-#endif
         if (draddr != ZNULL) {
             if (draddr < 0) {
                 bterr("BTINS",QDRANEG,itostr(draddr));
@@ -445,14 +442,15 @@ int bseldt(BTint draddr, char *data, int dsize)
         status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 #if DEBUG > 0
-        fprintf(stderr,"BSELDT: Using draddr 0x%llx (%lld,%d), found 0x%x\n",
+        fprintf(stderr,"BSELDT: Using draddr 0x " ZXFMT " (" ZINTFMT
+                ",%d), found 0x " ZXFMT "\n",
                 draddr,dblk,offset,*(d->data+offset+ZDOVRH));
 #endif
 
         segsz = rdsz(d->data+offset);
         draddr = rdint(d->data+offset+ZDRSZ);
 #if DEBUG > 0
-        fprintf(stderr,"BSELDT: Seg size: %d, next draddr: 0x%llx\n",
+        fprintf(stderr,"BSELDT: Seg size: %d, next draddr: 0x" ZXFMT "\n",
                 segsz,draddr);
 #endif
         cpsz = (segsz>sprem)?sprem:segsz;
@@ -514,7 +512,7 @@ int bupddt(BTint draddr, char *data, int dsize)
         /* unpick blk/offset pointer */
         cnvdraddr(draddr,&dblk,&offset);
 #if DEBUG > 0
-        fprintf(stderr,"Update processing blk: %lld, offset: %d\n",
+        fprintf(stderr,"BUPDDT: processing blk: " ZINTFMT ", offset: %d\n",
                 dblk,offset);
 #endif      
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
@@ -528,7 +526,7 @@ int bupddt(BTint draddr, char *data, int dsize)
 
         cpsz = ((segsz>remsz)?remsz:segsz);
 #if DEBUG > 0
-        fprintf(stderr,"Old seg: %d, new seg: %d\n",segsz,cpsz);
+        fprintf(stderr,"BUPDDT: Old seg: %d, new seg: %d\n",segsz,cpsz);
 #endif
         memcpy(d->data+offset+ZDOVRH,data,cpsz);
         ((btact->cntrl)+idx)->writes++;
@@ -671,7 +669,8 @@ int deldat(BTint blk,int offset)
     size = rdsz(d->data+offset);
     freesz += (size+ZDOVRH);
 #if DEBUG > 0
-    fprintf(stderr,"Deleting segment: blk %lld, offset: %d\n",blk,offset);
+    fprintf(stderr,"Deleting segment: blk " ZINTFMT ", offset: %d\n",
+            blk,offset);
     fprintf(stderr,"seg size: %d, free space now = %d, free target = %d\n",
             size,freesz,ZBLKSZ-(ZINFSZ*ZBPW));
 #endif  
@@ -713,8 +712,8 @@ int insdat(BTint blk,char *data, int dsize, BTint prevseg)
     wrsz(dsize,d->data+offset);
     wrint(prevseg,d->data+offset+ZDRSZ);
 #if DEBUG > 0
-    fprintf(stderr,"writing segment at block %lld, offset %d, of size %d\n",
-            blk,offset,dsize);
+    fprintf(stderr,"writing segment at block " ZINTFMT
+            ", offset %d, of size %d\n",blk,offset,dsize);
 #endif  
     memcpy(d->data+offset+ZDOVRH,data,dsize);
     ((btact->cntrl)+idx)->writes++;
@@ -737,8 +736,8 @@ int brecsz(BTint draddr)
     while (draddr != 0) {
         cnvdraddr(draddr,&blk,&offset);
 #if DEBUG > 0
-        fprintf(stderr,"BRECSZ: Processing draddr: 0x%llx, blk: %lld, offset: %d\n",
-                draddr,blk,offset);
+        fprintf(stderr,"BRECSZ: Processing draddr: 0x" ZXFMT ", blk: " ZINTFMT
+                ", offset: %d\n",draddr,blk,offset);
 #endif
         /* ensure we are pointing at a data block */
         if (bgtinf(blk,ZBTYPE) != ZDATA) {
@@ -748,7 +747,8 @@ int brecsz(BTint draddr)
         getseginfo(draddr,&segsz,&newdraddr);
         
 #if DEBUG > 0       
-        fprintf(stderr,"\tSeg size: %d, next seg: 0x%llx\n",segsz,newdraddr);
+        fprintf(stderr,"BRECSZ: Seg size: %d, next seg: 0x" ZXFMT "\n",
+                segsz,newdraddr);
 #endif      
         if (newdraddr == draddr) {
             /* next segment address should never refer to current

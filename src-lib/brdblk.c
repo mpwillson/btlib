@@ -1,5 +1,5 @@
 /*
- * $Id: brdblk.c,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: brdblk.c,v 1.7 2010-05-27 19:56:44 mark Exp $
  *
  * brdblk: reads block from disk into memory
  *
@@ -69,7 +69,8 @@ int brdblk(BTint blk,int *idx)
                 ((btact->cntrl)+i)->inmem = blk;
                 *idx = i;
 #if DEBUG > 0
-                fprintf(stderr,"BRDBLK: reading block " ZINTFMT ", into idx %d\n",blk,i);
+                fprintf(stderr,"BRDBLK: reading block " ZINTFMT
+                        ", into idx %d\n",blk,i);
 #endif              
             }
             else {

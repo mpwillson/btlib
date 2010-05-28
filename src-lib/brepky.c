@@ -1,5 +1,5 @@
 /*
- * $Id: brepky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: brepky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * brepky: replaces key at location loc in block
  *
@@ -56,8 +56,10 @@ int brepky(BTint blk,int loc,char *key,BTint val,BTint link1,BTint link2)
             ((btact->memrec)+idx)->lnkblk[loc+1] = link2;
             ((btact->cntrl)+idx)->writes++;
 #if DEBUG >= 1
-            printf("BREPKY: Replaced target at blk: %d, pos: %d\n",blk,loc);
-            printf(" ..using '%s', val = %d, llink = %d, rlink = %d\n",
+            printf("BREPKY: Replaced target at blk: " ZINTFMT ", pos: %d\n",
+                   blk,loc);
+            printf(" ..using '%s', val = " ZINTFMT ", llink = " ZINTFMT
+                   ", rlink = " ZINTFMT "\n",
                         key,val,link1,link2);
 #endif
         }

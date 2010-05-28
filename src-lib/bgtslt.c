@@ -1,5 +1,5 @@
 /*
- * $Id: bgtslt.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bgtslt.c,v 1.8 2010-05-27 19:56:44 mark Exp $
  *
  * bgtslt: frees in-memory slot and returns index
  *
@@ -40,7 +40,8 @@ int bgtslt()
     /* any slots free? */
     for (i=0;i<ZMXBLK;i++) {
 #if DEBUG >= 2
-        printf("bgtslt: cntrl[%d].inmem = %d\n",i,((btact->cntrl)+i)->inmem);
+        printf("bgtslt: cntrl[%d].inmem = " ZINTFMT "\n",
+               i,((btact->cntrl)+i)->inmem);
 #endif
         if (((btact->cntrl)+i)->inmem < 0) {
             idx = i;

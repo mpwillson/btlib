@@ -1,5 +1,5 @@
 /*
- * $Id: bdemte.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bdemte.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bdemte: if non-leaf block is empty, demote parent key
  *
@@ -63,7 +63,7 @@ void bdemte(BTint *cblk)
                 goto fin;
             }
 #if DEBUG >= 1
-            printf("BDEMTE: Demoting key %s from blk: %d\n",tkey,
+            printf("BDEMTE: Demoting key %s from blk: " ZINTFMT "\n",tkey,
                    btact->cntxt->lf.lfblk);
 #endif
             /* remove key from original block */

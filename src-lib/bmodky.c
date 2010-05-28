@@ -1,5 +1,5 @@
 /*
- * $Id: bmodky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bmodky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bmodky: replaces value of key at location loc in block
  *
@@ -52,8 +52,9 @@ int bmodky(BTint blk,int loc,BTint val)
             ((btact->memrec)+idx)->valblk[loc] = val;
             ((btact->cntrl)+idx)->writes++;
 #if DEBUG >= 1
-            printf("BMODKY: Modifed target at blk: %d, pos: %d\n",blk,loc);
-            printf(" ..using new val = %d\n",val);
+            printf("BMODKY: Modifed target at blk: " ZINTFMT ", pos: %d\n",
+                   blk,loc);
+            printf(" ..using new val = " ZINTFMT "\n",val);
 #endif
         }
     }

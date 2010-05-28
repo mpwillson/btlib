@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.7 2006-09-06 19:17:45 mark Exp $
+ * $Id: btcrt.c,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -55,18 +55,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
         bterr("BTCRT",QNOACT,NULL);
         return NULL;
     }
-    /* fd = creat(fid,O_LARGE_FILE|O_CREAT|O_RDWR); */
-    /* if (fd > 0) { */
-    /*     if ((btact->idxunt = fdopen(fd,"w+b")) == NULL) { */
-    /*         bterr("BTCRT",QCRTIO,NULL); */
-    /*         return NULL; */
-    /*     } */
-    /* }    */
-    /* else { */
-    /*     bterr("BTCRT",QCRTIO,NULL); */
-    /*     return NULL; */
-    /* } */
-    
+
     if ((btact->idxunt = fopen(fid,"w+b")) == NULL) {
         bterr("BTCRT",QCRTIO,NULL);
         return NULL;
