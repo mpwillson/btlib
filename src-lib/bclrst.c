@@ -1,5 +1,5 @@
 /*
- * $Id: bclrst.c,v 1.5 2004/10/02 16:10:08 mark Exp $
+ * $Id: bclrst.c,v 1.6 2010-05-26 12:39:16 mark Exp $
  *
  * bclrst: initialises B tree statistic counters
  *
@@ -29,6 +29,6 @@
 
 void bclrst()
 {
-    memset(&btact->cntxt->stat,0,sizeof(struct _stat));
+    memset(&btact->cntxt->stat,0,sizeof(STATS));
     return;
 }

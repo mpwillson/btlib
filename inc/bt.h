@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.5 2004/10/05 17:47:56 mark Exp $
+ * $Id: bt.h,v 1.6 2010-05-26 12:39:16 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -31,18 +31,18 @@
 /*
   B tree cache manager structure
 */
-struct _cntrl {
+struct bt_cntrl {
    BTint inmem;  /* holds block number of in-memory copy */
    int busy;   /* if non-ZERO, block cannot be flushed to disk */
    int writes; /* if non-ZERO, number of writes to this block */
    int lrunxt;  /* index of next in-memory block for LRU queue */
 };
 
-typedef struct _cntrl CNTRL;
+typedef struct bt_cntrl CNTRL;
 
 /* Tail and head of least recently used queue */
 
-struct _lru {
+struct bt_lru {
     int lrut;
     int lruh;
 };
@@ -51,7 +51,7 @@ struct _lru {
    B tree in-memory cached blocks
 */
 
-struct _memrec {
+struct bt_memrec {
    BTint infblk[ZINFSZ];
    char keyblk[ZMXKEY] [ZKYLEN];
    BTint valblk[ZMXKEY];
@@ -61,21 +61,21 @@ struct _memrec {
 #endif
 };
 
-typedef struct _memrec MEMREC;
+typedef struct bt_memrec MEMREC;
 
 /* Structure describing a data block */
 
-struct _datblk {
+struct bt_datblk {
     BTint infblk[ZINFSZ];
     char data[ZBLKSZ-(ZINFSZ*ZBPW)];
 };
 
-typedef struct _datblk DATBLK;
+typedef struct bt_datblk DATBLK;
 
 
 /* context from last find operation */
 
-struct _lf {
+struct bt_lf {
     char lfkey[ZKYLEN];
     BTint lfblk;
     int lfpos;
@@ -84,7 +84,7 @@ struct _lf {
 
 /* B tree statistic counters */
 
-struct _stat {
+struct bt_stats {
     int xlogrd;
     int xlogwr;
     int xphyrd;
@@ -96,11 +96,13 @@ struct _stat {
     int xrel;
 };
 
+typedef struct bt_stats STATS;
+
 /*  B tree stack */
 
 #define STKMAX 40
 
-struct _stk {
+struct bt_stk {
     int stkptr;
     BTint stk[STKMAX];
 };
@@ -108,7 +110,7 @@ struct _stk {
 
 /* B tree: Super root information plus current root */
 
-struct _super {
+struct bt_super {
     BTint sblkmx;
     BTint snfree;
     BTint sfreep;
@@ -120,19 +122,19 @@ struct _super {
 
 /* Common structure for all context information for an index */
 
-struct _cntxt {
-    struct _lru lru;
-    struct _lf lf;
-    struct _stk stk;
-    struct _stat stat;
-    struct _super super;
+struct bt_cntxt {
+    struct bt_lru lru;
+    struct bt_lf lf;
+    struct bt_stk stk;
+    struct bt_stats stat;
+    struct bt_super super;
 };
 
-typedef struct _cntxt CNTXT;
+typedef struct bt_cntxt CNTXT;
 
 #define FIDSZ 72
 
-struct _btactive {
+struct bt_active {
     FILE *idxunt;
     char idxfid[FIDSZ];
     int fd;                 /* used to hold index file descriptor */
@@ -143,7 +145,7 @@ struct _btactive {
     CNTXT *cntxt;
 };
 
-typedef struct _btactive BTA;
+typedef struct bt_active BTA;
 
 extern BTA btat[];                  /* might not need this if we can access     
                                         everything through btact */
