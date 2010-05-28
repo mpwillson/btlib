@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.14 2010-05-26 12:39:16 mark Exp $
+ * $Id: bterr.c,v 1.15 2010-05-27 19:56:44 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -40,13 +40,14 @@
 
 #include "bc.h"
 
+#define MAXBUFSZ 132
 
 static int qerror = 0;
 static int qcode = 0;
-static char qarg[72];
+static char qarg[MAXBUFSZ+1];
 static int syserror;
 
-static char qname[72];
+static char qname[MAXBUFSZ+1];
 
 char *msgblk[] = {
     "null",
@@ -112,31 +113,31 @@ char *msgblk[] = {
 
 void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 {
-    char tmpfmt[132];
+    char tmpfmt[MAXBUFSZ+1];
     
-    strcpy(srname,qname);
+    strncpy(srname,qname,MAXBUFSZ);
     *ierr = qerror;
     *ioerr = qcode;
 
     if (qerror >= MSGBLKMAX) qerror = MSGBLKMAX-1;
-    strcpy(msg,msgblk[qerror]);
+    strncpy(msg,msgblk[qerror],MAXBUFSZ);
     if (qcode != 0) {
         if (syserror) {
-            sprintf(tmpfmt,"%s (System error: %s)",msgblk[qerror],
+            snprintf(tmpfmt,MAXBUFSZ,"%s (System error: %s)",msgblk[qerror],
                     strerror(qcode));
         }
         else {
-            sprintf(tmpfmt,"%s (Info: %d)",msgblk[qerror],qcode);
+            snprintf(tmpfmt,MAXBUFSZ,"%s (Info: %d)",msgblk[qerror],qcode);
         }
         if (strlen(qarg) != 0) {
-            sprintf(msg,tmpfmt,qarg);
+            snprintf(msg,MAXBUFSZ,tmpfmt,qarg);
         }
         else {
-            strcpy(msg,tmpfmt);
+            strncpy(msg,tmpfmt,MAXBUFSZ);
         }
     }
     else {
-        sprintf(msg,msgblk[qerror],qarg);
+        snprintf(msg,MAXBUFSZ,msgblk[qerror],qarg);
     }
     
     return;
@@ -167,9 +168,9 @@ void bterr(char *name, int errorcode, char* arg)
         qarg[0] = '\0';
     }
     else if (qerror == 0) {
-        strcpy(qname,name);
+        strncpy(qname,name,MAXBUFSZ);
         qerror = errorcode;
-        if (arg != NULL) strcpy(qarg,arg);
+        if (arg != NULL) strncpy(qarg,arg,MAXBUFSZ);
         if (errno != 0) {
             syserror = TRUE;
             qcode = errno; /* set to system errorcode */
