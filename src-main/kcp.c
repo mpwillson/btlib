@@ -1,5 +1,5 @@
 /*
- *  $Id: kcp.c,v 1.8 2007-04-13 10:00:24 mark Exp $
+ *  $Id: kcp.c,v 1.9 2010-05-26 12:39:16 mark Exp $
  *  
  *  NAME
  *      kcp - copies B Tree index/data files
@@ -158,9 +158,9 @@ int copyroot(BTA* in, BTA* out, char *rootname)
         status = btseln(in,key,buf,bufsiz,&rsiz);
         if (status != 0) continue;
         while (bufsiz == rsiz) {
-            /* assume the record is bigger than the buffer,
-             * so increase buffer size
-             * repeat until we read ok, or run out of memory */
+            /* assume the record is bigger than the buffer, so
+             * increase buffer size repeat until we read ok, or run
+             * out of memory */
             free(buf);
             bufsiz += bufsiz;
             kalloc(&buf,bufsiz);

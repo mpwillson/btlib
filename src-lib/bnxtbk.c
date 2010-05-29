@@ -1,15 +1,17 @@
 /*
- * $Id: bnxtbk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bnxtbk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
- * bnxtbk:  returns next block from index file
+ * bnxtbk:  determines next block in index file
  *
  * Parameters:
- *   blk - current block (or ZNULL for start from root)
+ *   *blk - number of current block (or ZNULL for start from root)
  *     
- *   current root (scroot) is returned as last block.  
- *   blk must be ZNULL on first call.
+ *   current root (scroot) is returned in *blk as last block.  
+ *   *blk must be ZNULL on first call.
  *
+ * bnxtbk returns zero if no errors, error code otherwise.
+ * 
  * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -70,5 +72,5 @@ int bnxtbk(BTint *blk)
         btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
         btact->cntxt->lf.lfpos += 2;
     }
-    return(0);
+    return(btgerr());
 }
