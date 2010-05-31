@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.15 2010-05-27 19:56:44 mark Exp $
+ * $Id: bterr.c,v 1.16 2010-05-28 12:31:51 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -40,14 +40,12 @@
 
 #include "bc.h"
 
-#define MAXBUFSZ 132
-
 static int qerror = 0;
 static int qcode = 0;
-static char qarg[MAXBUFSZ+1];
+static char qarg[ZRNAMESZ+1];
 static int syserror;
 
-static char qname[MAXBUFSZ+1];
+static char qname[ZMSGSZ+1];
 
 char *msgblk[] = {
     "null",
@@ -113,31 +111,31 @@ char *msgblk[] = {
 
 void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 {
-    char tmpfmt[MAXBUFSZ+1];
+    char tmpfmt[ZMSGSZ+1];
     
-    strncpy(srname,qname,MAXBUFSZ);
+    strncpy(srname,qname,ZRNAMESZ);
     *ierr = qerror;
     *ioerr = qcode;
 
     if (qerror >= MSGBLKMAX) qerror = MSGBLKMAX-1;
-    strncpy(msg,msgblk[qerror],MAXBUFSZ);
+
     if (qcode != 0) {
         if (syserror) {
-            snprintf(tmpfmt,MAXBUFSZ,"%s (System error: %s)",msgblk[qerror],
+            snprintf(tmpfmt,ZMSGSZ,"%s (System error: %s)",msgblk[qerror],
                     strerror(qcode));
         }
         else {
-            snprintf(tmpfmt,MAXBUFSZ,"%s (Info: %d)",msgblk[qerror],qcode);
+            snprintf(tmpfmt,ZMSGSZ,"%s (Info: %d)",msgblk[qerror],qcode);
         }
         if (strlen(qarg) != 0) {
-            snprintf(msg,MAXBUFSZ,tmpfmt,qarg);
+            snprintf(msg,ZMSGSZ,tmpfmt,qarg);
         }
         else {
-            strncpy(msg,tmpfmt,MAXBUFSZ);
+            strncpy(msg,tmpfmt,ZMSGSZ);
         }
     }
     else {
-        snprintf(msg,MAXBUFSZ,msgblk[qerror],qarg);
+        snprintf(msg,ZMSGSZ,msgblk[qerror],qarg);
     }
     
     return;
@@ -151,8 +149,8 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
     ierr   error code
     arg    argument to use with error message
 
-  Only the first error is recorded.  To reset saved error codes, use a
-  call of the form bterr("",0,NULL);
+  Only the first error is recorded.  To reset saved error codes, use
+  bterr("",0,NULL);
   
 */
 
@@ -168,9 +166,9 @@ void bterr(char *name, int errorcode, char* arg)
         qarg[0] = '\0';
     }
     else if (qerror == 0) {
-        strncpy(qname,name,MAXBUFSZ);
+        strncpy(qname,name,ZRNAMESZ);
         qerror = errorcode;
-        if (arg != NULL) strncpy(qarg,arg,MAXBUFSZ);
+        if (arg != NULL) strncpy(qarg,arg,ZRNAMESZ);
         if (errno != 0) {
             syserror = TRUE;
             qcode = errno; /* set to system errorcode */

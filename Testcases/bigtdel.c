@@ -1,5 +1,5 @@
 /*
- * $Id: bigtdel.c,v 1.1 2004/12/11 16:58:27 mark Exp $
+ * $Id: bigtdel.c,v 1.2 2010-05-26 12:39:16 mark Exp $
  * 
  * NAME
  *      bigtdel - a stress test for the B Tree library, to ensure the 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     int errorcode,ioerror;
     BTint i;
     char *s;
-    char key[ZKYLEN],rname[ZKYLEN],msg[132];
+    char key[ZKYLEN],rname[ZRNAMESZ],msg[ZMSGSZ];
     BTint nrecs = BTINT_MAX;
     BTA *bt;
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     for (i=0;i<nrecs;i++) {
         sprintf(key,ZINTFMT,i);
         status = btdel(bt,key);
-        if (status == QNOKEY) continue;
+        /* exit on any error */
         if (status != 0) {
             btcerr(&errorcode,&ioerror,rname,msg);
             printf("While attempting to delete key: %s;\n",key);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    btcls(bt);
+    if (btcls(bt) != 0) goto fin;
     return EXIT_SUCCESS;
   fin:
     printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);

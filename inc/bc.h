@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.17 2010-05-27 19:56:44 mark Exp $
+ * $Id: bc.h,v 1.18 2010-05-28 10:34:38 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -86,6 +86,10 @@ typedef int BTint;
 #define ZMXACT 5
 /* number of seconds to wait for locked file to unlock */
 #define ZSLEEP 5
+
+/* Message buffer sizes */
+#define ZRNAMESZ 16
+#define ZMSGSZ 132
 
 /* End implementation defined constants */
 

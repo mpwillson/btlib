@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.6 2010-05-27 19:56:43 mark Exp $
+ * $Id: bigt.c,v 1.7 2010-05-28 10:34:38 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     BTint i;
     char *s;
     char data[DATASIZE];
-    char key[ZKYLEN],rname[ZKYLEN],msg[132];
+    char key[ZKYLEN],rname[ZRNAMESZ],msg[ZMSGSZ];
     BTint nrecs = BTINT_MAX;
     BTA *bt;
 
