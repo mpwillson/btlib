@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.7 2010-05-28 10:34:38 mark Exp $
+ * $Id: bigt.c,v 1.8 2010-05-31 20:24:30 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -15,7 +15,7 @@
  *  DESCRIPTION
  *      Bigt creates a database named test_db in the working directory
  *      and inserts up to record_count keys and associated data
- *      records.  The default data record is 1024 bytes, filled with
+ *      records.  The default data record is 5*ZBLKSZ bytes, filled with
  *      the character 'D'.
  * 
  *      Bigt should fail gracefully at around 2GB on a machine with 32
@@ -59,7 +59,7 @@
 #define TRUE 1
 #define FALSE 0
 
-#define DATASIZE 1024
+#define DATASIZE ZBLKSZ*5
 
 #if _FILE_OFFSET_BITS == 64
 #define ATOI atoll
@@ -73,7 +73,8 @@ int main(int argc, char *argv[])
     int errorcode,ioerror;
     BTint i;
     char *s;
-    char data[DATASIZE];
+    char *data=NULL;
+    int datasize = DATASIZE;
     char key[ZKYLEN],rname[ZRNAMESZ],msg[ZMSGSZ];
     BTint nrecs = BTINT_MAX;
     BTA *bt;
@@ -83,6 +84,10 @@ int main(int argc, char *argv[])
             switch (*s) {
                 case 'n':
                     nrecs = ATOI(*++argv);
+                    --argc;
+                    break;
+                case 's':
+                    datasize = ATOI(*++argv);
                     --argc;
                     break;
                 default:
@@ -96,7 +101,21 @@ int main(int argc, char *argv[])
 
     bt = btcrt("test_db",0,FALSE);
 
-    for (i=0;i<DATASIZE;i++) {
+    if (datasize > 0) {
+        data = malloc(datasize);
+    }
+    else {
+        fprintf(stderr,"Illegal datasize specified: %d.\n",datasize);
+        return EXIT_FAILURE;
+    }
+
+    if (data == NULL) {
+        fprintf(stderr,"No memory for data record (%d bytes requested).\n",
+                datasize);
+        return EXIT_FAILURE;
+    }
+    
+    for (i=0;i<datasize;i++) {
         data[i] = 'D';
     }
 

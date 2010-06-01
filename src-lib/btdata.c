@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.19 2010-05-26 12:39:16 mark Exp $
+ * $Id: btdata.c,v 1.20 2010-05-28 10:34:38 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -88,7 +88,7 @@
 
 
 /* #undef DEBUG */
-/* #define DEBUG 1  */
+/* #define DEBUG 1 */
 
 
 /*------------------------------------------------------------------------
@@ -587,7 +587,7 @@ BTint binsdt(char *data, int dsize)
     int offset;
     char *segptr = data+dsize;
     int remsize = dsize;
-    int segaddr = 0;
+    BTint segaddr = 0;
     int freesz;
 
     /* ensure there is an active data block */
@@ -803,10 +803,11 @@ int rdsz(char *a)
 
 BTint rdint(char *a)
 {
-    int i = 0,k;
+    BTint i = 0;
+    int k;
 
     for (k=0;k<ZBPW;k++) {
-        i |= (*a++ & 0xff) << ZBYTEW*k;
+        i |= ((BTint) (*a++ & 0xff)) << ZBYTEW*k;
     }
     return(i);
 }

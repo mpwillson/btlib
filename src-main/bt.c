@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.11 2010-05-27 19:56:44 mark Exp $
+ * $Id: bt.c,v 1.12 2010-05-30 11:13:52 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -32,6 +32,7 @@
 #include "bc.h"
 #include "bt.h"
 #include "btree.h"
+#include "btree_int.h"
 
 /* Structures for handling active bt context pointers */
 struct _plist {
@@ -289,6 +290,7 @@ int main(int argc,char *argv[])
             printf("                s qualifier indicates shared mode\n");
             printf("cr <root>       change to new root\n");
             printf("d <key> [<val>] define key\n");
+            printf("da <key>        print decoded data segment address\n");
             printf("dd <key> <data> define key with data\n");
             printf("                use *<name> to refer to data block\n");
             printf("dr <root>       define new root\n");
@@ -501,6 +503,20 @@ int main(int argc,char *argv[])
                                                        update! */
             if (ierr != 0) {
                 fprintf(stderr,"Can't update value for: '%s'\n",arg[1]);
+            }
+        }
+        else if (strcmp(arg[0],"da") == 0) {
+            ierr = bfndky(btp,arg[1],&val);
+            if (ierr == 0) {
+                BTint dblk;
+                int offset;
+                cnvdraddr(val,&dblk,&offset);
+                printf("Key: '%s' = " ZINTFMT ", dblk: " ZINTFMT
+                       ", offset; %d\n",arg[1],val,dblk,offset);
+            }
+            else if (ierr == QNOKEY) {
+                if (strcmp(arg[1],EMPTY) != 0)
+                    printf("No such key as '%s'\n",arg[1]);
             }
         }
         /* empty command */

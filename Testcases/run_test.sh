@@ -4,6 +4,10 @@ if [ ! -d $1 ]; then
 	echo $0: missing testcase directory
 	exit 1
 fi
+# check for message to issue prior to running test
+if [ -r $1/message ]; then
+    printf "$1: \t%s\n" "`cat $1/message`"
+fi
 # check for bt script
 if [ -r $1/script ]; then
 	cd $1
