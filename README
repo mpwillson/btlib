@@ -74,7 +74,9 @@ COMPILING
        
        make test_run
 
-    All tests should pass.
+    All tests should pass.  Note that the last test (bigdata) will
+    consume some 2.4GB of disk space and take some time, if the LFS
+    version of BT is built.
 
     If you need to rebuild, issue the command "make clean && make".
 
