@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.13 2010-06-01 19:04:52 mark Exp $
+ * $Id: bt.c,v 1.14 2010-06-02 10:29:30 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -408,7 +408,7 @@ int main(int argc,char *argv[])
                         fprintf(stderr,"No such key as '%s'\n",arg[1]);
                 }
                 else {
-                    rbuf     = (char *) malloc(i+1);
+                    rbuf = (char *) malloc(i+1);
                     if (rbuf == NULL) {
                         fprintf(stderr,"bt: unable to allocate memory\n");
                         continue;
@@ -421,19 +421,18 @@ int main(int argc,char *argv[])
                 }
             }
             else {
+                i = 0;
                 ierr = btsel(btp,arg[1],buff,80,&i);
-                if (ierr == 0 && i >= 0) {
-                    if (ierr == 0) {
-                        buff[(i==80?i-1:i)] = '\0';
-                        printf("Data returned: '%s'\n",buff);
-                    }
-                    else if (ierr == QNOKEY) {
-                        if (strcmp(arg[1],EMPTY) != 0)
-                            fprintf(stderr,"No such key as '%s'\n",arg[1]);
-                    }
+                if (ierr == 0) {
+                    buff[(i==80?i-1:i)] = '\0';
+                    printf("Data returned: '%s'\n",buff);
                 }
+                else if (ierr == QNOKEY) {
+                    if (strcmp(arg[1],EMPTY) != 0)
+                        fprintf(stderr,"No such key as '%s'\n",arg[1]);
+                }   
             }
-        }
+        }       
         
         /* check for Update Data (ud) command */
         else if (strcmp(arg[0],"ud") == 0) {

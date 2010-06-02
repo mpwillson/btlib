@@ -1,5 +1,5 @@
 /*
- * $Id: bigtdel.c,v 1.3 2010-05-31 20:24:30 mark Exp $
+ * $Id: bigtdel.c,v 1.1 2010-06-02 10:29:30 mark Exp $
  * 
  * NAME
  *      bigtdel - a stress test for the B Tree library, to ensure the 
@@ -60,13 +60,22 @@
 #define ATOI atoi
 #endif
 
+void print_error(void)
+{
+    int errorcode,ioerror;
+    char rname[ZRNAMESZ],msg[ZMSGSZ];
+
+    btcerr(&errorcode,&ioerror,rname,msg);
+    printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
+    return;
+}
+    
 int main(int argc, char *argv[])
 {
-    int status;
-    int errorcode,ioerror;
+    int status, exit_val;
     BTint i;
     char *s;
-    char key[ZKYLEN],rname[ZRNAMESZ],msg[ZMSGSZ];
+    char key[ZKYLEN];
     BTint nrecs = BTINT_MAX;
     BTA *bt;
 
@@ -88,25 +97,24 @@ int main(int argc, char *argv[])
 
     bt = btopn("test_db",0,FALSE);
     if (bt == NULL) goto fin;
-    
+
+    exit_val = EXIT_SUCCESS;
     for (i=0;i<nrecs;i++) {
         sprintf(key,ZINTFMT,i);
         status = btdel(bt,key);
         /* exit on any error */
         if (status != 0) {
-            btcerr(&errorcode,&ioerror,rname,msg);
             printf("While attempting to delete key: %s;\n",key);
-            goto fin;
+            print_error();
+            exit_val = EXIT_FAILURE;
+            break;
         }
     }
-
     if (btcls(bt) != 0) goto fin;
-    return EXIT_SUCCESS;
+    return exit_val;
   fin:
-    printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
-    btcls(bt);
+    print_error();
     return EXIT_FAILURE;
-    
 }
 
         

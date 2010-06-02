@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.9 2010-06-01 19:03:13 mark Exp $
+ * $Id: bigt.c,v 1.1 2010-06-02 10:29:30 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -53,6 +53,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <string.h>
 
 #include "btree.h"
 
@@ -67,15 +68,24 @@
 #define ATOI atoi
 #endif
 
+void print_error(void)
+{
+    int errorcode,ioerror;
+    char rname[ZRNAMESZ],msg[ZMSGSZ];
+
+    btcerr(&errorcode,&ioerror,rname,msg);
+    printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
+    return;
+}
+
 int main(int argc, char *argv[])
 {
-    int status;
-    int errorcode,ioerror;
+    int status, exit_val;
     BTint i;
     char *s;
-    char *data=NULL;
+    char *data = NULL;
     int datasize = DATASIZE;
-    char key[ZKYLEN],rname[ZRNAMESZ],msg[ZMSGSZ];
+    char key[ZKYLEN];
     BTint nrecs = BTINT_MAX;
     BTA *bt;
 
@@ -97,10 +107,6 @@ int main(int argc, char *argv[])
         }
     }
                     
-    if (btinit() != 0) goto fin;
-
-    bt = btcrt("test_db",0,FALSE);
-
     if (datasize > 0) {
         data = malloc(datasize);
     }
@@ -115,31 +121,27 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     
-    for (i=0;i<datasize;i++) {
-        data[i] = 'D';
-    }
+    memset(data,'D',datasize);
+    
+    if (btinit() != 0) goto fin;
+    if ((bt = btcrt("test_db",0,FALSE)) == NULL) goto fin;
 
+    exit_val = EXIT_SUCCESS;
     for (i=0;i<nrecs;i++) {
         sprintf(key,ZINTFMT,i);
         status = btins(bt,key,data,DATASIZE);
         if (status != 0) {
             printf("While attempting to insert key: %s;\n",key);
-            goto fin;
+            print_error();
+            exit_val = EXIT_FAILURE;
+            break;
         }
     }
 
-    btcls(bt);
-    return EXIT_SUCCESS;
+    if (btcls(bt) != 0) goto fin;
+    return exit_val;
   fin:
-    btcerr(&errorcode,&ioerror,rname,msg);
-    printf("\tBTree error: %d [%s]: %s\n",errorcode,rname,msg);
-    status = btcls(bt);
-    if (status != 0) {
-        btcerr(&errorcode,&ioerror,rname,msg);
-        printf("btcls error: %d [%s]: %s\n",errorcode,rname,msg);
-    }
+    print_error();
     return EXIT_FAILURE;
-    
 }
-
-        
+    
