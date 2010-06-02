@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.17 2010-05-31 20:25:24 mark Exp $
+ * $Id: bterr.c,v 1.18 2010-06-02 10:29:10 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -113,7 +113,6 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 {
     char tmpfmt[ZMSGSZ];
 
-    memset(srname,0,ZRNAMESZ);
     memset(msg,0,ZMSGSZ);
     
     strncpy(srname,qname,ZRNAMESZ-1);
