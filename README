@@ -10,6 +10,7 @@ CONTENTS
     BUGS
     ERROR REPORTING
     RELEASE HISTORY
+    ACKNOWLEDGEMENTS
 
 INTRODUCTION
     The BT library is a set of C language functions that implement a
@@ -36,7 +37,7 @@ INTRODUCTION
     Large File Support (LFS) option.
 
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
-    7.3 and Cygwin.
+    7.3, MacOS X 10.5 and Cygwin.
 
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
@@ -141,3 +142,7 @@ RELEASE HISTORY
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
      4th June,      2010        3.0.0   Large file support (> 2GB)
+
+ACKNOWLDGEMENTS 
+    Many thanks to Pedro Serotto for nudging me to work on this version and
+    for testing the release betas.
