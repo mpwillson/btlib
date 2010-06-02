@@ -1,1 +1,3 @@
 warning: no in-use btree file
+warning: no in-use btree file
+(BTOPN) [8]  I/O error opening index file: i_dont_exist (System error: No such file or directory)

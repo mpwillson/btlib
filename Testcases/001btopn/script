@@ -1,4 +1,7 @@
 c test_db
 x
 o test_db
+x
+# open non-existent file
+o i_dont_exist
 q

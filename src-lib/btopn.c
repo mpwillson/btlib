@@ -1,5 +1,5 @@
 /*
- * $Id: btopn.c,v 1.10 2006-09-06 19:17:45 mark Exp $
+ * $Id: btopn.c,v 1.11 2008-05-09 18:25:34 mark Exp $
  *
  * btopn: opens existing B tree index
  *
@@ -48,7 +48,7 @@ BTA *btopn(char *fid, int mode, int shared)
         return NULL;
     }
     if ((btact->idxunt = fopen(fid,"r+b")) == NULL) {
-        bterr("BTOPN",QOPNIO,NULL);
+        bterr("BTOPN",QOPNIO,fid);
         return NULL;
     }
     strcpy(btact->idxfid,fid);

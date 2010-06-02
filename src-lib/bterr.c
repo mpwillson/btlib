@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.16 2010-05-28 12:31:51 mark Exp $
+ * $Id: bterr.c,v 1.17 2010-05-31 20:25:24 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -42,21 +42,21 @@
 
 static int qerror = 0;
 static int qcode = 0;
-static char qarg[ZRNAMESZ+1];
+static char qarg[ZRNAMESZ];
 static int syserror;
 
-static char qname[ZMSGSZ+1];
+static char qname[ZMSGSZ];
 
 char *msgblk[] = {
     "null",
     " The block at the super root location is not a root",
-    " Unable to close index file",
-    " Unable to create index file",
+    " Unable to close index file: %s",
+    " Unable to create index file: %s",
     " Unable to read source or destination block ",
     " I/O error writing block %s",
     " I/O error reading super root",
     " I/O error writing super root",
-    " I/O error opening index file",
+    " I/O error opening index file: %s",
     " I/O error reading block %s",
     " An index file is already open",
     " Can't split full block",
@@ -111,9 +111,12 @@ char *msgblk[] = {
 
 void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 {
-    char tmpfmt[ZMSGSZ+1];
+    char tmpfmt[ZMSGSZ];
+
+    memset(srname,0,ZRNAMESZ);
+    memset(msg,0,ZMSGSZ);
     
-    strncpy(srname,qname,ZRNAMESZ);
+    strncpy(srname,qname,ZRNAMESZ-1);
     *ierr = qerror;
     *ioerr = qcode;
 
@@ -121,21 +124,21 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 
     if (qcode != 0) {
         if (syserror) {
-            snprintf(tmpfmt,ZMSGSZ,"%s (System error: %s)",msgblk[qerror],
+            snprintf(tmpfmt,ZMSGSZ-1,"%s (System error: %s)",msgblk[qerror],
                     strerror(qcode));
         }
         else {
-            snprintf(tmpfmt,ZMSGSZ,"%s (Info: %d)",msgblk[qerror],qcode);
+            snprintf(tmpfmt,ZMSGSZ-1,"%s (Info: %d)",msgblk[qerror],qcode);
         }
         if (strlen(qarg) != 0) {
-            snprintf(msg,ZMSGSZ,tmpfmt,qarg);
+            snprintf(msg,ZMSGSZ-1,tmpfmt,qarg);
         }
         else {
-            strncpy(msg,tmpfmt,ZMSGSZ);
+            strncpy(msg,tmpfmt,ZMSGSZ-1);
         }
     }
     else {
-        snprintf(msg,ZMSGSZ,msgblk[qerror],qarg);
+        snprintf(msg,ZMSGSZ-1,msgblk[qerror],qarg);
     }
     
     return;
@@ -166,9 +169,9 @@ void bterr(char *name, int errorcode, char* arg)
         qarg[0] = '\0';
     }
     else if (qerror == 0) {
-        strncpy(qname,name,ZRNAMESZ);
+        strncpy(qname,name,ZRNAMESZ-1);
         qerror = errorcode;
-        if (arg != NULL) strncpy(qarg,arg,ZRNAMESZ);
+        if (arg != NULL) strncpy(qarg,arg,ZRNAMESZ-1);
         if (errno != 0) {
             syserror = TRUE;
             qcode = errno; /* set to system errorcode */

@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.10 2008-05-09 12:49:13 mark Exp $
+# $Id: Makefile,v 1.11 2010-05-26 12:39:16 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 DEBUG=-g
@@ -42,12 +42,16 @@ TESTCASES=./Testcases
 # Computed dependencies in DEP
 DEP=.dep
 
-# Turn on big file support ( > 2GB)
+# Default is no large file support ( > 2GB) 
 ifdef LFS
-BIGFILE=-D_FILE_OFFSET_BITS=64
+LFS=0
 endif
 
-CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR} ${BIGFILE}
+ifeq (${LFS},1)
+LFSFLAG=-D_FILE_OFFSET_BITS=64
+endif
+
+CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR} ${LFSFLAG}
 
 LIBS=-L${LIB_DIR} -l${LIB_NAME}
 

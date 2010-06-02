@@ -1,5 +1,5 @@
 /*
- * $Id: btcls.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btcls.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
  * btcls: close B tree index file
@@ -54,7 +54,7 @@ int btcls(BTA* b)
     /* close index file and free context memory */
     ioerr = fclose(btact->idxunt);
     if (ioerr != 0) {
-        bterr("BTCLS",QCLSIO,NULL);
+        bterr("BTCLS",QCLSIO,btact->idxfid);
     }
     else {
         btact->idxunt = NULL;

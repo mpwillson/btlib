@@ -1,6 +1,6 @@
 BT Library README File
 
-26th May, 2010
+4th June, 2010
 
 CONTENTS
     INTRODUCTION
@@ -87,12 +87,14 @@ INSTALLING
     system include directory (e.g. /usr/local/include).
 
     Programs can then be compiled and linked against the library by a
-    command of the form: 
+    command of the following form (NB: the define for
+    _FILE_OFFSET_BITS is required when using a BT library built with
+    Large File Support):
 
-         cc -o yak -lbt yak.c 
+         cc -o yak -lbt yak.c [-D_FILE_OFFSET_BITS=64]
 
     Alternatively, just put these files somewhere convenient in your
-    local development hierarchy.
+    local development hierarchy and use matching compiler arguments.
 
 NOTES
     Documentation on the BT API is available in docbook format and
@@ -101,11 +103,11 @@ NOTES
     BT is dependent on very little, but it does require the gcc
     compiler and GNU make.
 
-BUGS
-    Shared file handling does not operate properly on Cygwin.  The timeout
-    alarm never fires, so a process waiting for shared access to a index
-    held exclusive by another process will wait until the exclusive lock
-    is released.
+BUGS 
+    Shared file handling does not operate properly on Cygwin.  The
+    timeout alarm never fires, so a process waiting for shared access
+    to a index held exclusive by another process will wait until the
+    exclusive lock is released.
 
     On all platforms, shared file handling is clunky.
 
@@ -128,7 +130,8 @@ LICENCE
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+    02111-1307, USA.
 
 RELEASE HISTORY
     15th December,  2003        1.0     First public release
@@ -137,4 +140,4 @@ RELEASE HISTORY
      5th October,   2004        2.0.2   Bug fix release
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
-    26th May,       2010        3.0.0   Large file support (> 2GB)
+     4th June,      2010        3.0.0   Large file support (> 2GB)

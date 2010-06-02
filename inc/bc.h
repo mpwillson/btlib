@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.18 2010-05-28 10:34:38 mark Exp $
+ * $Id: bc.h,v 1.19 2010-05-31 20:25:12 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -24,7 +24,7 @@
 #define _btconst_
 
 /* Support for large files (> 2GB); define macro _FILE_OFFSET_BITS=64 */
-#if _FILE_OFFSET_BITS == 64 
+#if _FILE_OFFSET_BITS == 64
 typedef long long BTint;
 #define BTINT_MAX 9223372036854775807LL
 #define ZXFMT "%llx"

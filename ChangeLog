@@ -1,3 +1,8 @@
+2010-06-02  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bterr.c: Returned routine name and error message for btcerr
+	constrained to constant-define sizes (ZRNAMESZ and ZMSGSZ).
+
 2010-05-28  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bgtfre.c: Write newly acquired block to file immediately to

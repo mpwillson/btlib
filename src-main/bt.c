@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.12 2010-05-30 11:13:52 mark Exp $
+ * $Id: bt.c,v 1.13 2010-06-01 19:04:52 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -80,7 +80,7 @@ FILE* pullcf();
 
 int main(int argc,char *argv[])
 {
-    char buff[80],*arg[4],key[32],fid[72],name[6],*cp,*ps;
+    char buff[ZMSGSZ],*arg[4],key[ZKYLEN],fid[ZMSGSZ],name[ZRNAMESZ],*cp,*ps;
     BTint val;
     int i,ierr,ioerr;
     int found,prompt,svp,quit,size;

@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: btcrt.c,v 1.9 2010-05-28 10:34:38 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -57,7 +57,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     }
 
     if ((btact->idxunt = fopen(fid,"w+b")) == NULL) {
-        bterr("BTCRT",QCRTIO,NULL);
+        bterr("BTCRT",QCRTIO,fid);
         return NULL;
     }
 
