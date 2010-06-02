@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.11 2010-05-26 12:39:16 mark Exp $
+# $Id: Makefile,v 1.12 2010-06-02 10:28:01 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 DEBUG=-g
@@ -106,10 +106,10 @@ test_init:
 
 # Build big file tester
 bigt: ${TESTCASES}/bigt.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ ${TESTCASES}/bigt.c ${LIBS}
+	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/bigt.c ${LIBS}
 
 bigtdel:  ${TESTCASES}/bigtdel.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ ${TESTCASES}/bigtdel.c ${LIBS}
+	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/bigtdel.c ${LIBS}
 
 release:
 ifndef REL
