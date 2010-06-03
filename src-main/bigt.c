@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.2 2010-06-02 14:29:43 mark Exp $
+ * $Id: bigt.c,v 1.3 2010-06-03 15:32:10 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
         }
     }
     else {
-        fprintf(stderr,"...terminated by CNTRL-C\n");
+        fprintf(stderr,"... terminated by Cntrl-C\n");
     }   
     if (btcls(bt) != 0) goto fin;
     return exit_val;

@@ -1,5 +1,5 @@
 /*
- * $Id: bigtdel.c,v 1.1 2010-06-02 10:29:30 mark Exp $
+ * $Id: bigtdel.c,v 1.2 2010-06-02 14:29:43 mark Exp $
  * 
  * NAME
  *      bigtdel - a stress test for the B Tree library, to ensure the 
@@ -21,9 +21,9 @@
  *  Mnemonic        Rel Date    Who
  *  BIGTDEL         1.0 041004  mpw
  *      Created.
- *
  *  BIGTDEL         2.0 100525  mpw
  *      Support for large files.
+ *      Catch interrupt and quit gracefully.
  *      
  * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
@@ -48,7 +48,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-
+#include <string.h>
+#include <signal.h>
+#include <setjmp.h>
 #include "btree.h"
 
 #define TRUE 1
@@ -59,6 +61,14 @@
 #else
 #define ATOI atoi
 #endif
+
+jmp_buf env;
+void break_handler (int sig)
+{
+    signal(SIGINT,SIG_DFL);
+    longjmp(env,1);
+}
+
 
 void print_error(void)
 {
@@ -99,16 +109,22 @@ int main(int argc, char *argv[])
     if (bt == NULL) goto fin;
 
     exit_val = EXIT_SUCCESS;
-    for (i=0;i<nrecs;i++) {
-        sprintf(key,ZINTFMT,i);
-        status = btdel(bt,key);
-        /* exit on any error */
-        if (status != 0) {
-            printf("While attempting to delete key: %s;\n",key);
-            print_error();
-            exit_val = EXIT_FAILURE;
-            break;
+    signal(SIGINT,break_handler);
+    if (setjmp(env) == 0) {
+        for (i=0;i<nrecs;i++) {
+            sprintf(key,ZINTFMT,i);
+            status = btdel(bt,key);
+            /* exit on any error */
+            if (status != 0) {
+                printf("While attempting to delete key: %s;\n",key);
+                print_error();
+                exit_val = EXIT_FAILURE;
+                break;
+            }
         }
+    }
+    else {
+        fprintf(stderr,"... terminated by Cntrl-C.\n");
     }
     if (btcls(bt) != 0) goto fin;
     return exit_val;

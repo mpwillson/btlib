@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.14 2010-06-02 10:29:30 mark Exp $
+ * $Id: bt.c,v 1.15 2010-06-02 14:29:43 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -28,6 +28,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <signal.h>
+#include <setjmp.h>
 
 #include "bc.h"
 #include "bt.h"
@@ -77,6 +79,13 @@ FILE* pullcf();
  *------------------------------------------------------------------------
  */
 
+/* Setup for handling interrupts */
+jmp_buf env;
+
+void break_handler (int sig)
+{
+    longjmp(env,1);
+}
 
 int main(int argc,char *argv[])
 {
@@ -95,6 +104,7 @@ int main(int argc,char *argv[])
     quit = FALSE;
     unit = stdin;
 
+    /* only prompt if reading interactive commands */
     if (fstat(fileno(unit),&statbuf) == 0) {
         if ((statbuf.st_mode & S_IFMT) == S_IFCHR) prompt = TRUE;
     }
@@ -106,6 +116,11 @@ int main(int argc,char *argv[])
     ps = "bt: ";
     btinit();
 
+    /* catch interrupts and always return here */
+    setjmp(env);
+    signal(SIGINT,break_handler);
+    fflush(stdout);
+    
     /* read command from command stream (issue prompt if required) */
     while (!quit) {
         if (prompt) printf("%s",ps);
@@ -531,6 +546,7 @@ int main(int argc,char *argv[])
             fprintf(stdout,"(%s) [%d] %s\n",name,ierr,buff);
         }
     }
+    signal(SIGINT,SIG_DFL);
     return (0);
 }
 
