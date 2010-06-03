@@ -1,16 +1,18 @@
 /*
- * $Id: bigt.c,v 1.1 2010-06-02 10:29:30 mark Exp $
+ * $Id: bigt.c,v 1.2 2010-06-02 14:29:43 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
  *      largest files are handled properly.
  *
  * SYNOPSIS
- *      bigt [-n record_count]
+ *      bigt [-n record_count] [-s datasize]
  *
  *      record_count defines the number of records to be written to
  *      the B Tree index file.  If not specified, INT_MAX (32 or 64
- *      bit) records are attempted to be written.
+ *      bit) records are attempted to be written.  The switch -s
+ *      enables the size of the data record to be changed from the
+ *      default (5*ZBLKSZ bytes).
  *
  *  DESCRIPTION
  *      Bigt creates a database named test_db in the working directory
@@ -18,8 +20,9 @@
  *      records.  The default data record is 5*ZBLKSZ bytes, filled with
  *      the character 'D'.
  * 
- *      Bigt should fail gracefully at around 2GB on a machine with 32
- *      bit integers.  
+ *      Bigt should fail gracefully at 2GiB on a machine with 32
+ *      bit integers.  If linked against a BT library with LFS
+ *      support, it should fail gracefully when disk space is full.
  *
  *  MODIFICATION HISTORY
  *  Mnemonic        Rel Date    Who
@@ -29,6 +32,7 @@
  *      Added -n command switch.
  *  BIGT            2.0 100525  mpw
  *      Support for large files.
+ *      Catch interrupt and quit gracefully
  *      
  * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
@@ -54,6 +58,8 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
+#include <signal.h>
+#include <setjmp.h>
 
 #include "btree.h"
 
@@ -67,6 +73,15 @@
 #else
 #define ATOI atoi
 #endif
+
+jmp_buf env;
+
+void break_handler (int sig)
+{
+    signal(SIGINT,SIG_DFL);
+    longjmp(env,1);
+}
+
 
 void print_error(void)
 {
@@ -97,7 +112,7 @@ int main(int argc, char *argv[])
                     --argc;
                     break;
                 case 's':
-                    datasize = ATOI(*++argv);
+                    datasize = atoi(*++argv);
                     --argc;
                     break;
                 default:
@@ -127,17 +142,22 @@ int main(int argc, char *argv[])
     if ((bt = btcrt("test_db",0,FALSE)) == NULL) goto fin;
 
     exit_val = EXIT_SUCCESS;
-    for (i=0;i<nrecs;i++) {
-        sprintf(key,ZINTFMT,i);
-        status = btins(bt,key,data,DATASIZE);
-        if (status != 0) {
-            printf("While attempting to insert key: %s;\n",key);
-            print_error();
-            exit_val = EXIT_FAILURE;
-            break;
+    signal(SIGINT,break_handler);
+    if (setjmp(env) == 0) {
+        for (i=0;i<nrecs;i++) {
+            sprintf(key,ZINTFMT,i);
+            status = btins(bt,key,data,datasize);
+            if (status != 0) {
+                printf("While attempting to insert key: %s;\n",key);
+                print_error();
+                exit_val = EXIT_FAILURE;
+                break;
+            }
         }
     }
-
+    else {
+        fprintf(stderr,"...terminated by CNTRL-C\n");
+    }   
     if (btcls(bt) != 0) goto fin;
     return exit_val;
   fin:
