@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.20 2010-06-02 10:28:50 mark Exp $
+ * $Id: bc.h,v 1.21 2010-06-04 11:21:25 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -31,11 +31,11 @@ typedef long long BTint;
 #define ZINTFMT "%lld"
 #define Z20DFMT "%20lld"
 #else
-typedef long BTint;
+typedef int BTint;
 #define BTINT_MAX INT_MAX
 #define ZXFMT "%x"
-#define Z20DFMT "%20ld"
-#define ZINTFMT "%ld"
+#define Z20DFMT "%20d"
+#define ZINTFMT "%d"
 #endif
 
 /*

@@ -4,6 +4,7 @@ BT Library README File
 
 CONTENTS
     INTRODUCTION
+    UPDATING
     COMPILING
     INSTALLING
     NOTES
@@ -37,7 +38,15 @@ INTRODUCTION
     Large File Support (LFS) option.
 
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
-    7.3, MacOS X 10.5 and Cygwin.
+    7.3, Mac OS X 10.6.3 and Cygwin.
+
+UPDATING 
+    If migrating from a previous release of the BT library, be aware
+    that the function btcerr always zero-pads the srname and msg
+    buffers to BT constants ZRNAMESZ and ZMSGSZ
+    respectively. Declaring these arrays to be smaller than the BT
+    constants will ensure btcerr acts as a very effective stack
+    smasher.
 
 COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
@@ -89,13 +98,14 @@ INSTALLING
 
     Programs can then be compiled and linked against the library by a
     command of the following form (NB: the define for
-    _FILE_OFFSET_BITS is required when using a BT library built with
-    Large File Support):
+    _FILE_OFFSET_BITS may be required when using a BT library built
+    with Large File Support):
 
          cc -o yak -lbt yak.c [-D_FILE_OFFSET_BITS=64]
 
-    Alternatively, just put these files somewhere convenient in your
-    local development hierarchy and use matching compiler arguments.
+    Alternatively, just put the include and library files somewhere
+    convenient in your local development hierarchy and use matching
+    compiler arguments.
 
 NOTES
     Documentation on the BT API is available in docbook format and
