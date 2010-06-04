@@ -151,7 +151,7 @@ RELEASE HISTORY
      5th October,   2004        2.0.2   Bug fix release
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
-     4th June,      2010        3.0.0   Large file support (> 2GB)
+     4th June,      2010        3.0.0   Large file support (> 2GiB)
 
 ACKNOWLDGEMENTS 
     Many thanks to Pedro Serotto for nudging me to work on this version and
