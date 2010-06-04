@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.9 2010-05-26 12:39:16 mark Exp $
+ * $Id: bdbug.c,v 1.10 2010-05-28 10:34:38 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -123,10 +123,10 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
         } while (blkno != btact->cntxt->super.scroot);
         
         fprintf(stdout,
-                " No. of blocks:    " Z20DFMT "\n"
-                " Max. poss. keys:  " Z20DFMT "\n"
-                " Actual keys:      " Z20DFMT "\n"
-                " Occupancy (%c):    %20.2f\n",
+                " No. of key blocks: " Z20DFMT "\n"
+                " Max. poss. keys:   " Z20DFMT "\n"
+                " Actual keys:       " Z20DFMT "\n"
+                " Occupancy (%c):     %20.2f\n",
                 tblks, tblks*ZMXKEY,tnkeys,'%',
                 (double) tnkeys/(tblks*ZMXKEY)*100.0);
     }

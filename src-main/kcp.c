@@ -1,5 +1,5 @@
 /*
- *  $Id: kcp.c,v 1.9 2010-05-26 12:39:16 mark Exp $
+ *  $Id: kcp.c,v 1.10 2010-05-29 14:52:33 mark Exp $
  *  
  *  NAME
  *      kcp - copies B Tree index/data files
@@ -67,33 +67,47 @@ int copyroot(BTA*,BTA*,char*);
 
 char *prog;
 
+void print_bterror(void)
+{
+    int errorcode, ioerr;
+    char fname[ZRNAMESZ],msg[ZMSGSZ];
+
+    btcerr(&errorcode,&ioerr,fname,msg);
+    fprintf(stderr,"%s: btree error (%d) [%s] - %s\n",
+            prog,errorcode,fname,msg);
+}
+
 int main(int argc, char *argv[])
 {
     BTint i;
-    int status, ioerr;
+    int exit_status, status;
     BTA *in, *out;
     char current_root[ZKYLEN];
-    char fname[20],msg[80];
-
-    if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s old_file new_file\n",argv[0],argv[0]);
-        exit(-1);
-    }
 
     prog = argv[0];
-    btinit();
+
+    if (argc < 3) {
+        fprintf(stderr,"%s: usage: %s old_file new_file\n",prog,prog);
+        return EXIT_FAILURE;
+    }
+
+    if (btinit() !=0 ) {
+        print_bterror();
+        return EXIT_FAILURE;
+    }
     
+    exit_status = EXIT_SUCCESS;
     /* Open the original file */
     in = btopn(argv[1],0,FALSE);
     if (in == NULL) {
-        fprintf(stderr,"%s: unable to open old file '%s'\n",prog,argv[1]);
-        exit(-1);
+        print_bterror();
+        return EXIT_FAILURE;
     }
     /* Create the new file */
     out = btcrt(argv[2],0,FALSE);
     if (out == NULL) {
-        fprintf(stderr,"%s: unable to open new file '%s'\n",prog,argv[2]);
-        exit(-1);
+        print_bterror();
+        return EXIT_FAILURE;
     }
     status = btchgr(in,SUPER);
     if (status != 0) goto fin;
@@ -122,15 +136,19 @@ int main(int argc, char *argv[])
     if (status == QNOKEY) status = 0;
   fin:
     if (status != 0) {
-        btcerr(&status,&ioerr,fname,msg);
-        fprintf(stderr,"%s: btree error (%d) [%s] - %s\n",
-                argv[0],status,fname,msg);
+        print_bterror();
+        exit_status = EXIT_FAILURE;
     }
-    status = btcls(in);
-    if (status == 0) status = btcls(out);
+    if (btcls(in) != 0) {
+        print_bterror();
+        exit_status = EXIT_FAILURE;
+    }
+    if (btcls(out) != 0) {
+        print_bterror();
+        exit_status = EXIT_FAILURE;
+    }
     
-    return(0);
-
+    return(exit_status);
 }
 
 int copyroot(BTA* in, BTA* out, char *rootname)
