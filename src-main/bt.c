@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.15 2010-06-02 14:29:43 mark Exp $
+ * $Id: bt.c,v 1.16 2010-06-03 20:05:27 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -30,6 +30,11 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <setjmp.h>
+
+#ifdef READLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 #include "bc.h"
 #include "bt.h"
@@ -87,33 +92,40 @@ void break_handler (int sig)
     longjmp(env,1);
 }
 
+int tty_input(FILE* unit)
+{
+    struct stat statbuf;
+    
+    if (fstat(fileno(unit),&statbuf) == 0) {
+        return ((statbuf.st_mode & S_IFMT) == S_IFCHR); /* character
+                                                           special */
+     }
+    else {
+        fprintf(stderr,"bt: unable to fstat file descriptor: %d\n",
+                fileno(unit));
+        exit(EXIT_FAILURE);
+    }
+}
+
 int main(int argc,char *argv[])
 {
-    char buff[ZMSGSZ],*arg[4],key[ZKYLEN],fid[ZMSGSZ],name[ZRNAMESZ],*cp,*ps;
+    char buff[ZMSGSZ],*arg[4],key[ZKYLEN],fid[ZMSGSZ],name[ZRNAMESZ],*ps;
+    char *cp = NULL,*rlbuf = NULL;
+    
     BTint val;
     int i,ierr,ioerr;
     int found,prompt,svp,quit,size;
     FILE *unit;
-    struct stat statbuf;
     char *rbuf;
     
     BTA *btp = NULL, *svbtp;
     struct _blist *blk;
 
-    prompt = FALSE;
+    prompt = TRUE;
     quit = FALSE;
     unit = stdin;
-
-    /* only prompt if reading interactive commands */
-    if (fstat(fileno(unit),&statbuf) == 0) {
-        if ((statbuf.st_mode & S_IFMT) == S_IFCHR) prompt = TRUE;
-    }
-    else {
-        fprintf(stderr,"bt: unable to fstat stdin\n");
-        exit(-1);
-    }
-
     ps = "bt: ";
+
     btinit();
 
     /* catch interrupts and always return here */
@@ -123,9 +135,22 @@ int main(int argc,char *argv[])
     
     /* read command from command stream (issue prompt if required) */
     while (!quit) {
-        if (prompt) printf("%s",ps);
-        cp = fgets(buff,80,unit);
-        if (cp == NULL) {
+        if (tty_input(unit)) {
+#ifdef READLINE
+            if (prompt) 
+                rlbuf = readline(ps);
+            else    
+                rlbuf = readline(NULL);
+            strcpy(buff,rlbuf);
+#else
+            if (prompt) printf("%s",ps);
+            cp = fgets(buff,80,unit);
+#endif            
+        }
+        else {
+            cp = fgets(buff,80,unit);
+        }
+        if (cp == NULL && rlbuf == NULL) {
             if (unit == stdin) {
                 quit = TRUE;
             }
@@ -146,11 +171,9 @@ int main(int argc,char *argv[])
 
         ierr = 0;
         ioerr = 0;
-
+        
         /* check for system command */
-        cp = strchr(buff,'!');
-
-        if (cp != NULL) {
+        if ((cp = strchr(buff,'!')) != NULL) {
             system(cp+1);
             continue;
         }
@@ -160,11 +183,19 @@ int main(int argc,char *argv[])
 
         /* ignore empty line or comment (line starting with '#') */
         if (arg[0] == NULL || *arg[0] == '#') continue;
+#ifdef READLINE
+        if (tty_input(unit)) {
+            add_history(rlbuf);
+            free(rlbuf);
+            rlbuf = NULL;
+        }
+#endif        
         /* extract up to four arguments from buff */
         for (i=1;i<4;i++) {
             arg[i] = strtok(NULL," \n");
             if (arg[i] == NULL) arg[i] = EMPTY;
         }
+        
         /* create data Buffer */
         if (strcmp(arg[0],"b") == 0) {
             del_data(arg[1]);           /* delete any previous
