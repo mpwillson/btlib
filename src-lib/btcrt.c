@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.9 2010-05-28 10:34:38 mark Exp $
+ * $Id: btcrt.c,v 1.10 2010-06-02 10:29:10 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -81,7 +81,8 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     btact->cntxt->super.sblkmx = 2;     /* include super and default roots */
     btact->cntxt->super.snfree = 0;     /* count of blocks in free list */
     btact->cntxt->super.sfreep = ZNULL; /* head of free list */
-    btact->cntxt->super.smod = 1;
+    btact->cntxt->super.smod = 1;       /* ensure block is written */
+    btact->cntxt->super.smode = 0;      /* mark index as write-enabled */
 
     /* set up super root */
     idx = bgtslt();
