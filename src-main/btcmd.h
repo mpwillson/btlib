@@ -27,6 +27,6 @@ typedef struct cmd_entry CMDENTRY;
 
 CMDBLK* btcmd(char*,CMDENTRY[]);
 int cmd_help(CMDENTRY[]);
-
+int bt_noop(CMDBLK*);
 
 #endif

@@ -1,3 +1,11 @@
+2010-06-07  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c, Makefile: Added support for readline when reading
+	interactive commands.  Readline support is only compiled in if the
+	readline include files are detected.
+
+	* btcrt.c: Fixed bug - super.smode not set to zero.
+
 2010-06-04  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* kcp.c: Improved error handling; use btcerr array size constants.

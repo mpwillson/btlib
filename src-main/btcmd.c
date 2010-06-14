@@ -30,8 +30,6 @@
  *
  *
  * 	DESCRIPTION
- *      Add support for mandatory args DONE
- *      Provide int version of qualifier
  *
  * 	NOTES
  *
@@ -74,13 +72,12 @@ char arg[MAXBUFSZ+1];
 char qual[MAXBUFSZ+1];
 char all[MAXBUFSZ+1];
 
-/* forward dec of local_cmds (for help) */
+/* forward declaration of local_cmds (for help) */
 CMDENTRY local_cmds[];
-
+/* Pointer to current applicaton command set (for help) */
 CMDENTRY* current_app_cmds;
 
 /* Nested command file handling variables and functions */
-
 #define CMDFILEMAX 5
 
 FILE* cmdinput[CMDFILEMAX];
@@ -107,6 +104,8 @@ FILE* pullcf()
     }
 }
 
+/* Return char pointer to first first space or tab character before
+ * the character position max in string s */
 char* strbrk(char* s, int max)
 {
     char* p = s;
@@ -130,7 +129,7 @@ void display_help(CMDENTRY cmds[])
     char* cp;
     char* ed;
 
-    fprintf(stdout,"%-20s %-10s %s\n","Command","Args","Description");
+    fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args","Description");
     for ( i=0 ; strlen(cmds[i].cmd) != 0 ; i++ ) {
         char s[MAXBUFSZ+1];
         /* ignore commands with no description (probably hidden) */
@@ -150,7 +149,6 @@ void display_help(CMDENTRY cmds[])
     }
 }
 
-
 int cmd_help(CMDENTRY cmds[])
 {
     fprintf(stdout,"Application Commands:\n");
@@ -162,6 +160,11 @@ int cmd_help(CMDENTRY cmds[])
 
 /* Define btcmd 'free' commands */
 
+/* does nothing */
+int bt_noop(CMDBLK* c) {
+    return 0;
+}
+
 int prompt(CMDBLK* c)
 {
     issue_prompt = !issue_prompt;
@@ -171,7 +174,7 @@ int prompt(CMDBLK* c)
 int execute(CMDBLK* c)
 {
     if (!pushcf(input)) {
-        fprintf(stderr,">> command file stack exhausted at: %s\n",
+        fprintf(stderr,"command file stack exhausted at: %s\n",
                 c->arg);
     }
     else {
@@ -181,7 +184,7 @@ int execute(CMDBLK* c)
         }
         input = fopen(c->arg,"rt");
         if (input == NULL) {
-            printf(">> unable to open execute file: %s\n",c->arg);
+            printf("unable to open execute file: %s\n",c->arg);
             input = pullcf();
             if (input == stdin) {
                 issue_prompt = svp;
@@ -196,12 +199,13 @@ int close_execute(CMDBLK* c)
     fclose(input);
     input = pullcf();
     if (input == NULL) {
-        fprintf(stderr,">> command file stack underflow\n");
+        fprintf(stderr,"command file stack underflow\n");
         input = stdin;
     }
     else if (input == stdin) {
         issue_prompt = svp;
     }
+    return 0;
 }
 
 int btsystem(CMDBLK* c)
@@ -229,7 +233,7 @@ CMDENTRY local_cmds[] = {
     { "prompt","p",prompt,"",0,"Toggle prompting before reading command."},
     { "system","!",btsystem,"string",0,"Run shell command."},
     { BTEOF,"",close_execute,"",0,""},
-    { "","",comment,""}
+    { "","",bt_noop,"END OF COMMANDS"}
 };
 
 char* non_ws(char* str){
@@ -249,7 +253,7 @@ int tty_input(FILE* input)
                                                            special */
      }
     else {
-        fprintf(stderr,">> unable to fstat file descriptor: %d\n",
+        fprintf(stderr,"unable to fstat file descriptor: %d\n",
                 fileno(input));
         exit(EXIT_FAILURE);
     }
@@ -298,7 +302,7 @@ int tokenise(char* cmdbuf, char* cmd, char* arg, char* qual, char* all)
 }
 void bad_args(char* s)
 {
-    fprintf(stderr,">> %s: incorrect number of arguments.\n",s);
+    fprintf(stderr,"%s: incorrect number of arguments.\n",s);
     return;
 }
 
@@ -308,6 +312,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     char* cp;
     
     cp = non_ws(cmdbuf); /* locate first non-whitespace character */
+
     /* check for special command (one chararacter, not alphanumeric) */
     for ( i=0; strlen(cmds[i].cmd) != 0 ; i++ ) {
         if (strlen(cmds[i].abbrev) == 1 &&
@@ -411,7 +416,7 @@ CMDBLK* btcmd(char* prompt_string,CMDENTRY app_cmds[])
                 }
             }
             else {
-                fprintf(stderr,">> unknown command: %s - type ? for help.\n",
+                fprintf(stderr,"unknown command: %s - type ? for help.\n",
                         cblk.cmd);
                 cblk.function = NULL;
             }
