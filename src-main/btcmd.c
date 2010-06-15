@@ -1,5 +1,5 @@
 /*
- * $$
+ * $Id$
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -58,7 +58,9 @@
 
 #define MAXBUFSZ 132
 #define MAXDESCSZ 512
-#define BTEOF "$EOF$"
+
+int echo = FALSE;
+int stop_on_error = FALSE;
 
 int issue_prompt = TRUE;
 int svp;
@@ -149,29 +151,20 @@ void display_help(CMDENTRY cmds[])
     }
 }
 
-int cmd_help(CMDENTRY cmds[])
-{
-    fprintf(stdout,"Application Commands:\n");
-    display_help(cmds);
-    fprintf(stdout,"\nInbuilt Commands:\n");
-    display_help(local_cmds);
-    return 0;
-}
-
 /* Define btcmd 'free' commands */
 
 /* does nothing */
-int bt_noop(CMDBLK* c) {
+int btcmd_noop(CMDBLK* c) {
     return 0;
 }
 
-int prompt(CMDBLK* c)
+int btcmd_prompt(CMDBLK* c)
 {
     issue_prompt = !issue_prompt;
     return 0;
 }
 
-int execute(CMDBLK* c)
+int btcmd_execute(CMDBLK* c)
 {
     if (!pushcf(input)) {
         fprintf(stderr,"command file stack exhausted at: %s\n",
@@ -194,7 +187,7 @@ int execute(CMDBLK* c)
     return 0;
 }
 
-int close_execute(CMDBLK* c)
+int btcmd_close_execute(CMDBLK* c)
 {
     fclose(input);
     input = pullcf();
@@ -208,32 +201,66 @@ int close_execute(CMDBLK* c)
     return 0;
 }
 
-int btsystem(CMDBLK* c)
+int btcmd_system(CMDBLK* c)
 {
     system(c->all);
     return 0;
 }
 
-int comment(CMDBLK* c)
+int btcmd_comment(CMDBLK* c)
 {
     return 0;
 }
 
-int help(CMDBLK* c)
+int btcmd_help(CMDBLK* c)
 {
-    cmd_help(current_app_cmds);
+    display_help(current_app_cmds);
     return 0;
 }
 
+int btcmd_echo(CMDBLK* c)
+{
+    if (strcmp(c->arg,"on") == 0) {
+        echo = TRUE;
+    }
+    else if (strcmp(c->arg,"off") == 0) {
+        echo = FALSE;
+    }
+    else {
+        fprintf(stderr,"echo: on or off expected, not %s\n.",c->arg);
+    }
+    return 0;
+}
+
+int btcmd_error(CMDBLK* c)
+{
+    if (strcmp(c->arg,"on") == 0) {
+        stop_on_error = TRUE;
+    }
+    else if (strcmp(c->arg,"off") == 0) {
+        stop_on_error = FALSE;
+    }
+    else {
+        fprintf(stderr,"echo: on or off expected, not %s\n.",c->arg);
+    }
+    return 0;
+}
+
+/* Sample CMDENTRY for free commands.  App can include these as
+ * necessary */
 CMDENTRY local_cmds[] = {
-    { "comment","#",comment,"string",0,"Following text will be ignored."},
-    { "execute","e",execute,"filename",1,"Commence reading commands from "
+    { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
+    { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
       "file. execute commands may be nested."},
-    { "help","?",help,"",0,"Provide help on supported commands."},
-    { "prompt","p",prompt,"",0,"Toggle prompting before reading command."},
-    { "system","!",btsystem,"string",0,"Run shell command."},
-    { BTEOF,"",close_execute,"",0,""},
-    { "","",bt_noop,"END OF COMMANDS"}
+    { "echo","ec",btcmd_echo,"{on|off}",1,
+      "Echo commands when on and reading from file." },         
+    { "error","er",btcmd_error,"{on|off}",1,
+      "Stop processing command files on error." },
+    { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
+    { "prompt","p",btcmd_prompt,"",0,
+      "Toggle prompting before reading command."},
+    { "system","!",btcmd_system,"string",0,"Run shell command."},
+    { "","",btcmd_noop,"END OF COMMANDS"}
 };
 
 char* non_ws(char* str){
@@ -313,23 +340,6 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     
     cp = non_ws(cmdbuf); /* locate first non-whitespace character */
 
-    /* check for special command (one chararacter, not alphanumeric) */
-    for ( i=0; strlen(cmds[i].cmd) != 0 ; i++ ) {
-        if (strlen(cmds[i].abbrev) == 1 &&
-            cmds[i].abbrev[0] < 'A') {
-            if (*cp == cmds[i].abbrev[0]) {
-                cblk.function = cmds[i].function;
-                cblk.cmd = cmds[i].cmd;
-                cblk.arg = "";
-                cblk.qualifier = "";
-                cblk.all = cp+1;
-                cblk.nargs = 0;
-                cblk.qual_int = 0;
-                return;
-            }
-        }
-    }
-    /* now normal commands */
     cblk.nargs = tokenise(cmdbuf,cmd,arg,qual,all);
     cblk.arg = arg;
     cblk.qualifier = qual;
@@ -338,7 +348,15 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     cblk.cmd = cmd;
     cblk.function = NULL;
     for ( i=0 ; strlen(cmds[i].cmd) != 0; i++ ) {
-        if (strcmp(cmd,cmds[i].cmd) == 0 || strcmp(cmd,cmds[i].abbrev) == 0) {
+        if (strlen(cmds[i].abbrev) == 1 &&
+            cmds[i].abbrev[0] < 'A' &&
+            *cp == cmds[i].abbrev[0]) {
+            cblk.function = cmds[i].function;
+            cblk.all = cp+1;
+            return;
+        }
+        else if (strcmp(cmd,cmds[i].cmd) == 0 ||
+                 strcmp(cmd,cmds[i].abbrev) == 0) {
             cblk.function = cmds[i].function;
             cblk.cmd = cmds[i].cmd;
             /* does # args match that required? */
@@ -349,21 +367,24 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
             return;
         }
     }
-    /* no valid command found, return cblk.function as NULL */
+    /* empty sentinal command should invoke unknown command handler */
+    cblk.function = cmds[i].function;
     return;
 }
     
-CMDBLK* btcmd(char* prompt_string,CMDENTRY app_cmds[])
+void btcmd(char* prompt_string,CMDENTRY app_cmds[],
+              void(error_handler)(int))
 {
     char* rlbuf = NULL;
     char* cp = NULL;
     static char cmdbuf[MAXBUFSZ+1];
-
+    int status = 0;
+    
     if (input == NULL) input = stdin;
     current_app_cmds = app_cmds;
     cblk.function = NULL;
     
-    while (cblk.function == NULL) {
+    while (status == 0) {
         if (rlbuf != NULL) {
             free(rlbuf);
             rlbuf = NULL;
@@ -374,8 +395,10 @@ CMDBLK* btcmd(char* prompt_string,CMDENTRY app_cmds[])
                 rlbuf = readline(prompt_string);
             else    
                 rlbuf = readline(NULL);
-            if (strcmp(rlbuf,"") == 0) continue;
-            strncpy(cmdbuf,rlbuf,MAXBUFSZ);
+            if (rlbuf != NULL) {
+                if (strcmp(rlbuf,"") == 0) continue;
+                strncpy(cmdbuf,rlbuf,MAXBUFSZ);
+            }
 #else
             if (issue_prompt) printf("%s",prompt_string);
             cp = fgets(cmdbuf,MAXBUFSZ,input);
@@ -386,43 +409,38 @@ CMDBLK* btcmd(char* prompt_string,CMDENTRY app_cmds[])
         }
         if (cp == NULL && rlbuf == NULL) {
             if (input == stdin) {
-                return NULL; /* end of file in tty command stream */
+                return; /* end of file in tty command stream */
             }
             else {
-                /* end-of-file on command file - insert peusdo command */
-                strcpy(cmdbuf,BTEOF);
+                btcmd_close_execute(&cblk);
+                continue;
             }
         }
-        find_cmd(cmdbuf,local_cmds);
+        find_cmd(cmdbuf,app_cmds);
         if (cblk.function != NULL) {
             if (cblk.nargs < 0) {
                 bad_args(cblk.cmd);
             }
             else {
                 rl_history(input,rlbuf);
-                (cblk.function)(&cblk);
-            }
-            cblk.function = NULL;
-        }
-        else {
-            find_cmd(cmdbuf,app_cmds);
-            if (cblk.function != NULL) {
-                if (cblk.nargs < 0) {
-                    bad_args(cblk.cmd);
-                    cblk.function = NULL;
+                if (echo && !tty_input(input)) {
+                    fprintf(stdout,"%s%s",prompt_string,cmdbuf);
                 }
-                else {
-                    rl_history(input,rlbuf);
+                status = (cblk.function)(&cblk); 
+                if (status > 0) {
+                    (error_handler)(status);
+                    if (stop_on_error && input != stdin) {
+                        while (input != stdin) btcmd_close_execute(&cblk);
+                        fprintf(stderr,
+                              "command file processing terminated (error on).\n");
+                      
+                    }
+                    status = 0;
                 }
-            }
-            else {
-                fprintf(stderr,"unknown command: %s - type ? for help.\n",
-                        cblk.cmd);
-                cblk.function = NULL;
             }
         }
-    }   
-    return &cblk;
+     }   
+    return;
 }
 
 

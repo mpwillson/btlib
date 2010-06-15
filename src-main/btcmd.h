@@ -25,8 +25,17 @@ struct cmd_entry {
 };
 typedef struct cmd_entry CMDENTRY;
 
-CMDBLK* btcmd(char*,CMDENTRY[]);
-int cmd_help(CMDENTRY[]);
-int bt_noop(CMDBLK*);
+void btcmd(char*,CMDENTRY[],void(*)(int));
+
+int btcmd_help(CMDBLK*);
+
+int btcmd_noop(CMDBLK*);
+int btcmd_comment(CMDBLK*);
+int btcmd_execute(CMDBLK*);
+int btcmd_prompt(CMDBLK*);
+int btcmd_system(CMDBLK*);
+int btcmd_close_execute(CMDBLK*);
+int btcmd_echo(CMDBLK*);
+int btcmd_error(CMDBLK*);
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.18 2010-06-13 20:00:40 mark Exp $
+ * $Id: bt.c,v 1.19 2010-06-14 20:04:14 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -283,7 +283,6 @@ void add_data_file(char *bn, char *fn)
 
 /* bt command routines */
 
-/* create data block */
 int create_block(CMDBLK* c)
 {
     /* delete any previous definition */
@@ -300,7 +299,6 @@ int create_block(CMDBLK* c)
     return 0;
 }
 
-/* delete data block */
 int block_delete(CMDBLK* c)
 {
     if (!del_data(c->arg)) {
@@ -309,7 +307,6 @@ int block_delete(CMDBLK* c)
     return 0;
 }
 
-/* list known data blocks */
 int block_list(CMDBLK* c)
 {
     struct bt_blist *b;
@@ -328,7 +325,6 @@ int block_list(CMDBLK* c)
     return 0;
 }
 
-/* create index file */
 int create_file(CMDBLK* c)
 {
     BTA* svbtp = btp;
@@ -344,7 +340,6 @@ int create_file(CMDBLK* c)
     return 0;
 }
 
-/* open index file */
 int open_file(CMDBLK* c)
 {
     BTA* svbtp = btp;
@@ -360,12 +355,15 @@ int open_file(CMDBLK* c)
     return 0;
 }
 
-/* quit command */
 int quit(CMDBLK* c)
 {
-    int status = 0;
+    return -1;
+}
 
-    signal(SIGINT,SIG_DFL);
+/* closes open index files prior to exit */
+void shutdown()
+{
+    int status = 0;
 
     while (phead != NULL && status == 0) {
         status = btcls(phead->b);
@@ -375,11 +373,9 @@ int quit(CMDBLK* c)
         fprintf(stderr,"Failed to close all btree index files\n");
         exit(EXIT_FAILURE);
     }
-    exit(EXIT_SUCCESS);
-    return status;
+    return;
 }
 
-/* close current index file */
 int close_file(CMDBLK* c)
 {
     int status;
@@ -709,59 +705,89 @@ int decode_addr(CMDBLK* c)
     return status;
 }
 
+int unknown_command(CMDBLK* c)
+{
+    fprintf(stderr,"unknown command: %s: type ? for help.\n",c->cmd);
+    return 0;
+}
+
 CMDENTRY bt_cmds[] = {
-  { "block","b",create_block,"{b n|b f}",2,"Create data block named b, with either n bytes, or contents of file f." },
+  { "block","b",create_block,"{b n|b f}",2,
+    "Create data block named b, with either n bytes, or contents of file f." },
   { "block-delete","bd",block_delete,"b",1,"Delete data block named b." },
   { "block-list","bl",block_list,"",0,"List defined data blocks." },
-  { "create","c",create_file,"file [s]",1,"Create index file. s qualifier indicates shared mode." },
+  { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
+  { "create","c",create_file,"file [s]",1,"Create index file. s qualifier "
+    "indicates shared mode." },
   { "change-root","cr",change_root,"rootname",1,"Change to named root." },
   { "define","d",define_key,"key [val]",0,"Define key with associated value." },
-  { "decode-address","da",decode_addr,"key",1,"Print decoded data segment address for key." },
-  { "define-data","dd",define_data,"key {s|*b}",2,"Define key with data.  Specify string s or use *b to refer to previously defined data block." },
+  { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
+    "address for key." },
+  { "define-data","dd",define_data,"key {s|*b}",2,
+    "Define key with data.  Specify string s or use *b to refer"
+    " to previously defined data block." },
   { "define-root","dr",define_root,"root",1,"Define new root." },
+  { "echo","ec",btcmd_echo,"{on|off}",1,
+    "Echo commands when on and reading from file." },
+  { "error","er",btcmd_error,"{on|off}",1,
+    "Stop processing command files on error." },
+  { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
+    "file. execute commands may be nested."},
   { "find","f",find_key,"key",0,"Find key." },
-  { "find-data","fd",find_data,"key [d]",0,"Find key with data. Use d qualifier to display entire data record." },
+  { "find-data","fd",find_data,"key [d]",0,"Find key with data. Use d "
+    "qualifier to display entire data record." },
   { "file-list","fl",file_list,"",0,"List open index files." },
-  { "list","l",list_keys,"",0,"List all keys and values following last find operation." },
-  { "list-data","ld",list_data,"",0,"List all keys and data following last find operation." },
+  { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
+  { "list","l",list_keys,"",0,"List all keys and values following last "
+    "find operation." },
+  { "list-data","ld",list_data,"",0,"List all keys and data following last "
+    "find operation." },
   { "lock","lk",lock_file,"",0,"Lock current index file." },
-  { "list-keys-only","lko",list_keys_only,"",0,"List all keys (only) following last find operation." },
+  { "list-keys-only","lko",list_keys_only,"",0,"List all keys (only) "
+    "following last find operation." },
   { "next","n",next_key,"",0,"Display next key and value." },
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
-  { "open","o",open_file,"file [s]",0,"Open existing index file.  s qualifier indicates shared mode." },
+  { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
+    "qualifier indicates shared mode." },
+  { "prompt","p",btcmd_prompt,"",0,
+    "Toggle prompting before reading command."},
   { "quit","q",quit,"",0,"Quit bt program." },
   { "remove","r",remove_key,"key",1,"Remove key." },
   { "remove-data","rd",remove_data,"key",1,"Remove key and associated data." },
   { "remove-root","rr",remove_root,"root",1,"Remove root." },
-  { "show","s",show_debug,"arg",0,"Show debug info. arg one of control,super,stats,space,stack,block n." },
+  { "show","s",show_debug,"arg",0,"Show debug info. arg one of "
+    "control,super,stats,space,stack,block n." },
   { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
+  { "system","!",btcmd_system,"string",0,"Run shell command."},
   { "use","u",use_file,"file",1,"Make file current in-use index file." },
-  { "update-data","ud",update_data,"key {s|*b}",2,"Update key with new data record string s. Use *b to refer to pre-defined data block." },
+  { "update-data","ud",update_data,"key {s|*b}",2,
+    "Update key with new data record string s. Use *b to refer to "
+    "pre-defined data block." },
   { "unlock","ul",unlock_file,"",0,"Unlock current index file." },
-  { "update-value","uv",update_value,"key val",2,"Update value of key to val." },
+  { "update-value","uv",update_value,"key val",2,"Update value of key "
+    "to val." },
   { "x","x",close_file,"",0,"Close current index file." },
-  { "","",bt_noop,"",0,"END OF COMMANDS"}
+  { "","",unknown_command,"",0,"Unknown command found"}
 };
 
-void report_error(void)
+void report_error(int i)
 {
     int status,ioerr;
     char name[ZRNAMESZ];
     char msg[ZMSGSZ];
 
     btcerr(&status,&ioerr,name,msg);
-    fprintf(stdout,"(%s) [%d] %s\n",
+    fprintf(stderr,"(%s) [%d] %s\n",
             name,status,msg);
 }
     
 int main(int argc,char *argv[])
 {
     char *ps = "bt: ";
-    int status;
-    CMDBLK* c;
     
     if (btinit() != 0) {
-        report_error();
+        report_error(0);
+        return EXIT_FAILURE;
     }
     else {
         /* catch interrupts and always return here */
@@ -769,22 +795,12 @@ int main(int argc,char *argv[])
         signal(SIGINT,break_handler);
         fflush(stdout);
     
-        /* read command from command stream */
-        while (TRUE) {
-            c = btcmd(ps,bt_cmds);
-            if (c->function == NULL) {
-                fprintf(stderr,"btcmd returned NULL function!\n");
-            }
-            else {
-                status = (c->function)(c);
-                /* check for error in B tree */
-                if (status != 0)  {
-                    report_error(); 
-                }
-            }
-        }
+        /* read commands from command stream */
+        btcmd(ps,bt_cmds,report_error);
+
         signal(SIGINT,SIG_DFL);
+        shutdown();
     }
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
 
