@@ -1,20 +1,21 @@
-c test_db
-e ../inskeysrand.bt
-f
-l
-e ../delkeysrand.bt
-f
-l
-e ../inskeysrand.bt
-f
-l
-e ../delkeysord.bt
-f
-l
-e ../inskeysrand.bt
-f
-l
-e ../delkeysrord.bt
-f 
-l
-q
+echo on
+create test_db
+execute ../inskeysrand.bt
+find
+list
+execute ../delkeysrand.bt
+find
+list
+execute ../inskeysrand.bt
+find
+list
+execute ../delkeysord.bt
+find
+list
+execute ../inskeysrand.bt
+find
+list
+execute ../delkeysrord.bt
+find 
+list
+quit

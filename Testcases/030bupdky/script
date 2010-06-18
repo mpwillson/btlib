@@ -1,15 +1,16 @@
-c test_db
-d key1 1
-d key2 2
-d key3 3
-e ../inskeysrand.bt
-uv key3 50
-uv key2 100
-uv key1 200
-f key3
-f key2
-f key1
-uv key3 1000
-f key3
-q
+echo on
+create test_db
+define key1 1
+define key2 2
+define key3 3
+execute ../inskeysrand.bt
+update-value key3 50
+update-value key2 100
+update-value key1 200
+find key3
+find key2
+find key1
+update-value key3 1000
+find key3
+quit
 

@@ -1,0 +1,3 @@
+... terminated by Cntrl-C
+While attempting to delete key: 2968;
+	BTree error: 47 [BFNDKY]:  Key "2968" does not exist in index

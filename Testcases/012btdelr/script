@@ -1,20 +1,21 @@
-c test_db
-dr root_1
-e ../inskeysrand.bt
-dr root_2
-e ../inskeysrand.bt
-dr root_3
-e ../inskeysrand.bt
-cr $$super
-f
-lko
-cr $$default
-rr root_3
-rr root_2
-rr root_1
+echo on
+create test_db
+define-root root_1
+execute ../inskeysrand.bt
+define-root root_2
+execute ../inskeysrand.bt
+define-root root_3
+execute ../inskeysrand.bt
+change-root $$super
+find
+list-keys-only
+change-root $$default
+remove-root root_3
+remove-root root_2
+remove-root root_1
 # change root should fail
-cr root_3
-cr $$super
-f
-lko
-q
+change-root root_3
+change-root $$super
+find
+list-keys-only
+quit

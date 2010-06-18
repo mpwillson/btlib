@@ -1,18 +1,19 @@
-c test_db
-e ../defdata.bt
-b data ../defdata.bt
-dd key1 *data
-dd key2 *data
-dd key3 *data
-f
-ld
-fd key1 d
-fd key2 d
-fd key3 d
-ud aaaa0001 *data
-ud aaaa0050 *data
-ud aaaa0099 *data
-fd aaaa0001 d
-fd aaaa0050 d
-fd aaaa0099 d
-q
+echo on
+create test_db
+execute ../defdata.bt
+block data ../defdata.bt
+define-data key1 *data
+define-data key2 *data
+define-data key3 *data
+find
+list-data
+find-data key1 d
+find-data key2 d
+find-data key3 d
+update-data aaaa0001 *data
+update-data aaaa0050 *data
+update-data aaaa0099 *data
+find-data aaaa0001 d
+find-data aaaa0050 d
+find-data aaaa0099 d
+quit

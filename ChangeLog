@@ -1,3 +1,8 @@
+2010-06-18  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btcmd.c: Moved bt command handling into this module.  Revamped
+	command handling completely.
+
 2010-06-07  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c, Makefile: Added support for readline when reading

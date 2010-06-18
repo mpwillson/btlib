@@ -25,6 +25,8 @@ struct cmd_entry {
 };
 typedef struct cmd_entry CMDENTRY;
 
+#define STREMP(s) (s != NULL && (s)[0] == '\0')
+
 void btcmd(char*,CMDENTRY[],void(*)(int));
 
 int btcmd_help(CMDBLK*);

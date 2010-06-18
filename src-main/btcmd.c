@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btcmd.c,v 1.3 2010-06-15 19:24:04 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -27,17 +27,40 @@
  *      btcmd - parses commands for bt lib test harness
  *
  * 	SYNOPSIS
+ *      void btcmd(char*,CMDENTRY[],void(*)(int));
  *
+ *      int btcmd_help(CMDBLK*);
+ *      int btcmd_noop(CMDBLK*);
+ *      int btcmd_comment(CMDBLK*);
+ *      int btcmd_execute(CMDBLK*);
+ *      int btcmd_prompt(CMDBLK*);
+ *      int btcmd_system(CMDBLK*);
+ *      int btcmd_echo(CMDBLK*);
+ *      int btcmd_error(CMDBLK*);
  *
  * 	DESCRIPTION
+ *      Provide command handling for the BT test harness aka the app.
+ *      The app calls btcmd, passing in the command prompt string, an
+ *      array of command definitions (see btcmd.h) and an error
+ *      function.
  *
+ *      The CMDENTRY array should have, as its last entry, a command
+ *      with a zero length string, and a command function, which will
+ *      be invoked if no valid command has been entered by the user.
+ *
+ *      btcmd will return on either EOF on tty input or when a app
+ *      function returns a negative value.  App error function is
+ *      called when a command function returns a value greater than
+ *      zero.
+ *
+ *      This module provides a number of 'free' commands that the app
+ *      can make available to the end user; these are commands related
+ *      to scripting, help and access to system commands.  An example
+ *      of the appropriate CMDENTRY setup may be found below.
+ *      
  * 	NOTES
- *
- *
- * 	MODIFICATION HISTORY
- * 	Mnemonic	Rel	Date	Who
- *
- * 		Written.
+ *      This module was introduced when I became fed-up with looking
+ *      at the mess of bt command handling.
  *
  */
 
@@ -132,7 +155,7 @@ void display_help(CMDENTRY cmds[])
     char* ed;
 
     fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args","Description");
-    for ( i=0 ; strlen(cmds[i].cmd) != 0 ; i++ ) {
+    for ( i=0 ; !STREMP(cmds[i].cmd); i++ ) {
         char s[MAXBUFSZ+1];
         /* ignore commands with no description (probably hidden) */
         if (strlen(cmds[i].description) == 0) continue;
@@ -227,7 +250,7 @@ int btcmd_echo(CMDBLK* c)
         echo = FALSE;
     }
     else {
-        fprintf(stderr,"echo: on or off expected, not %s\n.",c->arg);
+        fprintf(stderr,"echo: %s\n",(echo?"on":"off"));
     }
     return 0;
 }
@@ -241,20 +264,20 @@ int btcmd_error(CMDBLK* c)
         stop_on_error = FALSE;
     }
     else {
-        fprintf(stderr,"echo: on or off expected, not %s\n.",c->arg);
+        fprintf(stderr,"error: %s\n",(stop_on_error?"on":"off"));
     }
     return 0;
 }
 
-/* Sample CMDENTRY for free commands.  App can include these as
+/* Sample CMDENTRY array for free commands.  App can include these as
  * necessary */
 CMDENTRY local_cmds[] = {
     { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
     { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
       "file. execute commands may be nested."},
-    { "echo","ec",btcmd_echo,"{on|off}",1,
+    { "echo","ec",btcmd_echo,"{on|off}",0,
       "Echo commands when on and reading from file." },         
-    { "error","er",btcmd_error,"{on|off}",1,
+    { "error","er",btcmd_error,"{on|off}",0,
       "Stop processing command files on error." },
     { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
     { "prompt","p",btcmd_prompt,"",0,
@@ -347,8 +370,8 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     cblk.all = all;
     cblk.cmd = cmd;
     cblk.function = NULL;
-    for ( i=0 ; strlen(cmds[i].cmd) != 0; i++ ) {
-        if (strlen(cmds[i].abbrev) == 1 &&
+    for ( i=0 ; !STREMP(cmds[i].cmd); i++ ) {
+        if (strlen(cmds[i].abbrev) == 1 && /* look for special command */
             cmds[i].abbrev[0] < 'A' &&
             *cp == cmds[i].abbrev[0]) {
             cblk.function = cmds[i].function;
@@ -424,7 +447,9 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
             else {
                 rl_history(input,rlbuf);
                 if (echo && !tty_input(input)) {
-                    fprintf(stdout,"%s%s",prompt_string,cmdbuf);
+                    fprintf(stdout,"%s%s",
+                            prompt_string,
+                            cmdbuf);
                 }
                 status = (cblk.function)(&cblk); 
                 if (status > 0) {
@@ -432,8 +457,8 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
                     if (stop_on_error && input != stdin) {
                         while (input != stdin) btcmd_close_execute(&cblk);
                         fprintf(stderr,
-                              "command file processing terminated (error on).\n");
-                      
+                                "command file processing terminated "
+                                "(error on).\n");
                     }
                     status = 0;
                 }

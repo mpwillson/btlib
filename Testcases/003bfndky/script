@@ -1,4 +1,5 @@
-c test_db
-e ../inskeysrand.bt
-e ../fndkeysrand.bt
-q
+echo on
+create test_db
+execute ../inskeysrand.bt
+execute ../fndkeysrand.bt
+quit

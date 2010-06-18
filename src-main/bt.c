@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.19 2010-06-14 20:04:14 mark Exp $
+ * $Id: bt.c,v 1.20 2010-06-15 19:24:04 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -77,7 +77,7 @@ char *strsave(char *s)
 
     p = (char *) malloc(strlen(s)+1);
     if (p == NULL) {
-        fprintf(stderr,"bt: no memory for string\n");
+        fprintf(stderr,"no memory for string\n");
         return (NULL);
     }
     strcpy(p,s);    
@@ -91,7 +91,7 @@ int add(char *f, BTA* b)
 
     p = (struct bt_plist *) malloc(sizeof(struct bt_plist));
     if (p == NULL) {
-        fprintf(stderr,"bt: no memory for active file entry\n");
+        fprintf(stderr,"no memory for active file entry\n");
         return(1);
     }
     p->fid = strsave(f);
@@ -293,7 +293,7 @@ int create_block(CMDBLK* c)
     }
     else {
         if (!add_data(c->arg,c->qual_int)) {
-            fprintf(stderr,"bt: cannot create data block: %s\n",c->arg);
+            fprintf(stderr,"cannot create data block: %s\n",c->arg);
         }
     }
     return 0;
@@ -302,7 +302,7 @@ int create_block(CMDBLK* c)
 int block_delete(CMDBLK* c)
 {
     if (!del_data(c->arg)) {
-        fprintf(stderr,"bt: unable to delete data block: %s\n",c->arg);
+        fprintf(stderr,"unable to delete data block: %s\n",c->arg);
     }
     return 0;
 }
@@ -407,7 +407,7 @@ int find_key(CMDBLK* c)
     if (status == 0) {
         printf("Key: '%s' = " ZINTFMT "\n",c->arg,val);
     }
-    else if (strlen(c->arg) == 0) {
+    else if (STREMP(c->arg)) {
         status = 0; /* suppress error on empty key, probably a
                        position find */
     }
@@ -418,8 +418,8 @@ int define_key(CMDBLK* c)
 {
     int status = 0;
 
-    if (strlen(c->arg) == 0) {
-        fprintf(stderr,"No key specified.\n");
+    if (STREMP(c->arg)) {
+        fprintf(stdout,"No key specified.\n");
     }
     else {
         status = binsky(btp,c->arg,c->qual_int);
@@ -489,7 +489,7 @@ int define_root(CMDBLK* c)
     
     status = btcrtr(btp,c->arg);
     if (status == QNOKEY) {
-        fprintf(stderr,"Can't create root: '%s'\n",c->arg);
+        fprintf(stdout,"Can't create root: '%s'\n",c->arg);
         status = 0;
     }
     return status;
@@ -501,7 +501,7 @@ int change_root(CMDBLK* c)
     
     status = btchgr(btp,c->arg);
     if (status == QNOKEY) {
-        fprintf(stderr,"Can't change root to: '%s'\n",c->arg);
+        fprintf(stdout,"Can't change root to: '%s'\n",c->arg);
         status = 0;
     }
     return status;
@@ -513,7 +513,7 @@ int remove_root(CMDBLK* c)
     
     status = btdelr(btp,c->arg);
     if (status == QNOKEY) {
-        fprintf(stderr,"No such root as '%s'\n",c->arg);
+        fprintf(stdout,"No such root as '%s'\n",c->arg);
         status = 0;
     }
     return status;
@@ -526,7 +526,7 @@ int file_list(CMDBLK* c)
 
     p = phead;
     while (p != NULL) {
-        printf("%s\n",p->fid);
+        printf("%s%s\n",p->fid,(btp==p->b?" (in-use)":""));
         p = p->next;
     }
     return 0;
@@ -534,12 +534,29 @@ int file_list(CMDBLK* c)
 
 int use_file(CMDBLK* c)
 {
-    btp = get(c->arg);
-    if (btp == NULL) {
-        fprintf(stderr,"File %s not found; nothing current\n",c->arg);
+    if (STREMP(c->arg)) {
+        if (btp != NULL) {
+            struct bt_plist *p;
+            p = phead;
+            while (p != NULL) {
+                if (p->b == btp) {
+                    fprintf(stdout,"in-use file: %s\n",p->fid);
+                    return 0;
+                }
+                p = p->next;
+            }
+        }
+        fprintf(stdout,"no in-use index file.\n");
+    }
+    else {
+        BTA* svbtp = btp;
+        btp = get(c->arg);
+        if (btp == NULL) {
+            btp = svbtp;
+            fprintf(stdout,"File %s not found; current file unchanged\n",c->arg);
+        }
     }
     return 0;
-    
 }
 
 int define_data(CMDBLK* c)
@@ -554,7 +571,7 @@ int define_data(CMDBLK* c)
             status = btins(btp,c->arg,blk->bptr,blk->size);
         }
         else {
-            fprintf(stderr,"bt: no such data block: %s\n",(c->qualifier)+1);
+            fprintf(stdout,"bt: no such data block: %s\n",(c->qualifier)+1);
             status = 0;
         }
     }
@@ -590,8 +607,8 @@ int find_data(CMDBLK* c)
         free(dbuf);
     }
     
-    if (status == QNOKEY && strlen(c->arg) != 0) {
-            fprintf(stderr,"No such key as '%s'\n",c->arg);
+    if (status == QNOKEY && !STREMP(c->arg)) {
+            fprintf(stdout,"No such key as '%s'\n",c->arg);
     }
     else {
         status = 0;  /* looking for empty string is not an error */
@@ -610,7 +627,7 @@ int update_data(CMDBLK* c)
             status = btupd(btp,c->arg,blk->bptr,blk->size);
         }
         else {
-            fprintf(stderr,"No such data block: %s\n",(c->qualifier)+1);
+            fprintf(stdout,"No such data block: %s\n",(c->qualifier)+1);
             status = 0;
         }
     }
@@ -622,10 +639,7 @@ int update_data(CMDBLK* c)
 
 int remove_data(CMDBLK* c)
 {
-    int status;
-    
-    status = btdel(btp,c->arg);
-    return status;
+    return btdel(btp,c->arg);
 }
 
 int size_data(CMDBLK* c)
@@ -643,18 +657,17 @@ int list_data(CMDBLK* c)
 {
     char buf[DATABUFSZ];
     char key[ZKYLEN];
-    int found = TRUE,
-        status = 0,
+    int status = 0,
         size;
     
-    while (found && status == 0) {
+    while (status == 0) {
         status = btseln(btp,key,buf,DATABUFSZ,&size);
         if (status == 0) {
             buf[(size==DATABUFSZ?size-1:size)] = '\0';
             printf("Key: '%s' - Data: '%s'\n",key,buf);
         }
     }
-    return status;
+    return (status==QNOKEY?0:status);
 }
 
 int next_data(CMDBLK* c)
@@ -707,7 +720,7 @@ int decode_addr(CMDBLK* c)
 
 int unknown_command(CMDBLK* c)
 {
-    fprintf(stderr,"unknown command: %s: type ? for help.\n",c->cmd);
+    fprintf(stdout,"unknown command: %s: type ? for help.\n",c->cmd);
     return 0;
 }
 
@@ -719,7 +732,8 @@ CMDENTRY bt_cmds[] = {
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",1,"Create index file. s qualifier "
     "indicates shared mode." },
-  { "change-root","cr",change_root,"rootname",1,"Change to named root." },
+  { "change-root","cr",change_root,"root",1,"Change to named root." },
+  { "close","x",close_file,"",0,"Close current index file." },
   { "define","d",define_key,"key [val]",0,"Define key with associated value." },
   { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
     "address for key." },
@@ -727,13 +741,14 @@ CMDENTRY bt_cmds[] = {
     "Define key with data.  Specify string s or use *b to refer"
     " to previously defined data block." },
   { "define-root","dr",define_root,"root",1,"Define new root." },
-  { "echo","ec",btcmd_echo,"{on|off}",1,
+  { "echo","ec",btcmd_echo,"{on|off}",0,
     "Echo commands when on and reading from file." },
-  { "error","er",btcmd_error,"{on|off}",1,
+  { "error","er",btcmd_error,"{on|off}",0,
     "Stop processing command files on error." },
   { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
     "file. execute commands may be nested."},
-  { "find","f",find_key,"key",0,"Find key." },
+  { "find","f",find_key,"[key]",0,"Find key.  If found returns key and value. "
+    "If key is omitted, will position before first key in index file."},
   { "find-data","fd",find_data,"key [d]",0,"Find key with data. Use d "
     "qualifier to display entire data record." },
   { "file-list","fl",file_list,"",0,"List open index files." },
@@ -759,14 +774,14 @@ CMDENTRY bt_cmds[] = {
     "control,super,stats,space,stack,block n." },
   { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
   { "system","!",btcmd_system,"string",0,"Run shell command."},
-  { "use","u",use_file,"file",1,"Make file current in-use index file." },
-  { "update-data","ud",update_data,"key {s|*b}",2,
+  { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
+  { "update-data","ud",update_data,"key [s|*b]",0,
     "Update key with new data record string s. Use *b to refer to "
-    "pre-defined data block." },
+    "pre-defined data block. If s and *b omitted, zero length data "
+    "record is defined." },
   { "unlock","ul",unlock_file,"",0,"Unlock current index file." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "
     "to val." },
-  { "x","x",close_file,"",0,"Close current index file." },
   { "","",unknown_command,"",0,"Unknown command found"}
 };
 
@@ -777,7 +792,7 @@ void report_error(int i)
     char msg[ZMSGSZ];
 
     btcerr(&status,&ioerr,name,msg);
-    fprintf(stderr,"(%s) [%d] %s\n",
+    fprintf(stdout,"(%s) [%d] %s\n",
             name,status,msg);
 }
     

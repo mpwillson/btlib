@@ -1,11 +1,12 @@
 # list every key in the database 
-c test_db
-e ../inskeysrand.bt
-f
-l
+echo on
+create test_db
+execute ../inskeysrand.bt
+find
+list
 # now repeat when open shared
-x
-o test_db s
-f
-l
-q
+close
+open test_db s
+find
+list
+quit

@@ -1,15 +1,16 @@
-c test_db
-cr $$super
-f
-l
-cr $$default
-f
-l
-d new_key
-cr $$super
-f
-l
-cr $$default
-f
-l
-q
+echo on
+create test_db
+change-root $$super
+find
+list
+change-root $$default
+find
+list
+define new_key
+change-root $$super
+find
+list
+change-root $$default
+find
+list
+quit

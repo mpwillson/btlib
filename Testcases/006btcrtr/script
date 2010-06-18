@@ -1,20 +1,21 @@
-c test_db
-dr root_1
-e ../inskeysrand.bt
-f
-lko
-dr root_2
-e ../inskeysrand.bt
-f
-lko
-dr root_3
-e ../inskeysord.bt
-f
-lko
-dr root_4
-e ../inskeysrord.bt
-cr $$super
-f
-lko
-q
+echo on
+create test_db
+define-root root_1
+execute ../inskeysrand.bt
+find
+list-keys-only
+define-root root_2
+execute ../inskeysrand.bt
+find
+list-keys-only
+define-root root_3
+execute ../inskeysord.bt
+find
+list-keys-only
+define-root root_4
+execute ../inskeysrord.bt
+change-root $$super
+find
+list-keys-only
+quit
 

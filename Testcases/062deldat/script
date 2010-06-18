@@ -1,18 +1,21 @@
-c test_db
-e ../defdata.bt
-b data ../defdata.bt
-dd key1 *data
-dd key2 *data
-dd key3 *data
-f
-ld
-e ../remdata.bt
-f
-ld
-rd key2
-rd key1
-rd key3
+echo on
+create test_db
+execute ../defdata.bt
+block data ../defdata.bt
+define-data key1 *data
+define-data key2 *data
+define-data key3 *data
+find
+list-data
+execute ../remdata.bt
+find
+list-data
+remove-data key2
+remove-data key1
+remove-data key3
 # insert and delete more data
-e ../defdata.bt
-e ../remdata.bt
-q
+execute ../defdata.bt
+execute ../remdata.bt
+find
+list-data
+quit

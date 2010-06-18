@@ -1,8 +1,9 @@
-c test_db
-e ../inskeysrand.bt
-f
-l
+echo on
+create test_db
+execute ../inskeysrand.bt
+find
+list
 # try and define the same keys again - this should produce an error
 # message for each key
-e ../inskeysrand.bt
-q
+execute ../inskeysrand.bt
+quit
