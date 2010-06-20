@@ -22,10 +22,10 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.15 2010-06-07 16:44:50 mark Exp $
+# $Id: Makefile,v 1.16 2010-06-14 20:04:03 mark Exp $
 
 # Uncomment the following line for a debug version of the library
-DEBUG=-g
+#DEBUG=-g
 
 # Headers in INC_DIR
 INC_DIR=./inc

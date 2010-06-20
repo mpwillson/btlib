@@ -102,7 +102,7 @@ bt: dd aaaa0096 aaaa0096
 bt: dd aaaa0097 aaaa0097
 bt: dd aaaa0098 aaaa0098
 bt: dd aaaa0099 aaaa0099
-bt: block data ../defdata.bt
+bt: buffer data ../defdata.bt
 bt: define-data key1 *data
 bt: define-data key2 *data
 bt: define-data key3 *data

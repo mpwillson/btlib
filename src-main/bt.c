@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.20 2010-06-15 19:24:04 mark Exp $
+ * $Id: bt.c,v 1.21 2010-06-18 15:01:32 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -46,7 +46,7 @@ struct bt_plist {
 
 struct bt_plist *phead = NULL;
 
-/* Structures for handling data block definitions */
+/* Structures for handling data buffer definitions */
 struct bt_blist {
     char *name;
     char *bptr;
@@ -138,14 +138,14 @@ int del(BTA *b)
 }
 
 
-/* create new data block */
+/* create new data buffer */
 int add_data(char *f, int size)
 {
     struct bt_blist *b;
 
     b = (struct bt_blist *) malloc(sizeof(struct bt_blist));
     if (b == NULL) {
-        fprintf(stderr,"bt: no memory for new data block header\n");
+        fprintf(stderr,"bt: no memory for new data buffer header\n");
         return(FALSE);
     }
     
@@ -164,7 +164,7 @@ int add_data(char *f, int size)
     return(TRUE);
 }
 
-/* return info on data block */
+/* return info on data buffer */
 struct bt_blist *get_data(char *f)
 {
     struct bt_blist *b;
@@ -177,7 +177,7 @@ struct bt_blist *get_data(char *f)
     return(NULL);
 }
 
-/* delete data block */
+/* delete data buffer */
 int del_data(char *n)
 {
     struct bt_blist *b,*lb;
@@ -203,7 +203,7 @@ int del_data(char *n)
 
 #define BUFSZ 256
 
-/* create data block from named file contents */
+/* create data buffer from named file contents */
 struct bt_blist *cpfm(char *fn)
 {
     struct bt_blist *b;
@@ -268,7 +268,7 @@ struct bt_blist *cpfm(char *fn)
     return(b);
 }
 
-/* add data block from file contents */
+/* add data buffer from file contents */
 void add_data_file(char *bn, char *fn)
 {
     struct bt_blist *b;
@@ -283,7 +283,7 @@ void add_data_file(char *bn, char *fn)
 
 /* bt command routines */
 
-int create_block(CMDBLK* c)
+int buffer_create(CMDBLK* c)
 {
     /* delete any previous definition */
     del_data(c->arg);
@@ -293,21 +293,21 @@ int create_block(CMDBLK* c)
     }
     else {
         if (!add_data(c->arg,c->qual_int)) {
-            fprintf(stderr,"cannot create data block: %s\n",c->arg);
+            fprintf(stderr,"cannot create data buffer: %s\n",c->arg);
         }
     }
     return 0;
 }
 
-int block_delete(CMDBLK* c)
+int buffer_delete(CMDBLK* c)
 {
     if (!del_data(c->arg)) {
-        fprintf(stderr,"unable to delete data block: %s\n",c->arg);
+        fprintf(stderr,"unable to delete data buffer: %s\n",c->arg);
     }
     return 0;
 }
 
-int block_list(CMDBLK* c)
+int buffer_list(CMDBLK* c)
 {
     struct bt_blist *b;
 
@@ -407,7 +407,7 @@ int find_key(CMDBLK* c)
     if (status == 0) {
         printf("Key: '%s' = " ZINTFMT "\n",c->arg,val);
     }
-    else if (STREMP(c->arg)) {
+    else if (status == QNOKEY && STREMP(c->arg)) {
         status = 0; /* suppress error on empty key, probably a
                        position find */
     }
@@ -564,14 +564,14 @@ int define_data(CMDBLK* c)
     int status;
     struct bt_blist *blk;
     
-    /* check for use of data block */
+    /* check for use of data buffer */
     if (c->qualifier[0] == '*') {
         blk = get_data((c->qualifier)+1);
         if (blk != NULL) {
             status = btins(btp,c->arg,blk->bptr,blk->size);
         }
         else {
-            fprintf(stdout,"bt: no such data block: %s\n",(c->qualifier)+1);
+            fprintf(stdout,"bt: no such data buffer: %s\n",(c->qualifier)+1);
             status = 0;
         }
     }
@@ -602,9 +602,11 @@ int find_data(CMDBLK* c)
             status = 0;
         }
         status = btsel(btp,c->arg,dbuf,datasize,&datasize);
-        *(dbuf+datasize) = '\0';
-        printf("Data record:\n%s\n",dbuf);
-        free(dbuf);
+        if (status == 0) {
+            *(dbuf+datasize) = '\0';
+            printf("Data record:\n%s\n",dbuf);
+            free(dbuf);
+        }
     }
     
     if (status == QNOKEY && !STREMP(c->arg)) {
@@ -627,7 +629,7 @@ int update_data(CMDBLK* c)
             status = btupd(btp,c->arg,blk->bptr,blk->size);
         }
         else {
-            fprintf(stdout,"No such data block: %s\n",(c->qualifier)+1);
+            fprintf(stdout,"No such data buffer: %s\n",(c->qualifier)+1);
             status = 0;
         }
     }
@@ -721,14 +723,14 @@ int decode_addr(CMDBLK* c)
 int unknown_command(CMDBLK* c)
 {
     fprintf(stdout,"unknown command: %s: type ? for help.\n",c->cmd);
-    return 0;
+    return 1;
 }
 
 CMDENTRY bt_cmds[] = {
-  { "block","b",create_block,"{b n|b f}",2,
-    "Create data block named b, with either n bytes, or contents of file f." },
-  { "block-delete","bd",block_delete,"b",1,"Delete data block named b." },
-  { "block-list","bl",block_list,"",0,"List defined data blocks." },
+  { "buffer","b",buffer_create,"{b n|b f}",2,
+    "Create data buffer named b, with either n bytes, or contents of file f." },
+  { "buffer-delete","bd",buffer_delete,"b",1,"Delete data buffer named b." },
+  { "buffer-list","bl",buffer_list,"",0,"List defined data buffers." },
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",1,"Create index file. s qualifier "
     "indicates shared mode." },
@@ -739,7 +741,7 @@ CMDENTRY bt_cmds[] = {
     "address for key." },
   { "define-data","dd",define_data,"key {s|*b}",2,
     "Define key with data.  Specify string s or use *b to refer"
-    " to previously defined data block." },
+    " to previously defined data buffer." },
   { "define-root","dr",define_root,"root",1,"Define new root." },
   { "echo","ec",btcmd_echo,"{on|off}",0,
     "Echo commands when on and reading from file." },
@@ -777,7 +779,7 @@ CMDENTRY bt_cmds[] = {
   { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
   { "update-data","ud",update_data,"key [s|*b]",0,
     "Update key with new data record string s. Use *b to refer to "
-    "pre-defined data block. If s and *b omitted, zero length data "
+    "pre-defined data buffer. If s and *b omitted, zero length data "
     "record is defined." },
   { "unlock","ul",unlock_file,"",0,"Unlock current index file." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "

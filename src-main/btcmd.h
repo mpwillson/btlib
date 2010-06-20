@@ -12,6 +12,7 @@ struct cmd_blk {
     char* all;          /* all arguments concatenated */
     int nargs;          /* number of args found (<0 if # args
                            mismatch) */
+    int unknown_cmd;    /* TRUE is cmd not in table */
     FUN function;       /* function to call */
 };
 

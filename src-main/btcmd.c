@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.3 2010-06-15 19:24:04 mark Exp $
+ * $Id: btcmd.c,v 1.4 2010-06-18 15:01:32 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -370,6 +370,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     cblk.all = all;
     cblk.cmd = cmd;
     cblk.function = NULL;
+    cblk.unknown_cmd = FALSE;
     for ( i=0 ; !STREMP(cmds[i].cmd); i++ ) {
         if (strlen(cmds[i].abbrev) == 1 && /* look for special command */
             cmds[i].abbrev[0] < 'A' &&
@@ -392,6 +393,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     }
     /* empty sentinal command should invoke unknown command handler */
     cblk.function = cmds[i].function;
+    cblk.unknown_cmd = TRUE;
     return;
 }
     
@@ -407,7 +409,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
     current_app_cmds = app_cmds;
     cblk.function = NULL;
     
-    while (status == 0) {
+    while (status >= 0) {
         if (rlbuf != NULL) {
             free(rlbuf);
             rlbuf = NULL;
@@ -443,6 +445,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
         if (cblk.function != NULL) {
             if (cblk.nargs < 0) {
                 bad_args(cblk.cmd);
+                status = 1;
             }
             else {
                 rl_history(input,rlbuf);
@@ -451,20 +454,19 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
                             prompt_string,
                             cmdbuf);
                 }
-                status = (cblk.function)(&cblk); 
-                if (status > 0) {
+                status = (cblk.function)(&cblk);
+                if (status > 0  && !cblk.unknown_cmd) {
                     (error_handler)(status);
-                    if (stop_on_error && input != stdin) {
-                        while (input != stdin) btcmd_close_execute(&cblk);
-                        fprintf(stderr,
-                                "command file processing terminated "
-                                "(error on).\n");
-                    }
-                    status = 0;
                 }
             }
+            if (status > 0 && stop_on_error && input != stdin) {
+                while (input != stdin) btcmd_close_execute(&cblk);
+                fprintf(stdout,
+                        "command file processing terminated "
+                        "(error on).\n");
+            }   
         }
-     }   
+    }
     return;
 }
 
