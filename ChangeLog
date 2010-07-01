@@ -2,7 +2,7 @@
 
 	* bterr.c: Null'd return arguments before population.
 
-	* bsuper.c: Improved error message on I/O reading superroot.
+	* bsuper.c: Improved error message on I/O error reading superroot.
 
 	* btdelr.c: Forbid deletion of superroot.
 

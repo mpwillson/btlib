@@ -41,7 +41,7 @@ INTRODUCTION
     7.3, Mac OS X 10.6.3 and Cygwin.
 
 UPDATING 
-    If migrating from a previous release of the BT library, be aware
+    If migrating from a pre-3.0 release of the BT library, be aware
     that the function btcerr always zero-pads the srname and msg
     buffers to BT constants ZRNAMESZ and ZMSGSZ
     respectively. Declaring these arrays to be smaller than the BT
@@ -52,7 +52,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-3.0.0.tar.gz -C ~/dev
+        tar xzf bt-3.0.1.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -157,5 +157,5 @@ RELEASE HISTORY
      2nd July,      2010        3.0.1   Added readline support; bug fixes
 
 ACKNOWLDGEMENTS 
-    Many thanks to Pedro Serotto for nudging me to work on this version and
-    for testing the release betas.
+    Many thanks to Pedro Serotto for nudging me to work on Large File
+    Support in 3.0.0 and for testing the release betas.
