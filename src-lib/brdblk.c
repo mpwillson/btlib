@@ -1,5 +1,5 @@
 /*
- * $Id: brdblk.c,v 1.7 2010-05-27 19:56:44 mark Exp $
+ * $Id: brdblk.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  * brdblk: reads block from disk into memory
  *
@@ -29,6 +29,7 @@
  */
 
 #include <stdio.h>
+
 #include "bc.h"
 #include "bt.h"
 #include "btree_int.h"

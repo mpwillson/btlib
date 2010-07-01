@@ -1,3 +1,11 @@
+2010-07-01  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bterr.c: Null'd return arguments before population.
+
+	* bsuper.c: Improved error message on I/O reading superroot.
+
+	* btdelr.c: Forbid deletion of superroot.
+
 2010-06-18  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* btcmd.c: Moved bt command handling into this module.  Revamped

@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.16 2010-06-14 20:04:03 mark Exp $
+# $Id: Makefile,v 1.17 2010-06-20 20:08:21 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 #DEBUG=-g
@@ -81,14 +81,14 @@ all:	depend bt kcp TAGS bigt bigtdel
 
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
-bt:	${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.h ${SRC_MAIN}/btcmd.o ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.o ${LIBS} 
+bt:	${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c ${LIBS} 
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
 
 clean:
-	rm -f bt bt.exe ${LIB_FILE} kcp kcp.exe ${OBJ}
+	rm -f bt bt.exe bigt bigt.exe bigtdel bigtdel.exe ${LIB_FILE} kcp kcp.exe ${OBJ}
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
 	@etags $^

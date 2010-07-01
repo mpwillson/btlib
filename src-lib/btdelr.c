@@ -1,5 +1,5 @@
 /*
- * $Id: btdelr.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btdelr.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * btdelr: delete root name from super root, and all the blocks
  *          belonging to the root.
@@ -59,42 +59,41 @@ int btdelr(BTA *b,char *root)
     btact->cntxt->super.scroot = ZSUPER;
     bsetbs(btact->cntxt->super.scroot,TRUE);
     status = bfndky(b,root,&blk);
-    if (status != 0) goto fin;
-    if (blk == svblk) {
-        /* can't delete current root */
-        bsetbs(btact->cntxt->super.scroot,FALSE);
-        btact->cntxt->super.scroot = svblk;
-        bsetbs(btact->cntxt->super.scroot,TRUE);
-        bterr("BTDELR",QDELCR,NULL);
-        goto fin;
-    }
-    /* delete key from superroot */
-    if (status == 0) status = bdelky(b,root);
-    btact->cntxt->super.smod++;     /* super root updated */
-    if (status != 0) goto fin;
-    bclrlf();
     if (status == 0) {
-        /* unbusy super root */
-        bsetbs(btact->cntxt->super.scroot,FALSE);
-        /* make name root current and free all blocks */
-        btact->cntxt->super.scroot = blk;
-        bsetbs(btact->cntxt->super.scroot,TRUE);
-        /* free any data blocks */
-        blk = bgtinf(btact->cntxt->super.scroot,ZNXBLK);
-        while (blk != ZNULL) {
-            thisblk = blk;
-            blk = bgtinf(blk,ZNXBLK);
-            bmkfre(thisblk);
+        if (blk == svblk || blk == ZSUPER) {
+            /* can't delete current root or superroot */
+            bsetbs(btact->cntxt->super.scroot,FALSE);
+            bterr("BTDELR",QDELCR,NULL);
         }
-        /* free index blocks */
-        blk = ZNULL;
-        bnxtbk(&blk);
-        while (blk != btact->cntxt->super.scroot) {
-            bmkfre(blk);
-            bnxtbk(&blk);
+        else {
+            /* delete key from superroot */
+            status = bdelky(b,root);
+            if (status == 0) {
+                bclrlf();
+                btact->cntxt->super.smod++;     /* super root updated */
+                /* unbusy super root */
+                bsetbs(btact->cntxt->super.scroot,FALSE);
+                /* make name root current and free all blocks */
+                btact->cntxt->super.scroot = blk;
+                bsetbs(btact->cntxt->super.scroot,TRUE);
+                /* free any data blocks */
+                blk = bgtinf(btact->cntxt->super.scroot,ZNXBLK);
+                while (blk != ZNULL) {
+                    thisblk = blk;
+                    blk = bgtinf(blk,ZNXBLK);
+                    bmkfre(thisblk);
+                }
+                /* free index blocks */
+                blk = ZNULL;
+                bnxtbk(&blk);
+                while (blk != btact->cntxt->super.scroot) {
+                    bmkfre(blk);
+                    bnxtbk(&blk);
+                }
+                bsetbs(btact->cntxt->super.scroot,FALSE);
+                bmkfre(btact->cntxt->super.scroot);
+            }
         }
-        bsetbs(btact->cntxt->super.scroot,FALSE);
-        bmkfre(btact->cntxt->super.scroot);
     }
     /* return to saved root  */
     btact->cntxt->super.scroot = svblk;

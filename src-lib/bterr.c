@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.18 2010-06-02 10:29:10 mark Exp $
+ * $Id: bterr.c,v 1.19 2010-06-02 10:45:48 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -54,7 +54,7 @@ char *msgblk[] = {
     " Unable to create index file: %s",
     " Unable to read source or destination block ",
     " I/O error writing block %s",
-    " I/O error reading super root",
+    " I/O error reading super root %s",
     " I/O error writing super root",
     " I/O error opening index file: %s",
     " I/O error reading block %s",
@@ -76,7 +76,7 @@ char *msgblk[] = {
     " Demote split failed",
     " Join search failed",
     " Cannot locate default root ($$default)",
-    " Cannot delete the current root",
+    " Deletion of the current or super root is forbidden",
     " Negative in-memory index encountered",
     " No index file open for this operation",
     " Index file already in use",
@@ -114,6 +114,12 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
     char tmpfmt[ZMSGSZ];
 
     memset(msg,0,ZMSGSZ);
+    if (qerror == 0) {
+        memset(srname,0,ZRNAMESZ);
+        *ierr = 0;
+        *ioerr = 0;
+        return;
+    }
     
     strncpy(srname,qname,ZRNAMESZ-1);
     *ierr = qerror;

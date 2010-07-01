@@ -1,6 +1,6 @@
 BT Library README File
 
-4th June, 2010
+2nd July, 2010
 
 CONTENTS
     INTRODUCTION
@@ -68,9 +68,11 @@ COMPILING
 
     The BT library, a test harness (bt), additional testing tools for
     large files (bigt and bigtdel) and a copy utility (kcp) are built
-    by GNU make.  To build the BT library and associated programs for
-    up to 2GB file support, cd to the BT source directory and issue
-    the following command:
+    by GNU make.  The test harness, bt, will be built with readline
+    support, if the make file detects support on the build
+    platform. To build the BT library and associated programs for up
+    to 2GB file support, cd to the BT source directory and issue the
+    following command:
 
        make
 
@@ -152,6 +154,7 @@ RELEASE HISTORY
     28th December,  2005        2.0.3   Bug fix release
     10th May,       2008        2.0.4   Minor bug fixes/OpenSolaris tested
      4th June,      2010        3.0.0   Large file support (> 2GiB)
+     2nd July,      2010        3.0.1   Added readline support; bug fixes
 
 ACKNOWLDGEMENTS 
     Many thanks to Pedro Serotto for nudging me to work on this version and

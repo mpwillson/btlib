@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.4 2010-06-18 15:01:32 mark Exp $
+ * $Id: btcmd.c,v 1.5 2010-06-20 20:08:22 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -275,9 +275,9 @@ CMDENTRY local_cmds[] = {
     { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
     { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
       "file. execute commands may be nested."},
-    { "echo","ec",btcmd_echo,"{on|off}",0,
+    { "echo","ec",btcmd_echo,"[on|off]",0,
       "Echo commands when on and reading from file." },         
-    { "error","er",btcmd_error,"{on|off}",0,
+    { "error","er",btcmd_error,"[on|off]",0,
       "Stop processing command files on error." },
     { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
     { "prompt","p",btcmd_prompt,"",0,
@@ -392,8 +392,10 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
         }
     }
     /* empty sentinal command should invoke unknown command handler */
-    cblk.function = cmds[i].function;
-    cblk.unknown_cmd = TRUE;
+    if (!STREMP(cblk.cmd)) {
+        cblk.function = cmds[i].function;
+        cblk.unknown_cmd = TRUE;
+    }
     return;
 }
     
@@ -459,11 +461,16 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
                     (error_handler)(status);
                 }
             }
-            if (status > 0 && stop_on_error && input != stdin) {
-                while (input != stdin) btcmd_close_execute(&cblk);
+            if (status > 0 && stop_on_error && !tty_input(input)) {
                 fprintf(stdout,
                         "command file processing terminated "
                         "(error on).\n");
+                if (input == stdin) {
+                    return; /* must be error in here document */
+                }
+                else {
+                    while (input != stdin) btcmd_close_execute(&cblk);
+                }
             }   
         }
     }

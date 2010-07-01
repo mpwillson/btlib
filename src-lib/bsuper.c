@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.7 2004/10/02 16:10:09 mark Exp $
+ * $Id: bsuper.c,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -38,7 +38,7 @@ int brdsup()
 
     ioerr = brdblk(ZSUPER,&idx);
     if (ioerr != 0) {
-        bterr("BRDSUP",QRDBLK,NULL);
+        bterr("BRDSUP",QRDSUP,(ioerr<0)?"(EOF?)":"");
         goto fin;
     } 
     if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {

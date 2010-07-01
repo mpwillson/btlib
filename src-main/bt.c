@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.21 2010-06-18 15:01:32 mark Exp $
+ * $Id: bt.c,v 1.22 2010-06-20 20:08:22 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -30,7 +30,6 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <setjmp.h>
-
 #include "bc.h"
 #include "bt.h"
 #include "btree.h"
@@ -61,6 +60,8 @@ BTA *btp = NULL;
 
 #define EMPTY ""
 #define DATABUFSZ 80
+
+int suppress_error_msg = FALSE;
 
 /* Setup for handling interrupts */
 jmp_buf env;
@@ -191,6 +192,8 @@ int del_data(char *n)
                 lb->next = b->next;
             else
                 bhead = b->next;
+            if (b->bptr != NULL) free(b->bptr);
+            if (b->fn != NULL) free(b->fn);
             free(b);
             return(TRUE);
         }
@@ -247,6 +250,7 @@ struct bt_blist *cpfm(char *fn)
     if (b->bptr == NULL) {
         fprintf(stderr,"bt: no memory for buffer\n");
         fclose(in);
+        free(b->fn);
         free(b);
         return(NULL);
     }
@@ -281,10 +285,28 @@ void add_data_file(char *bn, char *fn)
     }
 }
 
+/* free all data buffers */
+void free_buffers(struct bt_blist *bh)
+{
+    struct bt_blist *b;
+
+    b = bh;
+    while (b != NULL) {
+        if (b->name != NULL) free(b->name);
+        if (b->bptr != NULL) free(b->bptr);
+        if (b->fn != NULL) free(b->fn);
+        bh = b;
+        b = b->next;
+        free(bh);
+    }
+}
+
 /* bt command routines */
 
 int buffer_create(CMDBLK* c)
 {
+    int status = 0;
+    
     /* delete any previous definition */
     del_data(c->arg);
     if (c->qual_int == 0) {
@@ -294,17 +316,21 @@ int buffer_create(CMDBLK* c)
     else {
         if (!add_data(c->arg,c->qual_int)) {
             fprintf(stderr,"cannot create data buffer: %s\n",c->arg);
+            status = 1;
         }
     }
-    return 0;
+    return status;
 }
 
 int buffer_delete(CMDBLK* c)
 {
+    int status = 0;
+    
     if (!del_data(c->arg)) {
         fprintf(stderr,"unable to delete data buffer: %s\n",c->arg);
+        status = 1;
     }
-    return 0;
+    return status;
 }
 
 int buffer_list(CMDBLK* c)
@@ -365,6 +391,8 @@ void shutdown()
 {
     int status = 0;
 
+    free_buffers(bhead);
+    
     while (phead != NULL && status == 0) {
         status = btcls(phead->b);
         phead = phead->next;
@@ -378,7 +406,7 @@ void shutdown()
 
 int close_file(CMDBLK* c)
 {
-    int status;
+    int status = 0;
     
     if (btp != NULL) {
         status = btcls(btp);
@@ -395,6 +423,9 @@ int close_file(CMDBLK* c)
             }
         }
     }
+    else {
+        fprintf(stdout,"no in-use file to close\n");
+    }
     return status;
 }
 
@@ -408,8 +439,7 @@ int find_key(CMDBLK* c)
         printf("Key: '%s' = " ZINTFMT "\n",c->arg,val);
     }
     else if (status == QNOKEY && STREMP(c->arg)) {
-        status = 0; /* suppress error on empty key, probably a
-                       position find */
+        suppress_error_msg = TRUE; 
     }
     return status;
 }
@@ -420,6 +450,8 @@ int define_key(CMDBLK* c)
 
     if (STREMP(c->arg)) {
         fprintf(stdout,"No key specified.\n");
+        status = 1;
+        suppress_error_msg = TRUE;
     }
     else {
         status = binsky(btp,c->arg,c->qual_int);
@@ -441,7 +473,7 @@ int next_key(CMDBLK* c)
     status = bnxtky(btp,key,&val);
     if (status == QNOKEY) {
         printf("No more keys\n");
-        status = 0;
+        suppress_error_msg = TRUE;
     }
     else {
         printf("Key: '%s' = " ZINTFMT "\n",key,val);
@@ -490,7 +522,7 @@ int define_root(CMDBLK* c)
     status = btcrtr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"Can't create root: '%s'\n",c->arg);
-        status = 0;
+        suppress_error_msg = TRUE;
     }
     return status;
 }
@@ -502,7 +534,7 @@ int change_root(CMDBLK* c)
     status = btchgr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"Can't change root to: '%s'\n",c->arg);
-        status = 0;
+        suppress_error_msg = TRUE;
     }
     return status;
 }
@@ -514,7 +546,7 @@ int remove_root(CMDBLK* c)
     status = btdelr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"No such root as '%s'\n",c->arg);
-        status = 0;
+        suppress_error_msg = TRUE;
     }
     return status;
 }
@@ -534,6 +566,8 @@ int file_list(CMDBLK* c)
 
 int use_file(CMDBLK* c)
 {
+    int status = 0;
+    
     if (STREMP(c->arg)) {
         if (btp != NULL) {
             struct bt_plist *p;
@@ -553,10 +587,13 @@ int use_file(CMDBLK* c)
         btp = get(c->arg);
         if (btp == NULL) {
             btp = svbtp;
-            fprintf(stdout,"File %s not found; current file unchanged\n",c->arg);
+            fprintf(stdout,"File %s not found; current file unchanged\n",
+                    c->arg);
+            status = 1;
+            suppress_error_msg = TRUE;
         }
     }
-    return 0;
+    return status;
 }
 
 int define_data(CMDBLK* c)
@@ -572,7 +609,7 @@ int define_data(CMDBLK* c)
         }
         else {
             fprintf(stdout,"bt: no such data buffer: %s\n",(c->qualifier)+1);
-            status = 0;
+            suppress_error_msg = TRUE;
         }
     }
     else {
@@ -599,7 +636,7 @@ int find_data(CMDBLK* c)
         dbuf = (char *) malloc(datasize+1);
         if (dbuf == NULL) {
             fprintf(stderr,"Unable to allocate memory\n");
-            status = 0;
+            suppress_error_msg = TRUE;
         }
         status = btsel(btp,c->arg,dbuf,datasize,&datasize);
         if (status == 0) {
@@ -611,9 +648,10 @@ int find_data(CMDBLK* c)
     
     if (status == QNOKEY && !STREMP(c->arg)) {
             fprintf(stdout,"No such key as '%s'\n",c->arg);
+            suppress_error_msg = TRUE;
     }
     else {
-        status = 0;  /* looking for empty string is not an error */
+        suppress_error_msg = TRUE;  /* looking for empty string is not an error */
     }
     return status;
 }       
@@ -630,7 +668,7 @@ int update_data(CMDBLK* c)
         }
         else {
             fprintf(stdout,"No such data buffer: %s\n",(c->qualifier)+1);
-            status = 0;
+            suppress_error_msg = TRUE;
         }
     }
     else {
@@ -723,7 +761,7 @@ int decode_addr(CMDBLK* c)
 int unknown_command(CMDBLK* c)
 {
     fprintf(stdout,"unknown command: %s: type ? for help.\n",c->cmd);
-    return 1;
+    return 0;
 }
 
 CMDENTRY bt_cmds[] = {
@@ -731,21 +769,21 @@ CMDENTRY bt_cmds[] = {
     "Create data buffer named b, with either n bytes, or contents of file f." },
   { "buffer-delete","bd",buffer_delete,"b",1,"Delete data buffer named b." },
   { "buffer-list","bl",buffer_list,"",0,"List defined data buffers." },
+  { "change-root","cr",change_root,"root",1,"Change to named root." },
+  { "close","x",close_file,"",0,"Close current index file." },
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",1,"Create index file. s qualifier "
     "indicates shared mode." },
-  { "change-root","cr",change_root,"root",1,"Change to named root." },
-  { "close","x",close_file,"",0,"Close current index file." },
-  { "define","d",define_key,"key [val]",0,"Define key with associated value." },
   { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
     "address for key." },
+  { "define","d",define_key,"key [val]",0,"Define key with associated value." },
   { "define-data","dd",define_data,"key {s|*b}",2,
     "Define key with data.  Specify string s or use *b to refer"
     " to previously defined data buffer." },
   { "define-root","dr",define_root,"root",1,"Define new root." },
-  { "echo","ec",btcmd_echo,"{on|off}",0,
+  { "echo","ec",btcmd_echo,"[on|off]",0,
     "Echo commands when on and reading from file." },
-  { "error","er",btcmd_error,"{on|off}",0,
+  { "error","er",btcmd_error,"[on|off]",0,
     "Stop processing command files on error." },
   { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
     "file. execute commands may be nested."},
@@ -759,9 +797,9 @@ CMDENTRY bt_cmds[] = {
     "find operation." },
   { "list-data","ld",list_data,"",0,"List all keys and data following last "
     "find operation." },
-  { "lock","lk",lock_file,"",0,"Lock current index file." },
-  { "list-keys-only","lko",list_keys_only,"",0,"List all keys (only) "
+  { "list-keys-only","lko",list_keys_only,"",0,"List all keys (no data values) "
     "following last find operation." },
+  { "lock","lk",lock_file,"",0,"Lock current index file." },
   { "next","n",next_key,"",0,"Display next key and value." },
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
@@ -776,14 +814,12 @@ CMDENTRY bt_cmds[] = {
     "control,super,stats,space,stack,block n." },
   { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
   { "system","!",btcmd_system,"string",0,"Run shell command."},
-  { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
-  { "update-data","ud",update_data,"key [s|*b]",0,
-    "Update key with new data record string s. Use *b to refer to "
-    "pre-defined data buffer. If s and *b omitted, zero length data "
-    "record is defined." },
   { "unlock","ul",unlock_file,"",0,"Unlock current index file." },
+  { "update-data","ud",update_data,"key [s|*b]",0,
+    "Update data assoicated with key using string s or contents of data buffer *b." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "
     "to val." },
+  { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
   { "","",unknown_command,"",0,"Unknown command found"}
 };
 
@@ -793,9 +829,15 @@ void report_error(int i)
     char name[ZRNAMESZ];
     char msg[ZMSGSZ];
 
-    btcerr(&status,&ioerr,name,msg);
-    fprintf(stdout,"(%s) [%d] %s\n",
-            name,status,msg);
+    if (suppress_error_msg) {
+        suppress_error_msg = FALSE;
+    }
+    else {
+        btcerr(&status,&ioerr,name,msg);
+        if (status != 0) {
+            fprintf(stdout,"(%s) [%d] %s\n",name,status,msg);
+        }
+    }
 }
     
 int main(int argc,char *argv[])
