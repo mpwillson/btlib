@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.22 2010-06-20 20:08:22 mark Exp $
+ * $Id: bt.c,v 1.23 2010-07-01 09:44:00 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -772,7 +772,7 @@ CMDENTRY bt_cmds[] = {
   { "change-root","cr",change_root,"root",1,"Change to named root." },
   { "close","x",close_file,"",0,"Close current index file." },
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
-  { "create","c",create_file,"file [s]",1,"Create index file. s qualifier "
+  { "create","c",create_file,"file [s]",0,"Create index file. s qualifier "
     "indicates shared mode." },
   { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
     "address for key." },
