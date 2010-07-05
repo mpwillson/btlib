@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.23 2010-07-01 09:44:00 mark Exp $
+ * $Id: bt.c,v 1.24 2010-07-04 20:18:34 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -814,7 +814,7 @@ CMDENTRY bt_cmds[] = {
     "control,super,stats,space,stack,block n." },
   { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
   { "system","!",btcmd_system,"string",0,"Run shell command."},
-  { "unlock","ul",unlock_file,"",0,"Unlock current index file." },
+  { "unlock","ulk",unlock_file,"",0,"Unlock current index file." },
   { "update-data","ud",update_data,"key [s|*b]",0,
     "Update data assoicated with key using string s or contents of data buffer *b." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "
