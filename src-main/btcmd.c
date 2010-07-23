@@ -146,7 +146,7 @@ char* strbrk(char* s, int max)
     }
 }
 
-void display_help(CMDENTRY cmds[])
+void display_help(CMDENTRY cmds[],char* cmd)
 {
     const int maxdescwidth = 47;
     int i;
@@ -154,23 +154,34 @@ void display_help(CMDENTRY cmds[])
     char* cp;
     char* ed;
 
-    fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args","Description");
+    if (STREMP(cmd)) {
+        fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args",
+                "Description");
+    }
     for ( i=0 ; !STREMP(cmds[i].cmd); i++ ) {
         char s[MAXBUFSZ+1];
         /* ignore commands with no description (probably hidden) */
         if (strlen(cmds[i].description) == 0) continue;
-        snprintf(s,MAXBUFSZ,"%s,%s",cmds[i].cmd,cmds[i].abbrev);
-        strncpy(desc,cmds[i].description,MAXDESCSZ);
-        ed = desc+strlen(desc);
-        cp = strbrk(desc,maxdescwidth);
-        *cp = '\0';cp++;
-        fprintf(stdout,"%-20s %-10s %s\n",s,cmds[i].args,desc);
-        while (cp < ed) {
-            char* scp = cp;
-            cp = strbrk(scp,maxdescwidth);
-            *cp = '\0'; cp++;
-            fprintf(stdout,"%20s %10s %s\n","","",scp);
+        if (STREMP(cmd) || (strcmp(cmds[i].cmd,cmd) == 0) ||
+            (strcmp(cmds[i].abbrev,cmd) == 0)) {
+            snprintf(s,MAXBUFSZ,"%s,%s",cmds[i].cmd,cmds[i].abbrev);
+            strncpy(desc,cmds[i].description,MAXDESCSZ);
+            ed = desc+strlen(desc);
+            cp = strbrk(desc,maxdescwidth);
+            *cp = '\0';cp++;
+            fprintf(stdout,"%-20s %-10s %s\n",s,cmds[i].args,desc);
+            while (cp < ed) {
+                char* scp = cp;
+                cp = strbrk(scp,maxdescwidth);
+                *cp = '\0'; cp++;
+                fprintf(stdout,"%20s %10s %s\n","","",scp);
+            }
+            if (!STREMP(cmd)) return;
         }
+    }
+    if (!STREMP(cmd)) {
+        strcpy(cblk.cmd,cmd);  /* copy cmd to correct loc in cblk */
+        (cmds[i].function)(&cblk);
     }
 }
 
@@ -237,7 +248,7 @@ int btcmd_comment(CMDBLK* c)
 
 int btcmd_help(CMDBLK* c)
 {
-    display_help(current_app_cmds);
+    display_help(current_app_cmds,c->arg);
     return 0;
 }
 
