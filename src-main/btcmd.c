@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.5 2010-06-20 20:08:22 mark Exp $
+ * $Id: btcmd.c,v 1.7 2010-07-23 10:41:57 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -153,7 +153,7 @@ void display_help(CMDENTRY cmds[],char* cmd)
     char desc[MAXDESCSZ+1];
     char* cp;
     char* ed;
-
+    
     if (STREMP(cmd)) {
         fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args",
                 "Description");
@@ -393,7 +393,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
         else if (strcmp(cmd,cmds[i].cmd) == 0 ||
                  strcmp(cmd,cmds[i].abbrev) == 0) {
             cblk.function = cmds[i].function;
-            cblk.cmd = cmds[i].cmd;
+            strcpy(cblk.cmd,cmds[i].cmd);
             /* does # args match that required? */
             if (cmds[i].nargs != 0 &&
                 cmds[i].nargs != cblk.nargs) {

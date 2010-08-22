@@ -1,3 +1,7 @@
+2010-07-23  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btcmd.c:  Add support for help on one command.
+
 2010-07-01  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bterr.c: Null'd return arguments before population.
