@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.20 2010-05-28 10:34:38 mark Exp $
+ * $Id: btdata.c,v 1.21 2010-06-01 19:04:29 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -351,6 +351,46 @@ int btseln(BTA *b,char *key, char *data, int dsize,int *rsize)
     if (status != 0) goto fin;
 
     /* TBD check for valid data pointer */
+
+    /* retrieve data from btree */
+    *rsize = bseldt(draddr,data,dsize);
+
+fin:
+    if (btact->shared) bulock();
+    return(btgerr());
+}
+
+/*------------------------------------------------------------------------
+ * btselp will return the previous key and data record following a
+ * successful return from a previous call to the btsel function.
+ *------------------------------------------------------------------------
+ */
+
+int btselp(BTA *b,char *key, char *data, int dsize,int *rsize)
+{
+    BTint draddr;
+    int status, result;
+
+    bterr("",0,NULL);
+    if ((result=bvalap("BTSELP",b)) != 0) return(result);
+
+    btact = b;      /* set context pointer */
+
+    if (!dataok(btact)) {
+        bterr("BTSELP",QDAERR,NULL);
+        goto fin;
+    }
+
+    if (b->shared) {
+        if (!block()) {
+            bterr("BTSELP",QBUSY,NULL);
+            goto fin;
+        }
+    }
+
+    /* return next key in btree */
+    status = bprvky(btact,key,&draddr);
+    if (status != 0) goto fin;
 
     /* retrieve data from btree */
     *rsize = bseldt(draddr,data,dsize);

@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.25 2010-07-05 07:58:32 mark Exp $
+ * $Id: bt.c,v 1.26 2010-07-23 10:41:57 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -481,29 +481,74 @@ int next_key(CMDBLK* c)
     return status;
 }
 
-int list_keys(CMDBLK* c)
+int list(CMDBLK* c)
 {
-    int status = 0;
+    int status = 0,
+        count = 0;
     BTint val;
     char key[ZKYLEN];
     
     while (status == 0) {
         status = bnxtky(btp,key,&val);
-        if (status == 0) printf("Key: '%s' = " ZINTFMT "\n",key,val);
+        if (status == 0) {
+            printf("Key: '%s' = " ZINTFMT "\n",key,val);
+            count++;
+        }
     }
+    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
     return ((status==0||status==QNOKEY)?0:status);
 }
 
-int list_keys_only(CMDBLK* c)
+int list_keys(CMDBLK* c)
 {
-    int status = 0;
+    int status = 0,
+        count = 0;
     BTint val;
     char key[ZKYLEN];
     
     while (status == 0) {
         status = bnxtky(btp,key,&val);
-        if (status == 0) printf("%s\n",key);
+        if (status == 0) {
+            printf("%s\n",key);
+            count++;
+        }
     }
+    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
+    return ((status==0||status==QNOKEY)?0:status);
+}
+
+int prev_key(CMDBLK* c)
+{
+    int status;
+    BTint val;
+    char key[ZKYLEN];
+    
+    status = bprvky(btp,key,&val);
+    if (status == QNOKEY) {
+        printf("No more keys\n");
+        suppress_error_msg = TRUE;
+    }
+    else {
+        printf("Key: '%s' = " ZINTFMT "\n",key,val);
+    }
+    return status;
+}
+
+int list_keys_prev(CMDBLK* c)
+{
+    int status = 0;
+    int count = 0;
+    BTint val;
+    char key[ZKYLEN];
+    
+    while (status == 0) {
+        status = bprvky(btp,key,&val);
+        if (status == 0) {
+            printf("Key: '%s' = " ZINTFMT "\n",key,val);
+            count++;
+        }
+    }
+    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
     return ((status==0||status==QNOKEY)?0:status);
 }
 
@@ -710,6 +755,23 @@ int list_data(CMDBLK* c)
     return (status==QNOKEY?0:status);
 }
 
+int list_data_prev(CMDBLK* c)
+{
+    char buf[DATABUFSZ];
+    char key[ZKYLEN];
+    int status = 0,
+        size;
+    
+    while (status == 0) {
+        status = btselp(btp,key,buf,DATABUFSZ,&size);
+        if (status == 0) {
+            buf[(size==DATABUFSZ?size-1:size)] = '\0';
+            printf("Key: '%s' - Data: '%s'\n",key,buf);
+        }
+    }
+    return (status==QNOKEY?0:status);
+}
+
 int next_data(CMDBLK* c)
 {
     char buf[DATABUFSZ];
@@ -717,6 +779,20 @@ int next_data(CMDBLK* c)
     int  status,size;
     
     status = btseln(btp,key,buf,DATABUFSZ,&size);
+    if (status == 0) {
+        buf[(size==DATABUFSZ?size-1:size)] = '\0';
+        printf("Key: '%s' - Data: '%s\n",key,buf);
+    }
+    return status;
+}
+
+int previous_data(CMDBLK* c)
+{
+    char buf[DATABUFSZ];
+    char key[ZKYLEN];
+    int  status,size;
+    
+    status = btselp(btp,key,buf,DATABUFSZ,&size);
     if (status == 0) {
         buf[(size==DATABUFSZ?size-1:size)] = '\0';
         printf("Key: '%s' - Data: '%s\n",key,buf);
@@ -792,18 +868,27 @@ CMDENTRY bt_cmds[] = {
   { "find-data","fd",find_data,"key [d]",0,"Find key with data. Use d "
     "qualifier to display entire data record." },
   { "file-list","fl",file_list,"",0,"List open index files." },
-  { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
-  { "list","l",list_keys,"",0,"List all keys and values following last "
+  { "help","?",btcmd_help,"[cmd]",0,"Provide help on all supported commands,"
+    "or just cmd if present."},
+  { "list","l",list,"[c]",0,"List all keys and values following last "
+    "find operation.  c causes count of keys to be displayed." },
+  { "list-data","ld",list_data,"[c]",0,"List all keys and data following last "
     "find operation." },
-  { "list-data","ld",list_data,"",0,"List all keys and data following last "
-    "find operation." },
-  { "list-keys-only","lko",list_keys_only,"",0,"List all keys (no data values) "
-    "following last find operation." },
+  { "list-data-prev","ldr",list_data_prev,"",0,
+    "List all keys and data prior to key returned by last find operation." },
+  { "list-keys","lk",list_keys,"[c]",0,"List all keys (no data values) "
+    "following last find operation.  c causes count of keys to be displayed."},
+  { "list-prev","lr",list_keys_prev,"[c]",0,
+    "List all keys prior to key of last find operation.  c causes count of "
+    "keys to be displayed."},
   { "lock","lk",lock_file,"",0,"Lock current index file." },
   { "next","n",next_key,"",0,"Display next key and value." },
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
     "qualifier indicates shared mode." },
+  { "previous","prv",prev_key,"",0,"Display previous key and value." },
+  { "previous-data","pd",previous_data,"",0,
+    "Display previous key and associated data." },
   { "prompt","p",btcmd_prompt,"",0,
     "Toggle prompting before reading command."},
   { "quit","q",quit,"",0,"Quit bt program." },

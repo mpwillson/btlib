@@ -1,5 +1,5 @@
 /*
- * $Id: bleaf.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bleaf.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
  * bleaf: position to left or right-most leaf block from current position
@@ -40,7 +40,7 @@ int bleaf(int dir)
         bterr("BLEAF",QRDBLK,itostr(btact->cntxt->lf.lfblk));
     }
     else {
-        if (bgtinf(btact->cntxt->lf.lfblk,ZNKEYS) == 0) return 0;
+        if (bgtinf(btact->cntxt->lf.lfblk,ZNKEYS) == 0) return idx;
         while (((btact->memrec)+idx)->lnkblk[btact->cntxt->lf.lfpos] != ZNULL) {
             bpush(btact->cntxt->lf.lfblk);
             bpush(btact->cntxt->lf.lfpos);
@@ -60,7 +60,5 @@ int bleaf(int dir)
             }
         }
     }
-    /* if proceeding right, ensure we point at last key */
-    if (dir == 1) btact->cntxt->lf.lfpos--;
-    return(0);
+    return idx;
 }

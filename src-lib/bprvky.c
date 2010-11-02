@@ -36,7 +36,10 @@
 #include "btree_int.h"
 #include "btree.h"
 
-int bnxtky(BTA* b,char *key,BTint *val)
+/* #undef DEBUG */
+/* #define DEBUG 1 */
+
+int bprvky(BTA* b,char *key,BTint *val)
 {
     int idx,nkeys,status;
     int found;
@@ -48,7 +51,7 @@ int bnxtky(BTA* b,char *key,BTint *val)
 
     if (btact->shared) {
         if (!block()) {
-            bterr("BNXTKY",QBUSY,NULL);
+            bterr("BPRVKY",QBUSY,NULL);
             goto fin;
         }
         /* position to last found key via bfndky, since context could
@@ -63,33 +66,45 @@ int bnxtky(BTA* b,char *key,BTint *val)
     while (btact->cntxt->lf.lfblk != ZNULL && !found) {
         status = brdblk(btact->cntxt->lf.lfblk,&idx);
         if (idx < 0) {
-            bterr("BNXTKY",QRDBLK,itostr(btact->cntxt->lf.lfblk));
+            bterr("BPRVKY",QRDBLK,itostr(btact->cntxt->lf.lfblk));
             break;
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
 #if DEBUG >= 1
-        printf("BNXTKY: lfblk: " ZINTFMT ", lfpos: %d, nkeys: %d\n",
-               btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,nkeys);
+        printf("BPRVKY: lfblk: " ZINTFMT ", lfpos: %d, lexct: %d, nkeys: %d\n",
+               btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
+               btact->cntxt->lf.lfexct,nkeys);
 #endif
-        if (btact->cntxt->lf.lfpos >= nkeys || nkeys == 0) {
+        if (btact->cntxt->lf.lfpos < 0 || nkeys == 0) {
             /* finished with this block (or no key was found at all),
              * get parent from stack */
-            btact->cntxt->lf.lfpos = bpull();
+            btact->cntxt->lf.lfpos = bpull()-1;
             btact->cntxt->lf.lfblk = bpull();
             btact->cntxt->lf.lfexct = FALSE; 
             continue;
         }
 
-        if (!btact->cntxt->lf.lfexct) {
-            btact->cntxt->lf.lfexct = TRUE;
+        if (btact->cntxt->lf.lfpos == nkeys) {
+            btact->cntxt->lf.lfpos--;
+            btact->cntxt->lf.lfexct = TRUE;    
         }
         else {
-            btact->cntxt->lf.lfpos++;
-            idx = bleaf(0);
-            if (idx < 0) continue;
+            if (btact->cntxt->lf.lfexct) {
+                idx = bleaf(1); 
+                btact->cntxt->lf.lfpos--;
+                if (idx < 0) continue;
+            }
+            else {
+                btact->cntxt->lf.lfexct = TRUE;
+            }
         }
-        
-        if (btact->cntxt->lf.lfpos < nkeys) {
+#if DEBUG >= 1
+        printf("BPRVKY(2): lfblk: " ZINTFMT
+               ", lfpos: %d, lexct: %d, nkeys: %d\n", 
+               btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
+               btact->cntxt->lf.lfexct,nkeys);
+#endif  
+        if (btact->cntxt->lf.lfpos >= 0) {
             found = TRUE;
             strcpy(key,((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos]);
             /* remember found key (need for shared mode) */
@@ -99,7 +114,7 @@ int bnxtky(BTA* b,char *key,BTint *val)
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {
         /* end of index reached */
-        bterr("BNXTKY",QNOKEY,NULL);
+        bterr("BPRVKY",QNOKEY,NULL);
     }
 fin:
     if (btact->shared) bulock();

@@ -1,6 +1,16 @@
+2010-11-02  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c: Added commands to allow testing of previous key
+	functionality.
+
+	* bnxtky.c: Modfied to work correctly with bprvky.
+
+	* bprvky.c: Added to allow positioning to previous key.
+	
+
 2010-07-23  Mark Willson  <mark@amber.hydrus.org.uk>
 
-	* btcmd.c:  Add support for help on one command.
+	* btcmd.c:  Add support for help on specific command.
 
 2010-07-01  Mark Willson  <mark@amber.hydrus.org.uk>
 

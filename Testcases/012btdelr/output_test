@@ -3007,7 +3007,7 @@ bt: d hUqW000998
 bt: d QT^]000999
 bt: change-root $$super
 bt: find
-bt: list-keys-only
+bt: list-keys
 $$default
 $$super
 root_1
@@ -3022,7 +3022,7 @@ bt: change-root root_3
 Can't change root to: 'root_3'
 bt: change-root $$super
 bt: find
-bt: list-keys-only
+bt: list-keys
 $$default
 $$super
 bt: quit
