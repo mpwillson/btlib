@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.21 2010-06-01 19:04:29 mark Exp $
+ * $Id: btdata.c,v 1.22 2010-11-02 21:46:50 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -34,9 +34,9 @@
  *      10 bits wide, while the block number field is 22 bits wide.
  *
  *      Note for implementations where the default int size is not 32
- *      bits (e.g. 16 bits), the amount left for the block
- *      number is only 6 bits (127 blocks).  This limits the amount of
- *      data that can be stored significantly.
+ *      bits (e.g. 16 bits), the amount left for the block number is
+ *      only 6 bits (127 blocks).  This significantly limits the
+ *      amount of data that can be stored.
  *
  *      The field widths for the block number and offset are
  *      calculated from the block size when the btree library is
@@ -61,7 +61,7 @@
  *  DT-ALPHA    1.0     010605  mpw
  *      Created.
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

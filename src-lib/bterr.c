@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.19 2010-06-02 10:45:48 mark Exp $
+ * $Id: bterr.c,v 1.20 2010-07-01 09:43:51 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -64,7 +64,7 @@ char *msgblk[] = {
     " Unable to acquire a free memory block",
     " Stack underflow",
     " Stack overflow",
-    " Can't insert key at block",
+    " Can't insert key at block: %s",
     " Replace location out of range: %s",
     " Split: search for middle key failed",
     " Requested write block not in memory",
@@ -104,6 +104,7 @@ char *msgblk[] = {
     " Unable to set alarm for locking",
     " Data record address is negative: %s",
     " Defined block size is not a power of 2: %s",
+    " Duplicates are not permitted in superroot.",
     " No message exists for this error code"
 };
 

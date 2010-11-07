@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.26 2010-07-23 10:41:57 mark Exp $
+ * $Id: bt.c,v 1.27 2010-11-02 21:46:50 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -834,6 +834,21 @@ int decode_addr(CMDBLK* c)
     return status;
 }
 
+int dups(CMDBLK*c)
+{
+    return btdups(btp,(strcmp(c->arg,"on")==0));
+}
+
+int pos(CMDBLK* c)
+{
+    int pos;
+    int in_dups;
+
+    pos = (strcmp(c->arg,"start")==0)?ZSTART:ZEND;
+    in_dups = (strcmp(c->qualifier,"d")==0);
+    return btpos(btp,pos,in_dups);
+}
+
 int unknown_command(CMDBLK* c)
 {
     fprintf(stdout,"unknown command: %s: type ? for help.\n",c->cmd);
@@ -852,11 +867,14 @@ CMDENTRY bt_cmds[] = {
     "indicates shared mode." },
   { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
     "address for key." },
-  { "define","d",define_key,"key [val]",0,"Define key with associated value." },
+  { "define","d",define_key,"key [val]",0,
+    "Define key with associated value." },
   { "define-data","dd",define_data,"key {s|*b}",2,
     "Define key with data.  Specify string s or use *b to refer"
     " to previously defined data buffer." },
   { "define-root","dr",define_root,"root",1,"Define new root." },
+  { "dups","dp",dups,"[on|off]",0,
+    "Set/unset duplicate key support on current root." },
   { "echo","ec",btcmd_echo,"[on|off]",0,
     "Echo commands when on and reading from file." },
   { "error","er",btcmd_error,"[on|off]",0,
@@ -874,11 +892,11 @@ CMDENTRY bt_cmds[] = {
     "find operation.  c causes count of keys to be displayed." },
   { "list-data","ld",list_data,"[c]",0,"List all keys and data following last "
     "find operation." },
-  { "list-data-prev","ldr",list_data_prev,"",0,
+  { "list-data-prev","ldp",list_data_prev,"",0,
     "List all keys and data prior to key returned by last find operation." },
   { "list-keys","lk",list_keys,"[c]",0,"List all keys (no data values) "
     "following last find operation.  c causes count of keys to be displayed."},
-  { "list-prev","lr",list_keys_prev,"[c]",0,
+  { "list-prev","lp",list_keys_prev,"[c]",0,
     "List all keys prior to key of last find operation.  c causes count of "
     "keys to be displayed."},
   { "lock","lk",lock_file,"",0,"Lock current index file." },
@@ -886,6 +904,9 @@ CMDENTRY bt_cmds[] = {
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
     "qualifier indicates shared mode." },
+  { "position","pos",pos,"{start|end} [d]",0,
+    "Position current root.  Start positions prior to first key; end after "
+    "last key. d qualifier positions within duplicate key set." },
   { "previous","prv",prev_key,"",0,"Display previous key and value." },
   { "previous-data","pd",previous_data,"",0,
     "Display previous key and associated data." },

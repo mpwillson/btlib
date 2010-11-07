@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.21 2010-06-04 11:21:25 mark Exp $
+ * $Id: bc.h,v 1.22 2010-06-04 13:19:33 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -96,7 +96,7 @@ typedef int BTint;
 /* Indexes into block info words - first ZINFSZ words in every block */
 /*
  * ZBTYPE       ZSUPER      ZROOT           ZINUSE  ZFREE   ZDATA 
- * ZMISC        #free blks  Unused          Unused  Unused  bytes free
+ * ZMISC        #free blks  dups_allowed    Unused  Unused  bytes free
  * ZNXBLK       free list   data blk list   Unused  flink   flink 
  * ZNKEYS       # keys      # keys          # keys  Unused  next free byte 
  * ZNBLKS       # blocks    Unused          Unused  Unused  blink
@@ -118,6 +118,10 @@ typedef int BTint;
 #define ZNKEYS 3
 #define ZNBLKS 4
 #define ZBTVER -1
+
+/* position constants */
+#define ZSTART 1
+#define ZEND 2
 
 /* max info word index */
 #define ZINFSZ 5
@@ -242,5 +246,6 @@ typedef int BTint;
 #define QDRANEG 54
 
 #define QBLKSZERR 55
+#define QNODUPS 56
 
 #endif /* _btconst_ */

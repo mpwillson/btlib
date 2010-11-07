@@ -1002,7 +1002,7 @@ bt: d |oKQ000997
 bt: d hUqW000998
 bt: d QT^]000999
 bt: find
-bt: list-keys-only
+bt: list-keys
 @@Nf000652
 @Eiz000130
 @LPV000830
@@ -3006,7 +3006,7 @@ bt: d |oKQ000997
 bt: d hUqW000998
 bt: d QT^]000999
 bt: find
-bt: list-keys-only
+bt: list-keys
 @@Nf000652
 @Eiz000130
 @LPV000830
@@ -5010,7 +5010,7 @@ bt: d zZjn000347
 bt: d Zz|t000042
 bt: d z[zz000569
 bt: find
-bt: list-keys-only
+bt: list-keys
 @@Nf000652
 @Eiz000130
 @LPV000830
@@ -7015,7 +7015,7 @@ bt: d A@||000712
 bt: d \]A]000526
 bt: change-root $$super
 bt: find
-bt: list-keys-only
+bt: list-keys
 $$default
 $$super
 root_1

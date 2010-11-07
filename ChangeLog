@@ -1,3 +1,22 @@
+2010-11-07  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c: New commands to support duplicate key functionality.
+	
+	* btpos.c: Added API function to allow positioning to start/end of
+	index, or start/end of duplicate key set.
+
+2010-11-05  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btdups.c: Added to allow dup key support to be set/unset on a
+	root basis.
+
+	* binsky.c: Key passed is suffixed by char '\001' when searching
+	to ensure index is positioned correctly for key insertion and full
+	blocks are split during search.
+
+	* bfndky.c: Search key is no longer truncated, in order to support
+	dup key functionality.
+
 2010-11-02  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c: Added commands to allow testing of previous key

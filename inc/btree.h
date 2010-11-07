@@ -1,5 +1,5 @@
 /*
- * $Id: btree.h,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btree.h,v 1.8 2010-11-02 21:46:50 mark Exp $
  * 
  * Standard btree header
  * Defines all API functions
@@ -29,6 +29,7 @@ extern int btcls(BTA *);
 extern BTA *btcrt(char *,int, int);
 extern int btchgr(BTA *,char *);
 extern int btcrtr(BTA *,char *);
+extern int btdups(BTA *,BTint);
 extern int btinit(void);
 extern BTA *btopn(char *,int,int);
 extern int bdbug(BTA *,char *,BTint);
@@ -51,6 +52,9 @@ extern int btrecs(BTA *,char *,int *);
 
 extern int btlock(BTA *);
 extern int btunlock(BTA *);
+
+extern int btpos(BTA *,int,int);
+
 
 
 

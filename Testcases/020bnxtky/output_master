@@ -1001,7 +1001,7 @@ bt: d |oKQ000997
 bt: d hUqW000998
 bt: d QT^]000999
 bt: find
-bt: list
+bt: list c
 Key: '@@Nf000652' = 0
 Key: '@Eiz000130' = 0
 Key: '@LPV000830' = 0
@@ -2002,12 +2002,13 @@ Key: '~tGj000484' = 0
 Key: '~ti{000951' = 0
 Key: '~{[m000928' = 0
 Key: '~}Dz000694' = 0
+1000 keys listed
 bt: # now repeat when open shared
 bt: close
 warning: no in-use btree file
 bt: open test_db s
 bt: find
-bt: list
+bt: list c
 Key: '@@Nf000652' = 0
 Key: '@Eiz000130' = 0
 Key: '@LPV000830' = 0
@@ -3008,4 +3009,12 @@ Key: '~tGj000484' = 0
 Key: '~ti{000951' = 0
 Key: '~{[m000928' = 0
 Key: '~}Dz000694' = 0
+1000 keys listed
+bt: # empty database
+bt: close
+warning: no in-use btree file
+bt: create test_db
+bt: find
+bt: list c
+0 keys listed
 bt: quit

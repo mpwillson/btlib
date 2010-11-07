@@ -34,7 +34,7 @@ src-lib/bdemte.c,21
 void bdemte(35,1163
 
 src-lib/bfndky.c,20
-int bfndky(42,1305
+int bfndky(42,1300
 
 src-lib/bgtfre.c,22
 BTint bgtfre(36,1073
@@ -47,7 +47,7 @@ src-lib/bgtslt.c,20
 int bgtslt(35,1097
 
 src-lib/binsky.c,20
-int binsky(36,1161
+int binsky(37,1181
 
 src-lib/bjnblk.c,21
 void bjnblk(34,1114
@@ -71,10 +71,10 @@ src-lib/bnxtbk.c,20
 int bnxtbk(38,1258
 
 src-lib/bnxtky.c,20
-int bnxtky(39,1232
+int bnxtky(39,1238
 
 src-lib/bprvky.c,20
-int bprvky(42,1274
+int bprvky(42,1276
 
 src-lib/bputky.c,20
 int bputky(39,1234
@@ -128,35 +128,38 @@ src-lib/btcrtr.c,20
 int btcrtr(37,1175
 
 src-lib/btdata.c,594
-int btins(107,4080
-int btupd(180,5922
-int btsel(234,7336
-int btdel(284,8530
-int btseln(327,9520
-int btselp(369,10545
-int btrecs(411,11598
-int bseldt(461,12877
-int bdeldt(510,14116
-int bupddt(541,15019
-BTint binsdt(624,17641
-int deldat(696,19756
-int insdat(743,21232
-int brecsz(770,22093
-BTint mkdblk(810,23252
-int rdsz(835,23995
-BTint rdint(844,24094
-void wrsz(855,24247
-void wrint(864,24348
-BTint offsetmask;873,24466
-int offsetwidth;875,24589
-void setaddrsize(883,24964
-void cnvdraddr(896,25344
-BTint mkdraddr(907,25712
-int getseginfo(918,26053
-int dataok(942,26661
+int btins(107,4086
+int btupd(180,5928
+int btsel(234,7342
+int btdel(284,8536
+int btseln(327,9526
+int btselp(369,10551
+int btrecs(411,11604
+int bseldt(461,12883
+int bdeldt(510,14122
+int bupddt(541,15025
+BTint binsdt(624,17647
+int deldat(696,19762
+int insdat(743,21238
+int brecsz(770,22099
+BTint mkdblk(810,23258
+int rdsz(835,24001
+BTint rdint(844,24100
+void wrsz(855,24253
+void wrint(864,24354
+BTint offsetmask;873,24472
+int offsetwidth;875,24595
+void setaddrsize(883,24970
+void cnvdraddr(896,25350
+BTint mkdraddr(907,25718
+int getseginfo(918,26059
+int dataok(942,26667
 
 src-lib/btdelr.c,20
 int btdelr(37,1213
+
+src-lib/btdups.c,20
+int btdups(43,1269
 
 src-lib/bterr.c,267
 static int qerror 43,1397
@@ -165,10 +168,10 @@ static char qarg[qarg45,1442
 static int syserror;46,1470
 static char qname[qname48,1492
 char *msgblk[msgblk50,1520
-#define MSGBLKMAX 110,3882
-void btcerr(112,3944
-void bterr(165,5145
-int btgerr(190,5700
+#define MSGBLKMAX 111,3937
+void btcerr(113,3999
+void bterr(166,5200
+int btgerr(191,5755
 
 src-lib/btinit.c,69
 BTA btat[btat32,1081
@@ -181,6 +184,9 @@ int btunlock(77,1919
 
 src-lib/btopn.c,26
 BTA *btopn(btopn39,1250
+
+src-lib/btpos.c,19
+int btpos(46,1608
 
 src-lib/btque.c,60
 void bqadd(30,1034
@@ -212,7 +218,7 @@ src-lib/bxdump.c,128
 static char *charset charset39,1166
 void bxdump(49,1338
 
-inc/bc.h,2524
+inc/bc.h,2598
 #define _btconst_24,904
 typedef long long BTint;28,1024
 #define BTINT_MAX 29,1049
@@ -250,71 +256,74 @@ typedef int BTint;34,1164
 #define ZNKEYS 118,3134
 #define ZNBLKS 119,3151
 #define ZBTVER 120,3168
-#define ZINFSZ 123,3213
-#define ZROOT 126,3256
-#define ZINUSE 128,3298
-#define ZFREE 130,3340
-#define ZDATA 132,3381
-#define ZSUPER 134,3438
-#define ZNULL 136,3480
-#define ZDRSZ 151,3979
-#define ZDOVRH 152,3995
-#define ZDSGMN 155,4069
-#define QSRNR 176,4456
-#define QCLSIO 177,4475
-#define QCRTIO 178,4494
-#define QCPBLK 179,4513
-#define QWRBLK 181,4533
-#define QRDSUP 182,4552
-#define QWRSUP 183,4571
-#define QOPNIO 184,4590
-#define QRDBLK 186,4610
-#define QIXOPN 187,4629
-#define QSPLIT 188,4648
-#define QINFER 189,4667
-#define QNOMEM 191,4687
-#define QSTKUF 192,4706
-#define QSTKOF 193,4725
-#define QBLKFL 194,4744
-#define QLOCTB 196,4764
-#define QSPKEY 197,4783
-#define QWRMEM 198,4802
-#define QBALSE 199,4821
-#define QDELEX 201,4841
-#define QDELER 202,4860
-#define QDELRP 203,4879
-#define QDEMSE 204,4898
-#define QDEMSP 206,4918
-#define QJNSE 207,4937
-#define QNODEF 208,4956
-#define QDELCR 209,4975
-#define QBADIX 211,4995
-#define QNOBTF 212,5014
-#define QINERR 213,5033
-#define QBADOP 214,5052
-#define QNOACT 216,5072
-#define QBADAP 217,5091
-#define QBUSY 218,5110
-#define QNOTOP 219,5129
-#define QNOBLK 221,5149
-#define QNEGSZ 222,5168
-#define QNOTDA 223,5187
-#define QNOOPN 224,5206
-#define QDLOOP 226,5239
-#define QUNLCK 227,5258
-#define QLRUER 228,5277
-#define QDAERR 229,5296
-#define QDNEG 231,5316
-#define QDUP 232,5335
-#define QNOKEY 233,5354
-#define QNOWRT 234,5373
-#define QNOTFR 236,5393
-#define QBADVR 237,5412
-#define QDAOVR 238,5431
-#define QF2BIG 239,5450
-#define QBADAL 241,5470
-#define QDRANEG 242,5489
-#define QBLKSZERR 244,5509
+#define ZSTART 123,3212
+#define ZEND 124,3229
+#define ZINFSZ 127,3271
+#define ZROOT 130,3314
+#define ZINUSE 132,3356
+#define ZFREE 134,3398
+#define ZDATA 136,3439
+#define ZSUPER 138,3496
+#define ZNULL 140,3538
+#define ZDRSZ 155,4037
+#define ZDOVRH 156,4053
+#define ZDSGMN 159,4127
+#define QSRNR 180,4514
+#define QCLSIO 181,4533
+#define QCRTIO 182,4552
+#define QCPBLK 183,4571
+#define QWRBLK 185,4591
+#define QRDSUP 186,4610
+#define QWRSUP 187,4629
+#define QOPNIO 188,4648
+#define QRDBLK 190,4668
+#define QIXOPN 191,4687
+#define QSPLIT 192,4706
+#define QINFER 193,4725
+#define QNOMEM 195,4745
+#define QSTKUF 196,4764
+#define QSTKOF 197,4783
+#define QBLKFL 198,4802
+#define QLOCTB 200,4822
+#define QSPKEY 201,4841
+#define QWRMEM 202,4860
+#define QBALSE 203,4879
+#define QDELEX 205,4899
+#define QDELER 206,4918
+#define QDELRP 207,4937
+#define QDEMSE 208,4956
+#define QDEMSP 210,4976
+#define QJNSE 211,4995
+#define QNODEF 212,5014
+#define QDELCR 213,5033
+#define QBADIX 215,5053
+#define QNOBTF 216,5072
+#define QINERR 217,5091
+#define QBADOP 218,5110
+#define QNOACT 220,5130
+#define QBADAP 221,5149
+#define QBUSY 222,5168
+#define QNOTOP 223,5187
+#define QNOBLK 225,5207
+#define QNEGSZ 226,5226
+#define QNOTDA 227,5245
+#define QNOOPN 228,5264
+#define QDLOOP 230,5297
+#define QUNLCK 231,5316
+#define QLRUER 232,5335
+#define QDAERR 233,5354
+#define QDNEG 235,5374
+#define QDUP 236,5393
+#define QNOKEY 237,5412
+#define QNOWRT 238,5431
+#define QNOTFR 240,5451
+#define QBADVR 241,5470
+#define QDAOVR 242,5489
+#define QF2BIG 243,5508
+#define QBADAL 245,5528
+#define QDRANEG 246,5547
+#define QBLKSZERR 248,5567
+#define QNODUPS 249,5588
 
 inc/bt.h,1877
 #define _btheader_26,935
@@ -406,7 +415,7 @@ void break_handler 66,2001
 void print_error(73,2084
 int main(83,2301
 
-src-main/bt.c,1825
+src-main/bt.c,1864
 struct bt_plist 40,1344
     char *fid;fid41,1362
     BTA *b;b42,1377
@@ -471,10 +480,12 @@ int lock_file(803,17192
 int unlock_file(808,17246
 int update_value(813,17304
 int decode_addr(821,17445
-int unknown_command(837,17791
-CMDENTRY bt_cmds[bt_cmds843,17911
-void report_error(911,21838
-int main(928,22171
+int dups(837,17791
+int pos(842,17864
+int unknown_command(852,18050
+CMDENTRY bt_cmds[bt_cmds858,18170
+void report_error(932,22428
+int main(949,22761
 
 src-main/btcmd.c,1053
 #define TRUE 67,2563

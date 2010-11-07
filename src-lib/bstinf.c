@@ -1,5 +1,5 @@
 /*
- * $Id: bstinf.c,v 1.9 2006-05-14 20:20:20 mark Exp $
+ * $Id: bstinf.c,v 1.10 2010-05-26 12:39:16 mark Exp $
  *
  *
  *  bstinf: set information about block
@@ -38,7 +38,7 @@ int bstinf(BTint blk,int type,BTint val)
 {
     int ioerr,idx;
 
-    if (type >= ZINFSZ)
+    if (type >= ZINFSZ || type < 0)
         bterr("BSTINF",QINFER,NULL);
     else {
         ioerr = brdblk(blk,&idx);

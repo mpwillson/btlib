@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: bfndky.c,v 1.9 2010-05-28 10:34:38 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -8,7 +8,7 @@
  *    key    key to search for
  *    val    returned with key value, if key found
  *    
- * index is left positioned at next key (for use by bnxtky)
+ * index is left positioned at key (for use by bnxtky)
  *  
  * bfndky returns 0 for no errors, error code otherwise
  *
@@ -41,9 +41,8 @@
 
 int bfndky(BTA *b,char *key,BTint *val)
 {
-    BTint cblk, link1, link2, newblk;
+    BTint cblk, link1, link2, newblk, dups_allowed;
     int index, result, nkeys, status;
-    char lkey[ZKYLEN];
     
     bterr("",0,NULL);
     status = QNOKEY;
@@ -58,18 +57,16 @@ int bfndky(BTA *b,char *key,BTint *val)
         }
     }
 
-    /* take local copy of key, truncating if necessary */
-    strncpy(lkey,key,ZKYLEN);
-    lkey[ZKYLEN-1] = '\0';
-    
     /* initialise stack etc */
     btact->cntxt->lf.lfexct = FALSE;
     cblk = btact->cntxt->super.scroot;
     bstkin();
     btact->cntxt->lf.lfblk = -1;
     btact->cntxt->lf.lfpos = -1;
-    strcpy(btact->cntxt->lf.lfkey,lkey);
-
+    strncpy(btact->cntxt->lf.lfkey,key,ZKYLEN);
+    btact->cntxt->lf.lfkey[ZKYLEN-1] = '\0';
+    dups_allowed = bgtinf(btact->cntxt->super.scroot,ZMISC);
+    
     while (cblk >= 0) {
 #if DEBUG >= 2
         fprintf(stderr,"BFNDKY: searching block " ZINTFMT "\n",cblk);
@@ -82,7 +79,8 @@ int bfndky(BTA *b,char *key,BTint *val)
                 bterr("BFNDKY",QSPLIT,NULL);
                 break;
             }
-            /* if split occured, then must re-examine parent */
+            /* if split occured, then must re-examine parent, if not
+             * at root */
             if (cblk != btact->cntxt->super.scroot) {
                 index  = btact->cntxt->lf.lfpos;
                 cblk = btact->cntxt->lf.lfblk;
@@ -94,7 +92,7 @@ int bfndky(BTA *b,char *key,BTint *val)
             index = -1;
             bpush(btact->cntxt->lf.lfblk);
             bpush(btact->cntxt->lf.lfpos);
-            bsrhbk(cblk,lkey,&index,val,&link1,&link2,&result);
+            bsrhbk(cblk,key,&index,val,&link1,&link2,&result);
             btact->cntxt->lf.lfblk = cblk;
             btact->cntxt->lf.lfpos = index; /* if block is empty, leave lfpos at -1 */
             if (result < 0) {
@@ -112,13 +110,13 @@ int bfndky(BTA *b,char *key,BTint *val)
             else {
                 status = 0;
                 btact->cntxt->lf.lfexct = TRUE;
-                break;
+               break;
             }
         }
     }  
 fin:
     if (btact->shared) bulock();
     /* non-zero status indicates no such key found */
-    if (status) bterr("BFNDKY",QNOKEY,lkey);
+    if (status) bterr("BFNDKY",QNOKEY,key);
     return(btgerr());
 }

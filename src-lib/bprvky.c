@@ -1,16 +1,16 @@
 /*
- * $Id: bnxtky.c,v 1.10 2010-05-28 10:34:38 mark Exp $
+ * $Id: bprvky.c,v 1.1 2010-11-02 21:46:50 mark Exp $
  *
- * bnxtky:  returns next key from index
+ * bprvky:  returns previous key from index
  *
  * Parameters:
  *   b       index file context pointer
- *   key     returned with next key
+ *   key     returned with previous key
  *   val     returned with value of key
  *
- * bnxtky returns non-ZERO if an error occurred
+ * bprvky returns non-ZERO if an error occurred
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2010, Mark Willson.
  *
  * This file is part of the B Tree library.
  *
@@ -43,7 +43,8 @@ int bprvky(BTA* b,char *key,BTint *val)
 {
     int idx,nkeys,status;
     int found;
-
+    BTint cblk, newblk = ZNULL;
+    
     bterr("",0,NULL);
     if ((status=bvalap("BNXTKY",b)) != 0) return(status);
 
@@ -91,8 +92,15 @@ int bprvky(BTA* b,char *key,BTint *val)
         else {
             if (btact->cntxt->lf.lfexct) {
                 idx = bleaf(1); 
-                btact->cntxt->lf.lfpos--;
                 if (idx < 0) continue;
+                btact->cntxt->lf.lfpos--;
+            }
+            else if (((btact->memrec)+idx)->lnkblk[btact->cntxt->lf.lfpos]
+                     == ZNULL) {
+                /* lfexct ignored for leaf block, otherwise
+                 * positioning doesn't work properly. */
+                btact->cntxt->lf.lfpos--;
+                btact->cntxt->lf.lfexct = TRUE;                
             }
             else {
                 btact->cntxt->lf.lfexct = TRUE;
