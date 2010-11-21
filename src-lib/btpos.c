@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: btpos.c,v 1.1 2010-11-07 21:01:27 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.
@@ -43,12 +43,9 @@
 #include "btree.h"
 #include "btree_int.h"
 
-int btpos(BTA *b,int pos,int in_dups)
+int btpos(BTA *b,int pos)
 {
     int status;
-    BTint val;
-    char dkey[ZKYLEN],tkey[ZKYLEN];
-    
     
     bterr("",0,NULL);
     if ((status=bvalap("BTPOS",b)) != 0) return(status);
@@ -61,52 +58,21 @@ int btpos(BTA *b,int pos,int in_dups)
             goto fin;
         }
     }
-    if (!in_dups || bgtinf(btact->cntxt->super.scroot,ZMISC) == 0) {
-        if (pos == ZSTART) {
-            btact->cntxt->lf.lfexct = FALSE;
-            bstkin();
-            bpush(ZNULL);
-            bpush(ZNULL);
-            btact->cntxt->lf.lfblk = btact->cntxt->super.scroot;
-            btact->cntxt->lf.lfpos = 0;
-            bleaf(0);
-        }
-        else if (pos == ZEND) {
-            btact->cntxt->lf.lfexct = FALSE;
-            bstkin();
-            bpush(ZNULL);
-            bpush(ZNULL);
-            btact->cntxt->lf.lfblk = btact->cntxt->super.scroot;
-            btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->super.scroot,ZNKEYS);
-            bleaf(1);
-        }
-    }
-    else if (pos == ZSTART) {
-        strcpy(tkey,btact->cntxt->lf.lfkey);
-        strcpy(dkey,tkey);    
-        while (strcmp(dkey,tkey) == 0) {
-            status = bprvky(b,dkey,&val);
-            if (status == QNOKEY) {
-                /* run out of keys; reposition at first
-                   key */
-                btpos(b,ZSTART,FALSE);
-                goto fin;
-            }
-        }
+
+    btact->cntxt->lf.lfexct = FALSE;
+    bstkin();
+    bpush(ZNULL);
+    bpush(ZNULL);
+    btact->cntxt->lf.lfblk = btact->cntxt->super.scroot;
+    if (pos == ZSTART) {
+        btact->cntxt->lf.lfpos = 0;
+        bleaf(0);
     }
     else if (pos == ZEND) {
-        strcpy(dkey,btact->cntxt->lf.lfkey);
-        strcpy(dkey,tkey);  
-        while (strcmp(tkey,dkey) == 0) {
-            status = bnxtky(b,dkey,&val);
-            if (status == QNOKEY) {
-                /* run out of keys; reposition at last
-                   key */
-                btpos(b,ZEND,FALSE);
-                goto fin;
-            }
-        }
+        btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->super.scroot,ZNKEYS);
+        bleaf(1);
     }
+ 
     if (btact->shared) bulock();
     
   fin:

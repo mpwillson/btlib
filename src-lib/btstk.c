@@ -1,5 +1,5 @@
 /*
- * $Id: btstk.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btstk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
  * bpull: pull integer value off stack
@@ -68,4 +68,9 @@ int bpush(BTint val)
 void bstkin()
 {
     btact->cntxt->stk.stkptr = -1;
+}
+
+int btstk_depth(void)
+{
+    return btact->cntxt->stk.stkptr+1;
 }

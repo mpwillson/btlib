@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: btree_int.h,v 1.9 2010-05-27 19:56:44 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -95,3 +95,5 @@ extern void setaddrsize(BTint);
 
 extern char* itostr(BTint);
 
+extern BTint btkeys(BTA*, int);
+extern int btstk_depth(void);

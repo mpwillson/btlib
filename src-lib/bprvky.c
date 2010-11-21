@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.1 2010-11-02 21:46:50 mark Exp $
+ * $Id: bprvky.c,v 1.2 2010-11-07 21:01:27 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -43,7 +43,6 @@ int bprvky(BTA* b,char *key,BTint *val)
 {
     int idx,nkeys,status;
     int found;
-    BTint cblk, newblk = ZNULL;
     
     bterr("",0,NULL);
     if ((status=bvalap("BNXTKY",b)) != 0) return(status);

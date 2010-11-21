@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.27 2010-11-02 21:46:50 mark Exp $
+ * $Id: bt.c,v 1.28 2010-11-07 21:01:27 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -439,7 +439,7 @@ int find_key(CMDBLK* c)
         printf("Key: '%s' = " ZINTFMT "\n",c->arg,val);
     }
     else if (status == QNOKEY && STREMP(c->arg)) {
-        suppress_error_msg = TRUE; 
+        status = 0;
     }
     return status;
 }
@@ -691,12 +691,15 @@ int find_data(CMDBLK* c)
         }
     }
     
-    if (status == QNOKEY && !STREMP(c->arg)) {
+    if (status == QNOKEY) {
+        if (!STREMP(c->arg)) {
             fprintf(stdout,"No such key as '%s'\n",c->arg);
             suppress_error_msg = TRUE;
-    }
-    else {
-        suppress_error_msg = TRUE;  /* looking for empty string is not an error */
+        }   
+        else {
+            /* looking for empty string is not an error */
+            status = 0;
+        }
     }
     return status;
 }       
@@ -842,11 +845,33 @@ int dups(CMDBLK*c)
 int pos(CMDBLK* c)
 {
     int pos;
-    int in_dups;
 
     pos = (strcmp(c->arg,"start")==0)?ZSTART:ZEND;
-    in_dups = (strcmp(c->qualifier,"d")==0);
-    return btpos(btp,pos,in_dups);
+    return btpos(btp,pos);
+}
+
+int chk_order(CMDBLK* c)
+{
+    int status = 0;
+    int count = 0;
+    BTint val;
+    char key[ZKYLEN], last_key[ZKYLEN];
+
+    strcpy(last_key,"");
+    while (status == 0) {
+        status = bnxtky(btp,key,&val);
+        if (status == 0) {
+            count++;
+            if (strcmp(last_key,key) > 0) {
+                printf("Index disordered at %s, %s.\n",last_key,key);
+                suppress_error_msg = TRUE;
+                status = 1;
+            }
+            strcpy(last_key,key);
+        }
+    }
+    if (strcmp(c->arg,"c") == 0) printf("%d keys checked\n",count);
+    return ((status==0||status==QNOKEY)?0:status);
 }
 
 int unknown_command(CMDBLK* c)
@@ -861,6 +886,7 @@ CMDENTRY bt_cmds[] = {
   { "buffer-delete","bd",buffer_delete,"b",1,"Delete data buffer named b." },
   { "buffer-list","bl",buffer_list,"",0,"List defined data buffers." },
   { "change-root","cr",change_root,"root",1,"Change to named root." },
+  { "check-order","co",chk_order,"[c]",0,"Check lexicographic key ordering." },
   { "close","x",close_file,"",0,"Close current index file." },
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",0,"Create index file. s qualifier "
@@ -904,9 +930,9 @@ CMDENTRY bt_cmds[] = {
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
     "qualifier indicates shared mode." },
-  { "position","pos",pos,"{start|end} [d]",0,
+  { "position","pos",pos,"{start|end}",0,
     "Position current root.  Start positions prior to first key; end after "
-    "last key. d qualifier positions within duplicate key set." },
+    "last key." },
   { "previous","prv",prev_key,"",0,"Display previous key and value." },
   { "previous-data","pd",previous_data,"",0,
     "Display previous key and associated data." },

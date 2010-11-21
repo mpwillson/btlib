@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.10 2010-05-28 10:34:38 mark Exp $
+ * $Id: bdbug.c,v 1.11 2010-06-04 10:40:35 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -165,6 +165,10 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
         fprintf(stdout,"%10s%20s\n","Level","Contents");
         for (i=0;i<=btact->cntxt->stk.stkptr;i++)
             fprintf(stdout,"%10d" Z20DFMT "\n",i,btact->cntxt->stk.stk[i]);
+    }
+    else if (strcmp(cmd,"structure") == 0) {
+        int nkeys = btkeys(b,TRUE);
+        fprintf(stderr,"\nTotal number of keys = %d\n",nkeys);
     }
     else {
         bterr("BDBUG",QBADOP,NULL);

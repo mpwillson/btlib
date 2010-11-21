@@ -1,5 +1,4 @@
 # testing duplicate key functionality
-echo on
 create test_db
 error on
 execute ../inskeysrand.bt
@@ -20,7 +19,6 @@ list c
 position end
 list-prev c
 find a
-position start d
 next
 next
 next
@@ -43,8 +41,7 @@ previous
 previous
 previous
 previous
-find a 
-position end d
+find b
 previous
 previous
 previous
@@ -56,6 +53,17 @@ previous
 previous
 previous
 previous
+next
+next
+next
+next
+next
+next
+next
+next
+next
+next
+next
 execute ../delkeysrand.bt
 execute ../delkeysrand.bt
 execute ../delkeysrand.bt

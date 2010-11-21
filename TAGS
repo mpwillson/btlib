@@ -33,8 +33,9 @@ int bdelky(34,1093
 src-lib/bdemte.c,21
 void bdemte(35,1163
 
-src-lib/bfndky.c,20
-int bfndky(42,1300
+src-lib/bfndky.c,41
+int blkypos(46,1404
+int bfndky(62,1735
 
 src-lib/bgtfre.c,22
 BTint bgtfre(36,1073
@@ -77,7 +78,7 @@ src-lib/bprvky.c,20
 int bprvky(42,1276
 
 src-lib/bputky.c,20
-int bputky(39,1234
+int bputky(42,1282
 
 src-lib/brdblk.c,20
 int brdblk(37,1179
@@ -159,7 +160,7 @@ src-lib/btdelr.c,20
 int btdelr(37,1213
 
 src-lib/btdups.c,20
-int btdups(43,1269
+int btdups(43,1315
 
 src-lib/bterr.c,267
 static int qerror 43,1397
@@ -186,24 +187,26 @@ src-lib/btopn.c,26
 BTA *btopn(btopn39,1250
 
 src-lib/btpos.c,19
-int btpos(46,1608
+int btpos(46,1653
 
 src-lib/btque.c,60
 void bqadd(30,1034
 int bqhead(45,1410
 int bqmove(61,1737
 
-src-lib/btstk.c,61
+src-lib/btstk.c,86
 BTint bpull(43,1178
 int bpush(56,1421
 void bstkin(68,1666
+int btstk_depth(73,1720
 
 src-lib/bupdky.c,20
 int bupdky(37,1165
 
-src-lib/butil.c,49
+src-lib/butil.c,72
 static char buf[buf27,967
-char* itostr(29,989
+char* itostr(30,1018
+BTint btkeys(38,1180
 
 src-lib/bvalap.c,20
 int bvalap(33,1108
@@ -415,7 +418,7 @@ void break_handler 66,2001
 void print_error(73,2084
 int main(83,2301
 
-src-main/bt.c,1864
+src-main/bt.c,1889
 struct bt_plist 40,1344
     char *fid;fid41,1362
     BTA *b;b42,1377
@@ -454,38 +457,39 @@ int quit(384,8160
 void shutdown(390,8244
 int close_file(407,8564
 int find_key(432,9158
-int define_key(447,9458
-int show_debug(462,9729
-int next_key(467,9802
-int list(484,10116
-int list_keys(502,10526
-int prev_key(520,10916
-int list_keys_prev(537,11230
-int remove_key(555,11650
-int define_root(563,11755
-int change_root(575,11989
-int remove_root(587,12226
-int file_list(600,12496
-int use_file(612,12691
-int define_data(644,13459
-int find_data(666,14004
-int update_data(704,15025
-int remove_data(725,15529
-int size_data(730,15591
-int list_data(741,15799
-int list_data_prev(758,16187
-int next_data(775,16580
-int previous_data(789,16884
-int lock_file(803,17192
-int unlock_file(808,17246
-int update_value(813,17304
-int decode_addr(821,17445
-int dups(837,17791
-int pos(842,17864
-int unknown_command(852,18050
-CMDENTRY bt_cmds[bt_cmds858,18170
-void report_error(932,22428
-int main(949,22761
+int define_key(447,9442
+int show_debug(462,9713
+int next_key(467,9786
+int list(484,10100
+int list_keys(502,10510
+int prev_key(520,10900
+int list_keys_prev(537,11214
+int remove_key(555,11634
+int define_root(563,11739
+int change_root(575,11973
+int remove_root(587,12210
+int file_list(600,12480
+int use_file(612,12675
+int define_data(644,13443
+int find_data(666,13988
+int update_data(707,15042
+int remove_data(728,15546
+int size_data(733,15608
+int list_data(744,15816
+int list_data_prev(761,16204
+int next_data(778,16597
+int previous_data(792,16901
+int lock_file(806,17209
+int unlock_file(811,17263
+int update_value(816,17321
+int decode_addr(824,17462
+int dups(840,17808
+int pos(845,17881
+int chk_order(853,17997
+int unknown_command(877,18628
+CMDENTRY bt_cmds[bt_cmds883,18748
+void report_error(958,23034
+int main(975,23367
 
 src-main/btcmd.c,1053
 #define TRUE 67,2563

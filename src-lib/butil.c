@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.5 2004/10/02 16:10:09 mark Exp $
+ * $Id: butil.c,v 1.6 2010-05-26 12:39:16 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
@@ -26,8 +26,87 @@
 
 static char buf[80];
 
+/* Return BTint as string */
 char* itostr(BTint v)
 {
     sprintf(buf,ZINTFMT,v);
     return buf;
+}
+
+/* Checks structure of index file, from current root.  Returns number
+ * of keys found. */
+BTint btkeys(BTA* b,int stats)
+{
+    BTint tblks = 0,
+        tnkeys = 0,
+        empty_blk = ZNULL,
+        blkno = ZNULL;
+    BTint val,link1,link2;
+    int ioerr,idx,result,loc = 0;
+    int blk_depth[STKMAX+1];
+    int leaf_depth = -1,unbalanced = FALSE;
+    char key[ZKYLEN];
+
+    
+    bterr("",0,NULL);
+    if ((ioerr=bvalap("BTKEYS",b)) != 0) return(ioerr);
+
+    if (btact->shared) {
+        if (!block()) {
+            bterr("BTKEYS",QBUSY,NULL);
+            goto fin;
+        }
+    }
+    
+    btact = b;          /* set context pointer */
+    
+    if (btact->idxunt == NULL) {
+        bterr("BTKEYS",QNOBTF,NULL);
+        goto fin;
+    }
+
+    for (idx=0;idx<=STKMAX;idx++) blk_depth[idx] = 0;
+    
+    tblks = 0; tnkeys = 0; blkno = ZNULL;
+    do {
+        int depth,nkeys;
+        bnxtbk(&blkno);
+        depth =  btstk_depth()/2;
+        tblks++;
+        blk_depth[depth]++;
+        ioerr = brdblk(blkno,&idx);
+        nkeys = bgtinf(blkno,ZNKEYS);
+        if (nkeys == 0 && empty_blk == ZNULL) {
+            if (bgtinf(blkno,ZBTYPE) != ZROOT) empty_blk = blkno;
+            continue;
+        }
+        bsrhbk(blkno,key,&loc,&val,&link1,&link2,&result);
+        if (link1 == ZNULL) {
+            if (leaf_depth < 0) {
+                leaf_depth = depth;
+            }
+            else if (leaf_depth != depth) {
+                unbalanced = TRUE;
+                if (depth > leaf_depth) leaf_depth = depth;
+            }
+        }
+        tnkeys += nkeys;
+    } while (blkno != btact->cntxt->super.scroot);
+
+    if (stats) {
+        printf("Block stats:\n");
+        if (empty_blk != ZNULL) {
+            printf("At least one non-root block has no keys.  "
+                   "First encountered was " ZINTFMT "\n",empty_blk);
+        }
+        printf("Index balanced: %s\n",(unbalanced)?"NO":"YES");
+        printf("Max leaf depth: %d\n",leaf_depth);
+        printf("Depth   Number\n");
+        for (idx=0;idx<=leaf_depth;idx++) {
+            printf("%5d %8d\n",idx,blk_depth[idx]);
+        }       
+    }
+    
+  fin:
+    return tnkeys;
 }

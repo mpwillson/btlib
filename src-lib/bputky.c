@@ -10,7 +10,7 @@
  *    link1  left link pointer
  *    link2  right link pointer
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
  * This file is part of the B Tree library.
  *
@@ -36,15 +36,19 @@
 #include "bt.h"
 #include "btree_int.h"
 
+/* #undef DEBUG */
+/* #define DEBUG 2 */
+
 int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
 {
     int i,idx,ioerr;
+    int nkeys;
     char lkey[ZKYLEN];
     
 #if DEBUG >= 1
     fprintf(stderr,
             "bputky: blk = " ZINTFMT ", key = %s, val = " 
-            ZINTFMT ", link1 = " ZINTFMT ", link2 = " ZINTFMT "\n",
+             ZINTFMT ", link1 = " ZINTFMT ", link2 = " ZINTFMT "\n",
             blk,key,val,link1,link2);
 #endif
     ioerr = brdblk(blk,&idx);
@@ -55,33 +59,47 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
         /* get local copy of key, truncated if necessary */
         strncpy(lkey,key,ZKYLEN);
         lkey[ZKYLEN-1] = '\0';
-        if (((btact->memrec)+idx)->infblk[ZNKEYS] == ZMXKEY) {
+        nkeys = ((btact->memrec)+idx)->infblk[ZNKEYS];
+        if (nkeys == ZMXKEY) {
             bterr("BPUTKY",QBLKFL,itostr(blk));
             goto fin;
         }
-        if (((btact->memrec)+idx)->infblk[ZNKEYS] == 0) {
+        if (nkeys == 0) {
             /* block empty */
             strcpy(((btact->memrec)+idx)->keyblk[0],lkey);
             ((btact->memrec)+idx)->valblk[0] = val;
             ((btact->memrec)+idx)->lnkblk[0] = link1;
             ((btact->memrec)+idx)->lnkblk[1] = link2;
         }
-        else {  
-            for (i=((btact->memrec)+idx)->infblk[ZNKEYS];i>0;i--) {
-                if (strcmp(key,((btact->memrec)+idx)->keyblk[i-1]) < 0) {
-                    /* move info to make room */
-                    strcpy(((btact->memrec)+idx)->keyblk[i],
-                        ((btact->memrec)+idx)->keyblk[i-1]);
-                    ((btact->memrec)+idx)->valblk[i] = 
-                        ((btact->memrec)+idx)->valblk[i-1];
-                    ((btact->memrec)+idx)->lnkblk[i+1] = 
-                        ((btact->memrec)+idx)->lnkblk[i];
-                }
-                else break;
+        else {
+            if (link1 == ZNULL && link2 != ZNULL) {
+                /* inserting demoted key at end of block */
+                i = nkeys;
             }
+            else {
+                for (i=((btact->memrec)+idx)->infblk[ZNKEYS];i>0;i--) {
+                    /* ensure duplicate key is always inserted at front of
+                       set so key promotion works */
+                    if (strcmp(key,((btact->memrec)+idx)->keyblk[i-1]) <= 0) {
+                        /* move info to make room */
+                        strcpy(((btact->memrec)+idx)->keyblk[i],
+                               ((btact->memrec)+idx)->keyblk[i-1]);
+                        ((btact->memrec)+idx)->valblk[i] = 
+                            ((btact->memrec)+idx)->valblk[i-1];
+                        ((btact->memrec)+idx)->lnkblk[i+1] = 
+                            ((btact->memrec)+idx)->lnkblk[i];
+                    }
+                    else break;
+                }
+            }
+#if DEBUG >= 1
+            fprintf(stderr,"BPUTKY: inserting new key at pos %d\n",i);
+#endif
             /* move left link if inserting in first position */
-            if (i == 0) ((btact->memrec)+idx)->lnkblk[1] = 
-                ((btact->memrec)+idx)->lnkblk[0];
+            if (i == 0) {
+                ((btact->memrec)+idx)->lnkblk[1] = 
+                    ((btact->memrec)+idx)->lnkblk[0];
+            }
             strcpy(((btact->memrec)+idx)->keyblk[i],lkey);
             ((btact->memrec)+idx)->valblk[i] = val;
             if (link1 == ZNULL && link2 == ZNULL) {

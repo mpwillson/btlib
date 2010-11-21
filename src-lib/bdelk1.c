@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: bdelk1.c,v 1.9 2010-11-02 21:46:50 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -71,6 +71,10 @@ int bdelk1(char *key)
         llink = ZNULL;
     }
     bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
+#if DEBUG >= 2
+    printf("BDELK1: After bremky; lfblk: " ZINTFMT ", lfpos: %d\n",
+           btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
+#endif
 
     type = bgtinf(btact->cntxt->lf.lfblk,ZBTYPE);
     if (type == ZROOT) goto fin;

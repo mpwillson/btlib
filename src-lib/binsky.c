@@ -1,5 +1,5 @@
 /*
- * $Id: binsky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: binsky.c,v 1.8 2010-11-07 21:01:27 mark Exp $
  *
  *
  * binsky:  inserts key into index (duplicates not permitted)
@@ -37,9 +37,8 @@
 int binsky(BTA *b, char *key,BTint val)
 {
     BTint lval,dups_allowed;
-    int status,l;
+    int status;
     char lkey[ZKYLEN+1];
-    char dup_suffix [] = { '\001', '\000'};
 
     bterr("",0,NULL);
     if ((status=bvalap("BINSKY",b)) != 0) return(status);
@@ -59,17 +58,12 @@ int binsky(BTA *b, char *key,BTint val)
     else {
         dups_allowed = bgtinf(btact->cntxt->super.scroot,ZMISC);
         strncpy(lkey,key,ZKYLEN);
-        if (dups_allowed) {
-            /* make search key next in sorting sequence to ensure
-               index is positioned correctly for insertion of dup
-               key. */
-            lkey[ZKYLEN-1] = '\0';
-            strcat(lkey,dup_suffix);
-        }
+        lkey[ZKYLEN-1] = '\0';
         status = bfndky(b,lkey,&lval);
         if (status == QNOKEY || (status == 0 && dups_allowed)) {
             /* QNOKEY is not an error in this context; remove it */
             bterr("",0,NULL);
+            if (status == 0) bleaf(1);
             bputky(btact->cntxt->lf.lfblk,key,val,ZNULL,ZNULL);
         }
         else {
