@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: butil.c,v 1.7 2010-11-21 15:04:28 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
@@ -34,7 +34,8 @@ char* itostr(BTint v)
 }
 
 /* Checks structure of index file, from current root.  Returns number
- * of keys found. */
+ * of keys found or ZNULL if structure is damaged (either empty blocks
+ * that are non-root, or inconsistent leaf depth). */
 BTint btkeys(BTA* b,int stats)
 {
     BTint tblks = 0,
@@ -108,5 +109,5 @@ BTint btkeys(BTA* b,int stats)
     }
     
   fin:
-    return tnkeys;
+    return (empty_blk != ZNULL || unbalanced)?ZNULL:tnkeys;
 }

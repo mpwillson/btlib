@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.28 2010-11-07 21:01:27 mark Exp $
+ * $Id: bt.c,v 1.29 2010-11-21 15:04:28 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -461,7 +461,7 @@ int define_key(CMDBLK* c)
 
 int show_debug(CMDBLK* c)
 {
-    return bdbug(btp,c->arg,c->qual_int);
+    return bdbug(btp,c->arg,(strcmp(c->qualifier,"v")==0)?ZNULL:c->qual_int);
 }
 
 int next_key(CMDBLK* c)
@@ -857,6 +857,8 @@ int chk_order(CMDBLK* c)
     BTint val;
     char key[ZKYLEN], last_key[ZKYLEN];
 
+    if (strcmp(c->qualifier,"s") == 0) btpos(btp,ZSTART);
+
     strcpy(last_key,"");
     while (status == 0) {
         status = bnxtky(btp,key,&val);
@@ -886,7 +888,9 @@ CMDENTRY bt_cmds[] = {
   { "buffer-delete","bd",buffer_delete,"b",1,"Delete data buffer named b." },
   { "buffer-list","bl",buffer_list,"",0,"List defined data buffers." },
   { "change-root","cr",change_root,"root",1,"Change to named root." },
-  { "check-order","co",chk_order,"[c]",0,"Check lexicographic key ordering." },
+  { "check-order","co",chk_order,"[c] [s]",0,"Check lexicographic key "
+    "ordering. c causes the number keys read to be displayed.  "
+    "s qualifier positions before first key prior to checking key order."},
   { "close","x",close_file,"",0,"Close current index file." },
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",0,"Create index file. s qualifier "
@@ -943,7 +947,7 @@ CMDENTRY bt_cmds[] = {
   { "remove-data","rd",remove_data,"key",1,"Remove key and associated data." },
   { "remove-root","rr",remove_root,"root",1,"Remove root." },
   { "show","s",show_debug,"arg",0,"Show debug info. arg one of "
-    "control,super,stats,space,stack,block n." },
+    "control,super,stats,space,stack,structure [v], block n." },
   { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
   { "system","!",btcmd_system,"string",0,"Run shell command."},
   { "unlock","ulk",unlock_file,"",0,"Unlock current index file." },
