@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.22 2010-11-02 21:46:50 mark Exp $
+ * $Id: btdata.c,v 1.23 2010-11-07 21:01:27 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -169,7 +169,8 @@ fin:
  * key in the btree database.
  *
  *      BTA *b      btree context handle
- *      char *key   pointer to key string
+ *      char *key   pointer to key string.  If NULL, current key
+ *                  update is assumed
  *      char *data  pointer to data
  *      int dsize   size of data record (in bytes)
  *
@@ -181,7 +182,9 @@ int btupd(BTA *b,char *key, char *data, int dsize)
 {
     BTint draddr;
     int status, result;
-
+    BTint link1,link2;
+    char lkey[ZKYLEN];
+    
     bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
 
@@ -203,10 +206,25 @@ int btupd(BTA *b,char *key, char *data, int dsize)
             goto fin;
         }
     }
-
-    /* find key in btree */
-    status = bfndky(btact,key,&draddr);
-    if (status != 0) goto fin;
+    if (key == NULL) {
+        if (!context_ok("BTUPD")) {
+            goto fin;
+        }
+        else {
+            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
+                   &draddr,&link1,&link2,&result);
+            if (result != 0 ) {
+                bterr("BTUPD",QBADCTXT,NULL);
+                goto fin;
+            }
+            status = 0;
+        }
+    }
+    else {
+        /* find key in btree */
+        status = bfndky(b,key,&draddr);
+        if (status != 0) goto fin;
+    }
 
     /* update data in btree */
     status = bupddt(draddr,data,dsize);
@@ -285,7 +303,9 @@ int btdel(BTA *b,char *key)
 {
     BTint draddr;
     int status, result;
-
+    BTint link1,link2;
+    char lkey[ZKYLEN];
+    
     bterr("",0,NULL);
     if ((result=bvalap("BTDEL",b)) != 0) return(result);
 
@@ -303,20 +323,35 @@ int btdel(BTA *b,char *key)
         }
     }
 
-    /* find key in btree */
-    status = bfndky(btact,key,&draddr);
-    if (status != 0) goto fin;
-
+    if (key == NULL) {
+        if (!context_ok("BTUPD")) {
+            goto fin;
+        }
+        else {
+            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
+                   &draddr,&link1,&link2,&result);
+            if (result != 0 ) {
+                bterr("BTUPD",QBADCTXT,NULL);
+                goto fin;
+            }
+        }
+    }
+    else {
+        /* find key in btree */
+        status = bfndky(btact,key,&draddr);
+        if (status != 0) goto fin;
+    }
     /* delete data record first */
     status = bdeldt(draddr);
     if (status == 0) {
-        status = bdelky(btact,key);
+        status = bdelky(btact,NULL);
     }
 
 fin:
     if (btact->shared) bulock();
     return(btgerr());
 }
+
 
 /*------------------------------------------------------------------------
  * btseln will return the next key and data record following a
@@ -410,8 +445,9 @@ fin:
 
 int btrecs(BTA *b, char *key, int *rsize)
 {
-    BTint draddr;
+    BTint draddr,link1,link2;
     int status, result;
+    char lkey[ZKYLEN];
 
     bterr("",0,NULL);
     if ((result=bvalap("BTRECS",b)) != 0) return(result);
@@ -429,9 +465,25 @@ int btrecs(BTA *b, char *key, int *rsize)
             goto fin;
         }
     }
- 
-    status = bfndky(btact,key,&draddr);
-    if (status != 0) goto fin;
+    if (key == NULL) {
+        if (!context_ok("BTUPD")) {
+            goto fin;
+        }
+        else {
+            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
+                   &draddr,&link1,&link2,&result);
+            if (result != 0 ) {
+                bterr("BTUPD",QBADCTXT,NULL);
+                goto fin;
+            }
+            status = 0;
+        }
+    }
+    else {
+        /* find key in btree */
+        status = bfndky(b,key,&draddr);
+        if (status != 0) goto fin;
+    }
 
     *rsize = brecsz(draddr);
 

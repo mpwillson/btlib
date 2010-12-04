@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.7 2010-07-23 10:41:57 mark Exp $
+ * $Id: btcmd.c,v 1.8 2010-08-22 15:40:16 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -71,6 +71,8 @@
 #include <stdlib.h>
 #include <sys/stat.h> 
 #include <string.h>
+#include <signal.h>
+#include <setjmp.h>
 
 #ifdef READLINE
 #include <readline/readline.h>
@@ -96,6 +98,14 @@ char cmd[MAXBUFSZ+1];
 char arg[MAXBUFSZ+1];
 char qual[MAXBUFSZ+1];
 char all[MAXBUFSZ+1];
+
+/* Setup for handling interrupts */
+jmp_buf env;
+
+void break_handler (int sig)
+{
+    longjmp(env,1);
+}
 
 /* forward declaration of local_cmds (for help) */
 CMDENTRY local_cmds[];
@@ -421,7 +431,15 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
     if (input == NULL) input = stdin;
     current_app_cmds = app_cmds;
     cblk.function = NULL;
-    
+
+    /* catch interrupts and always return here */
+    if (setjmp(env) == 0) {
+        signal(SIGINT,break_handler);
+    }
+    else {
+        while (input != stdin) btcmd_close_execute(&cblk);
+        fflush(stdout);
+    }
     while (status >= 0) {
         if (rlbuf != NULL) {
             free(rlbuf);
@@ -485,6 +503,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
             }   
         }
     }
+    signal(SIGINT,SIG_DFL);
     return;
 }
 

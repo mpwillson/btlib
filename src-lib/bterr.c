@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.20 2010-07-01 09:43:51 mark Exp $
+ * $Id: bterr.c,v 1.21 2010-11-07 21:01:27 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -71,7 +71,7 @@ char *msgblk[] = {
     " Balance: search for key failed",
     " Exact flag not set for delete",
     " Internal inconsistency in delete operation",
-    " Search for deleted key replacement failed",
+    " Search for deleted key replacement failed (in block %s)",
     " Demote search failed",
     " Demote split failed",
     " Join search failed",
@@ -88,7 +88,7 @@ char *msgblk[] = {
     " No block available for data storage",
     " Data block usage gone bad: %s",
     " Data segment header references a non-data block: %s",
-    " Unused",
+    " Index context invalid for current key operation",
     " Circular data segment pointer encountered",
     " Unlock operation failed",
     " LRU queue corrupt - index not in list",

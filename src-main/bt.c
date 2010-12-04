@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.29 2010-11-21 15:04:28 mark Exp $
+ * $Id: bt.c,v 1.30 2010-11-21 20:51:52 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <signal.h>
-#include <setjmp.h>
 #include "bc.h"
 #include "bt.h"
 #include "btree.h"
@@ -62,14 +60,6 @@ BTA *btp = NULL;
 #define DATABUFSZ 80
 
 int suppress_error_msg = FALSE;
-
-/* Setup for handling interrupts */
-jmp_buf env;
-
-void break_handler (int sig)
-{
-    longjmp(env,1);
-}
 
 /* save string in a safe place */
 char *strsave(char *s)
@@ -560,6 +550,14 @@ int remove_key(CMDBLK* c)
     return status;
 }
 
+int remove_key_current(CMDBLK* c)
+{
+    int status;
+    
+    status = bdelky(btp,NULL); 
+    return status;
+}
+
 int define_root(CMDBLK* c)
 {
     int status;
@@ -706,7 +704,7 @@ int find_data(CMDBLK* c)
 
 int update_data(CMDBLK* c)
 {
-    int status;
+    int status = 0;
     struct bt_blist *blk;
     
     if ((c->qualifier)[0] == '*') {
@@ -717,10 +715,33 @@ int update_data(CMDBLK* c)
         else {
             fprintf(stdout,"No such data buffer: %s\n",(c->qualifier)+1);
             suppress_error_msg = TRUE;
+            status = 1;
         }
     }
     else {
         status = btupd(btp,c->arg,c->qualifier,strlen(c->qualifier));
+    }
+    return status;
+}
+
+int update_data_current(CMDBLK* c)
+{
+    int status = 0;
+    struct bt_blist *blk;
+    
+    if ((c->arg)[0] == '*') {
+        blk = get_data((c->arg)+1);
+        if (blk != NULL) {
+            status = btupd(btp,NULL,blk->bptr,blk->size);
+        }
+        else {
+            fprintf(stdout,"No such data buffer: %s\n",(c->arg)+1);
+            suppress_error_msg = TRUE;
+            status = 1;
+        }
+    }
+    else {
+        status = btupd(btp,NULL,c->arg,strlen(c->arg));
     }
     return status;
 }
@@ -730,11 +751,22 @@ int remove_data(CMDBLK* c)
     return btdel(btp,c->arg);
 }
 
+int remove_data_current(CMDBLK* c)
+{
+    return btdel(btp,NULL);
+}
+
 int size_data(CMDBLK* c)
 {
     int status, size;
+
+    if (strcmp(c->arg,"") == 0) {
+        status = btrecs(btp,NULL,&size);
+    }
+    else {
+        status = btrecs(btp,c->arg,&size);
+    }
     
-    status = btrecs(btp,c->arg,&size);
     if (status == 0) {
         printf("Key '%s' record size: %d bytes\n",c->arg,size);
     }
@@ -821,6 +853,14 @@ int update_value(CMDBLK* c)
     return status;
 }
 
+int update_value_current(CMDBLK* c)
+{
+    int status;
+    
+    status = bupdky(btp,NULL,strtol(c->arg,NULL,10)); /* only int update! */
+    return status;
+}
+
 int decode_addr(CMDBLK* c)
 {
     int status;
@@ -857,7 +897,10 @@ int chk_order(CMDBLK* c)
     BTint val;
     char key[ZKYLEN], last_key[ZKYLEN];
 
-    if (strcmp(c->qualifier,"s") == 0) btpos(btp,ZSTART);
+    if (strcmp(c->qualifier,"s") == 0 || strcmp(c->arg,"s") == 0) {   
+        btpos(btp,ZSTART);
+    }
+    
 
     strcpy(last_key,"");
     while (status == 0) {
@@ -865,14 +908,17 @@ int chk_order(CMDBLK* c)
         if (status == 0) {
             count++;
             if (strcmp(last_key,key) > 0) {
-                printf("Index disordered at %s, %s.\n",last_key,key);
+                printf("Index disordered at %s: found %s next.\n",last_key,key);
                 suppress_error_msg = TRUE;
                 status = 1;
             }
             strcpy(last_key,key);
         }
     }
-    if (strcmp(c->arg,"c") == 0) printf("%d keys checked\n",count);
+    if (strcmp(c->arg,"c") == 0 || strcmp(c->qualifier,"c") == 0) {
+        printf("%d keys checked\n",count);
+    }
+    
     return ((status==0||status==QNOKEY)?0:status);
 }
 
@@ -944,17 +990,29 @@ CMDENTRY bt_cmds[] = {
     "Toggle prompting before reading command."},
   { "quit","q",quit,"",0,"Quit bt program." },
   { "remove","r",remove_key,"key",1,"Remove key." },
+  { "remove-curr","rc",remove_key_current,"",0,"Remove key at current "
+    "index postion." },
   { "remove-data","rd",remove_data,"key",1,"Remove key and associated data." },
+  { "remove-data-curr","rdc",remove_data_current,"",0,"Remove current key from "
+    "context, and associated data." },
   { "remove-root","rr",remove_root,"root",1,"Remove root." },
   { "show","s",show_debug,"arg",0,"Show debug info. arg one of "
     "control,super,stats,space,stack,structure [v], block n." },
-  { "size-data","sd",size_data,"key",1,"Display size of data record for key." },
+  { "size-data","sd",size_data,"[key]",0,"Display size of data record for "
+    "key. If key omitted, returns data record size for current key in "
+    "context." },
   { "system","!",btcmd_system,"string",0,"Run shell command."},
   { "unlock","ulk",unlock_file,"",0,"Unlock current index file." },
   { "update-data","ud",update_data,"key [s|*b]",0,
-    "Update data associated with key using string s or contents of data buffer *b." },
+    "Update data associated with key using string s or contents of data "
+    "buffer *b.  If both omitted, update uses zero-length string." },
+  { "update-data-curr","udc",update_data_current,"{s|*b}",1,
+    "Update data associated with current key in context, using string s or "
+    "contents of data buffer *b." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "
     "to val." },
+  { "update-value-curr","uvc",update_value_current,"val",1,"Update "
+    "value of current key in context to val." },
   { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
   { "","",unknown_command,"",0,"Unknown command found"}
 };
@@ -985,15 +1043,9 @@ int main(int argc,char *argv[])
         return EXIT_FAILURE;
     }
     else {
-        /* catch interrupts and always return here */
-        setjmp(env);
-        signal(SIGINT,break_handler);
-        fflush(stdout);
-    
         /* read commands from command stream */
         btcmd(ps,bt_cmds,report_error);
 
-        signal(SIGINT,SIG_DFL);
         shutdown();
     }
     return EXIT_SUCCESS;

@@ -1,5 +1,5 @@
 /*
- * $Id: balbk1.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: balbk1.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  * balbk1: balances keys between blocks 
  *
@@ -37,11 +37,14 @@
 #include "bt.h"
 #include "btree_int.h"
 
+/* #undef DEBUG  */
+/* #define DEBUG 1 */
+
 void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
 {
 
     BTint tblk,fblk,tval,link1,link2;
-    int i,dir,keypos,result,limit;
+    int i,dir,keypos,result,limit,ppos;
     char tkey[ZKYLEN];
 
 #if DEBUG >= 1
@@ -63,9 +66,8 @@ void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
         keypos = bgtinf(fblk,ZNKEYS)-1;
         limit = keypos-abs(diff/2);
     }
-    /* move parent key into to block */
+    /* copy parent key into to block, will be overwritten later */
     bputky(tblk,key,val,ZNULL,ZNULL);
-    bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
     /* move keys from fblk to tblk */
     for (i=keypos;i!=limit;i+=dir) {
         bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
@@ -84,7 +86,10 @@ void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
         bterr("BALBK1",QBALSE,NULL);
         goto fin;
     }
-    bputky(btact->cntxt->lf.lfblk,tkey,tval,lblk,rblk);
+    /* replace parent key; lfpos can be == nkeys as set by bleaf(1) */
+    ppos = (btact->cntxt->lf.lfpos==bgtinf(btact->cntxt->lf.lfblk,ZNKEYS))?
+        btact->cntxt->lf.lfpos-1:btact->cntxt->lf.lfpos;
+    brepky(btact->cntxt->lf.lfblk,ppos,tkey,tval,lblk,rblk);
     bremky(fblk,keypos);
     btact->cntxt->stat.xbal++;
 fin:

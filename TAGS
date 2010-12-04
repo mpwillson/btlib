@@ -7,7 +7,7 @@ int bacini(35,1108
 void initcntrl(59,1642
 
 src-lib/balbk1.c,21
-void balbk1(40,1289
+void balbk1(43,1332
 
 src-lib/balblk.c,21
 void balblk(30,1006
@@ -128,33 +128,33 @@ BTA *btcrt(btcrt46,1444
 src-lib/btcrtr.c,20
 int btcrtr(37,1175
 
-src-lib/btdata.c,594
+src-lib/btdata.c,595
 int btins(107,4086
-int btupd(180,5928
-int btsel(234,7342
-int btdel(284,8536
-int btseln(327,9526
-int btselp(369,10551
-int btrecs(411,11604
-int bseldt(461,12883
-int bdeldt(510,14122
-int bupddt(541,15025
-BTint binsdt(624,17647
-int deldat(696,19762
-int insdat(743,21238
-int brecsz(770,22099
-BTint mkdblk(810,23258
-int rdsz(835,24001
-BTint rdint(844,24100
-void wrsz(855,24253
-void wrint(864,24354
-BTint offsetmask;873,24472
-int offsetwidth;875,24595
-void setaddrsize(883,24970
-void cnvdraddr(896,25350
-BTint mkdraddr(907,25718
-int getseginfo(918,26059
-int dataok(942,26667
+int btupd(181,5989
+int btsel(252,7866
+int btdel(302,9060
+int btseln(362,10495
+int btselp(404,11520
+int btrecs(446,12573
+int bseldt(513,14327
+int bdeldt(562,15566
+int bupddt(593,16469
+BTint binsdt(676,19091
+int deldat(748,21206
+int insdat(795,22682
+int brecsz(822,23543
+BTint mkdblk(862,24702
+int rdsz(887,25445
+BTint rdint(896,25544
+void wrsz(907,25697
+void wrint(916,25798
+BTint offsetmask;925,25916
+int offsetwidth;927,26039
+void setaddrsize(935,26414
+void cnvdraddr(948,26794
+BTint mkdraddr(959,27162
+int getseginfo(970,27503
+int dataok(994,28111
 
 src-lib/btdelr.c,20
 int btdelr(37,1213
@@ -169,10 +169,10 @@ static char qarg[qarg45,1442
 static int syserror;46,1470
 static char qname[qname48,1492
 char *msgblk[msgblk50,1520
-#define MSGBLKMAX 111,3937
-void btcerr(113,3999
-void bterr(166,5200
-int btgerr(191,5755
+#define MSGBLKMAX 111,3992
+void btcerr(113,4054
+void bterr(166,5255
+int btgerr(191,5810
 
 src-lib/btinit.c,69
 BTA btat[btat32,1081
@@ -203,10 +203,11 @@ int btstk_depth(73,1720
 src-lib/bupdky.c,20
 int bupdky(37,1165
 
-src-lib/butil.c,72
-static char buf[buf27,967
-char* itostr(30,1018
-BTint btkeys(39,1284
+src-lib/butil.c,97
+static char buf[buf27,973
+char* itostr(30,1024
+BTint btkeys(39,1290
+int context_ok(116,3432
 
 src-lib/bvalap.c,20
 int bvalap(33,1108
@@ -221,7 +222,7 @@ src-lib/bxdump.c,128
 static char *charset charset39,1166
 void bxdump(49,1338
 
-inc/bc.h,2598
+inc/bc.h,2600
 #define _btconst_24,904
 typedef long long BTint;28,1024
 #define BTINT_MAX 29,1049
@@ -310,23 +311,23 @@ typedef int BTint;34,1164
 #define QNOBLK 225,5207
 #define QNEGSZ 226,5226
 #define QNOTDA 227,5245
-#define QNOOPN 228,5264
-#define QDLOOP 230,5297
-#define QUNLCK 231,5316
-#define QLRUER 232,5335
-#define QDAERR 233,5354
-#define QDNEG 235,5374
-#define QDUP 236,5393
-#define QNOKEY 237,5412
-#define QNOWRT 238,5431
-#define QNOTFR 240,5451
-#define QBADVR 241,5470
-#define QDAOVR 242,5489
-#define QF2BIG 243,5508
-#define QBADAL 245,5528
-#define QDRANEG 246,5547
-#define QBLKSZERR 248,5567
-#define QNODUPS 249,5588
+#define QBADCTXT 228,5264
+#define QDLOOP 230,5286
+#define QUNLCK 231,5305
+#define QLRUER 232,5324
+#define QDAERR 233,5343
+#define QDNEG 235,5363
+#define QDUP 236,5382
+#define QNOKEY 237,5401
+#define QNOWRT 238,5420
+#define QNOTFR 240,5440
+#define QBADVR 241,5459
+#define QDAOVR 242,5478
+#define QF2BIG 243,5497
+#define QBADAL 245,5517
+#define QDRANEG 246,5536
+#define QBLKSZERR 248,5556
+#define QNODUPS 249,5577
 
 inc/bt.h,1877
 #define _btheader_26,935
@@ -418,121 +419,125 @@ void break_handler 66,2001
 void print_error(73,2084
 int main(83,2301
 
-src-main/bt.c,1889
-struct bt_plist 40,1344
-    char *fid;fid41,1362
-    BTA *b;b42,1377
-    struct bt_plist *next;next43,1389
-struct bt_plist *phead phead46,1420
-struct bt_blist 49,1506
-    char *name;name50,1524
-    char *bptr;bptr51,1540
-    char *fn;fn52,1556
-    int size;53,1570
-    struct bt_blist *next;next54,1584
-struct bt_blist *bhead bhead57,1615
-BTA *btp btp59,1647
-#define EMPTY 61,1665
-#define DATABUFSZ 62,1682
-int suppress_error_msg 64,1704
-jmp_buf env;67,1773
-void break_handler 69,1787
-char *strsave(strsave75,1875
-int add(89,2125
-BTA *get(get106,2482
-int del(119,2719
-int add_data(143,3130
-struct bt_blist *get_data(get_data169,3734
-int del_data(182,3955
-#define BUFSZ 207,4456
-struct bt_blist *cpfm(cpfm210,4525
-void add_data_file(276,6226
-void free_buffers(289,6443
-int buffer_create(306,6764
-int buffer_delete(325,7185
-int buffer_list(336,7387
-int create_file(354,7703
-int open_file(369,7933
-int quit(384,8160
-void shutdown(390,8244
-int close_file(407,8564
-int find_key(432,9158
-int define_key(447,9442
-int show_debug(462,9713
-int next_key(467,9822
-int list(484,10136
-int list_keys(502,10546
-int prev_key(520,10936
-int list_keys_prev(537,11250
-int remove_key(555,11670
-int define_root(563,11775
-int change_root(575,12009
-int remove_root(587,12246
-int file_list(600,12516
-int use_file(612,12711
-int define_data(644,13479
-int find_data(666,14024
-int update_data(707,15078
-int remove_data(728,15582
-int size_data(733,15644
-int list_data(744,15852
-int list_data_prev(761,16240
-int next_data(778,16633
-int previous_data(792,16937
-int lock_file(806,17245
-int unlock_file(811,17299
-int update_value(816,17357
-int decode_addr(824,17498
-int dups(840,17844
-int pos(845,17917
-int chk_order(853,18033
-int unknown_command(879,18723
-CMDENTRY bt_cmds[bt_cmds885,18843
-void report_error(962,23277
-int main(979,23610
+src-main/bt.c,1980
+struct bt_plist 38,1304
+    char *fid;fid39,1322
+    BTA *b;b40,1337
+    struct bt_plist *next;next41,1349
+struct bt_plist *phead phead44,1380
+struct bt_blist 47,1466
+    char *name;name48,1484
+    char *bptr;bptr49,1500
+    char *fn;fn50,1516
+    int size;51,1530
+    struct bt_blist *next;next52,1544
+struct bt_blist *bhead bhead55,1575
+BTA *btp btp57,1607
+#define EMPTY 59,1625
+#define DATABUFSZ 60,1642
+int suppress_error_msg 62,1664
+char *strsave(strsave65,1731
+int add(79,1981
+BTA *get(get96,2338
+int del(109,2575
+int add_data(133,2986
+struct bt_blist *get_data(get_data159,3590
+int del_data(172,3811
+#define BUFSZ 197,4312
+struct bt_blist *cpfm(cpfm200,4381
+void add_data_file(266,6082
+void free_buffers(279,6299
+int buffer_create(296,6620
+int buffer_delete(315,7041
+int buffer_list(326,7243
+int create_file(344,7559
+int open_file(359,7789
+int quit(374,8016
+void shutdown(380,8100
+int close_file(397,8420
+int find_key(422,9014
+int define_key(437,9298
+int show_debug(452,9569
+int next_key(457,9678
+int list(474,9992
+int list_keys(492,10402
+int prev_key(510,10792
+int list_keys_prev(527,11106
+int remove_key(545,11526
+int remove_key_current(553,11631
+int define_root(561,11742
+int change_root(573,11976
+int remove_root(585,12213
+int file_list(598,12483
+int use_file(610,12678
+int define_data(642,13446
+int find_data(664,13991
+int update_data(705,15045
+int update_data_current(727,15577
+int remove_data(749,16083
+int remove_data_current(754,16145
+int size_data(759,16213
+int list_data(776,16524
+int list_data_prev(793,16912
+int next_data(810,17305
+int previous_data(824,17609
+int lock_file(838,17917
+int unlock_file(843,17971
+int update_value(848,18029
+int update_value_current(856,18170
+int decode_addr(864,18328
+int dups(880,18674
+int pos(885,18747
+int chk_order(893,18863
+int unknown_command(925,19669
+CMDENTRY bt_cmds[bt_cmds931,19789
+void report_error(1020,24874
+int main(1037,25207
 
-src-main/btcmd.c,1053
+src-main/btcmd.c,1105
 #define TRUE 67,2563
 #define FALSE 68,2578
-#define MAXBUFSZ 82,2783
-#define MAXDESCSZ 83,2804
-int echo 85,2827
-int stop_on_error 86,2845
-int issue_prompt 88,2873
-int svp;89,2898
-FILE* input 90,2907
-CMDBLK cblk;93,2984
-char svcmd[svcmd94,2997
-char cmd[cmd95,3021
-char arg[arg96,3043
-char qual[qual97,3065
-char all[all98,3088
-CMDENTRY local_cmds[local_cmds101,3162
-CMDENTRY* current_app_cmds;103,3244
-#define CMDFILEMAX 106,3332
-FILE* cmdinput[cmdinput108,3354
-int cmdtop 109,3382
-int pushcf(111,3399
-FILE* pullcf(122,3555
-char* strbrk(134,3790
-void display_help(149,4039
-int btcmd_noop(191,5393
-int btcmd_prompt(195,5438
-int btcmd_execute(201,5519
-int btcmd_close_execute(224,6064
-int btcmd_system(238,6336
-int btcmd_comment(244,6403
-int btcmd_help(249,6451
-int btcmd_echo(255,6539
-int btcmd_error(269,6790
-CMDENTRY local_cmds[local_cmds285,7156
-char* non_ws(300,7870
-int tty_input(308,7979
-void rl_history(323,8374
-int tokenise(333,8525
-void bad_args(364,9424
-void find_cmd(370,9526
-void btcmd(413,10815
+#define MAXBUFSZ 84,2823
+#define MAXDESCSZ 85,2844
+int echo 87,2867
+int stop_on_error 88,2885
+int issue_prompt 90,2913
+int svp;91,2938
+FILE* input 92,2947
+CMDBLK cblk;95,3024
+char svcmd[svcmd96,3037
+char cmd[cmd97,3061
+char arg[arg98,3083
+char qual[qual99,3105
+char all[all100,3128
+jmp_buf env;103,3187
+void break_handler 105,3201
+CMDENTRY local_cmds[local_cmds111,3306
+CMDENTRY* current_app_cmds;113,3388
+#define CMDFILEMAX 116,3476
+FILE* cmdinput[cmdinput118,3498
+int cmdtop 119,3526
+int pushcf(121,3543
+FILE* pullcf(132,3699
+char* strbrk(144,3934
+void display_help(159,4183
+int btcmd_noop(201,5537
+int btcmd_prompt(205,5582
+int btcmd_execute(211,5663
+int btcmd_close_execute(234,6208
+int btcmd_system(248,6480
+int btcmd_comment(254,6547
+int btcmd_help(259,6595
+int btcmd_echo(265,6683
+int btcmd_error(279,6934
+CMDENTRY local_cmds[local_cmds295,7300
+char* non_ws(310,8014
+int tty_input(318,8123
+void rl_history(333,8518
+int tokenise(343,8669
+void bad_args(374,9568
+void find_cmd(380,9670
+void btcmd(423,10959
 
 src-main/kcp.c,139
 #define SUPER 63,2285

@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.9 2010-11-02 21:46:50 mark Exp $
+ * $Id: bdelk1.c,v 1.10 2010-11-21 15:04:28 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -41,17 +41,20 @@ int bdelk1(char *key)
     int result,pos,type;
     char tkey[ZKYLEN];
 
-    if (!btact->cntxt->lf.lfexct) {
-        bterr("BDELK1",QDELEX,NULL);
-        goto fin;
-    }
+    /* if (!btact->cntxt->lf.lfexct) { */
+    /*     bterr("BDELK1",QDELEX,NULL); */
+    /*     goto fin; */
+    /* } */
     pos = btact->cntxt->lf.lfpos;
     blk = btact->cntxt->lf.lfblk;
     bsrhbk(blk,tkey,&pos,&val,&llink,&rlink,&result);
-    if (result != 0 || strcmp(tkey,key) != 0) {
-        bterr("BDELK1",QDELER,NULL);
-        goto fin;
+    if (key != NULL) {
+        if (result != 0 || strcmp(tkey,key) != 0) {
+            bterr("BDELK1",QDELER,NULL);
+            goto fin;
+        }
     }
+    
     if (llink != ZNULL) {
         /* key not in leaf block, get rightmost leaf key to replace
          * deleted key */
@@ -64,7 +67,7 @@ int bdelk1(char *key)
         bsrhbk(btact->cntxt->lf.lfblk,tkey,&(btact->cntxt->lf.lfpos),
                &val,&link1,&link2,&result);
         if (result != 0) {
-            bterr("BDELK1",QDELRP,NULL);
+            bterr("BDELK1",QDELRP,itostr(btact->cntxt->lf.lfblk));
             goto fin;
         }
         brepky(blk,pos,tkey,val,llink,rlink);

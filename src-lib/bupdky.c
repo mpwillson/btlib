@@ -1,5 +1,5 @@
 /*
- * $Id: bupdky.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: bupdky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bupdky:  updates value of  key
  *
@@ -36,9 +36,9 @@
 
 int bupdky(BTA *b, char *key,BTint val)
 {
-    BTint lval;
     int status;
-
+    BTint lval;
+    
     bterr("",0,NULL);
     if ((status=bvalap("BUPDKY",b)) != 0) return(status);
 
@@ -55,7 +55,15 @@ int bupdky(BTA *b, char *key,BTint val)
         bterr("BUPDKY",QNOWRT,NULL);
     }
     else {
-        status = bfndky(b,key,&lval);
+        if (key == NULL) {
+            if (!context_ok("BUPDKY")) {
+                goto fin;
+            }
+            status = 0;
+        }
+        else {
+            status = bfndky(b,key,&lval);
+        }
         if (status == 0) {
             bmodky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,val);
         }

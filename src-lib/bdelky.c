@@ -1,5 +1,5 @@
 /*
- * $Id: bdelky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bdelky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bdelky:  deletes key in index
  *
@@ -52,9 +52,19 @@ int bdelky(BTA *b,char *key)
         bterr("BDELKY",QNOWRT,NULL);
     }
     else {
-        status = bfndky(b,key,&val);
+        if (key == NULL) {
+            if (!context_ok("BDELKY")) {
+                goto fin;
+                status = 0;
+            }
+        }
+        else {
+            status = bfndky(b,key,&val);
+        }
         if (status == 0) {
             status = bdelk1(key);
+            /* invalidate context on successful deletion */
+            if (status == 0) bclrlf();
         }
     }
 fin:

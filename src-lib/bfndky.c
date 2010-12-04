@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.9 2010-05-28 10:34:38 mark Exp $
+ * $Id: bfndky.c,v 1.11 2010-11-21 15:04:28 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -166,8 +166,8 @@ int bfndky(BTA *b,char *key,BTint *val)
                 cblk = ZNULL;
             }
         }
-    }  
-fin:
+    }
+  fin:
     if (btact->shared) bulock();
     /* non-zero status indicates no such key found */
     if (status) bterr("BFNDKY",QNOKEY,lkey);

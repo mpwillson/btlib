@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #define getrandom( min, max ) ((rand() % (int)(((max)+1) - (min))) + (min))
 
@@ -15,7 +16,7 @@ char *argv[];
 		exit(1);
 	}
 	count = atoi(argv[1]);
-	if (count >= 1000000) {
+	if (count >= 10000000) {
 		fprintf(stderr,"gendef: count arg too large\n");
 		exit(1);
 	}
@@ -23,11 +24,6 @@ char *argv[];
 		for (j=0;j<4;j++) name[j] = getrandom(64,126);
 /* 		strcpy(name,"aaaa"); */
 		name[4] = '\0';
-		printf("d %s%06d\n",name,i);
+		printf("d %s%07\n",name,i);
 	}
 }
-
-
-
-
-

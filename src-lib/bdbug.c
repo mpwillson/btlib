@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.12 2010-11-21 15:04:28 mark Exp $
+ * $Id: bdbug.c,v 1.13 2010-11-21 20:51:52 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -167,8 +167,14 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             fprintf(stdout,"%10d" Z20DFMT "\n",i,btact->cntxt->stk.stk[i]);
     }
     else if (strcmp(cmd,"structure") == 0) {
-        int nkeys = btkeys(b,blkno == ZNULL);
-        fprintf(stderr,"\nTotal number of keys = %d\n",nkeys);
+        BTint nkeys = btkeys(b,blkno == ZNULL);
+        if (nkeys == ZNULL) {
+            fprintf(stdout,"Index structure damaged\n");
+        }
+        else {
+            fprintf(stdout,"Index structure OK (number of keys: " ZINTFMT ")\n",
+                    nkeys);
+        }
     }
     else {
         bterr("BDBUG",QBADOP,NULL);

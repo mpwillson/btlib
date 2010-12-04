@@ -1,21 +1,33 @@
+2010-11-23  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btcmd.c: Moved interrupt handling from bt.c, so that exit from
+	execute files is handled correctly.
+
+	* balbk1.c: Use brepky to insert new parent when balancing blocks.
+	Required due to changed function of bputky.
+
+	* bputky.c: Modified to insert key at beginning of duplicate set.
+	If only an rlink is provided (i.e llink ZNULL) key will be placed
+	at end of block, to support key demotion.
+
 2010-11-07  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c: New commands to support duplicate key functionality.
 	
 	* btpos.c: Added API function to allow positioning to start/end of
-	index, or start/end of duplicate key set.
+	index.
 
 2010-11-05  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* btdups.c: Added to allow dup key support to be set/unset on a
 	root basis.
 
-	* binsky.c: Key passed is suffixed by char '\001' when searching
-	to ensure index is positioned correctly for key insertion and full
-	blocks are split during search.
+	* binsky.c: Revised to support insertion of duplicate keys, when
+	the current root allows duplicate keys.
 
-	* bfndky.c: Search key is no longer truncated, in order to support
-	dup key functionality.
+	* bfndky.c: Revised to support searching when duplicate keys
+	exist.  IF duplicate key found, it will be the first of the
+	duplicate set.
 
 2010-11-02  Mark Willson  <mark@amber.hydrus.org.uk>
 

@@ -1,9 +1,9 @@
 /*
- * $Id: butil.c,v 1.7 2010-11-21 15:04:28 mark Exp $
+ * $Id: butil.c,v 1.8 2010-11-21 20:51:52 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
  * This file is part of the B Tree library.
  *
@@ -45,7 +45,7 @@ BTint btkeys(BTA* b,int stats)
     BTint val,link1,link2;
     int ioerr,idx,result,loc = 0;
     int blk_depth[STKMAX+1];
-    int leaf_depth = -1,unbalanced = FALSE;
+    int leaf_depth = -1,balanced = TRUE;
     char key[ZKYLEN];
 
     
@@ -79,19 +79,20 @@ BTint btkeys(BTA* b,int stats)
         nkeys = bgtinf(blkno,ZNKEYS);
         if (nkeys == 0 && empty_blk == ZNULL) {
             if (bgtinf(blkno,ZBTYPE) != ZROOT) empty_blk = blkno;
-            continue;
         }
-        bsrhbk(blkno,key,&loc,&val,&link1,&link2,&result);
-        if (link1 == ZNULL) {
-            if (leaf_depth < 0) {
-                leaf_depth = depth;
+        else {
+            bsrhbk(blkno,key,&loc,&val,&link1,&link2,&result);
+            if (link1 == ZNULL) {
+                if (leaf_depth < 0) {
+                    leaf_depth = depth;
+                }
+                else if (leaf_depth != depth) {
+                    balanced = FALSE;
+                    if (depth > leaf_depth) leaf_depth = depth;
+                }
             }
-            else if (leaf_depth != depth) {
-                unbalanced = TRUE;
-                if (depth > leaf_depth) leaf_depth = depth;
-            }
+            tnkeys += nkeys;
         }
-        tnkeys += nkeys;
     } while (blkno != btact->cntxt->super.scroot);
 
     if (stats) {
@@ -100,14 +101,24 @@ BTint btkeys(BTA* b,int stats)
             printf("At least one non-root block has no keys.  "
                    "First encountered was " ZINTFMT "\n",empty_blk);
         }
-        printf("Index balanced: %s\n",(unbalanced)?"NO":"YES");
+        printf("Index balanced: %s\n",(balanced)?"YES":"NO");
         printf("Max leaf depth: %d\n",leaf_depth);
-        printf("Depth   Number\n");
+        printf("Depth   Number of blocks\n");
         for (idx=0;idx<=leaf_depth;idx++) {
-            printf("%5d %8d\n",idx,blk_depth[idx]);
+            printf("%5d %18d\n",idx,blk_depth[idx]);
         }       
     }
     
   fin:
-    return (empty_blk != ZNULL || unbalanced)?ZNULL:tnkeys;
+    return (empty_blk != ZNULL || !balanced)?ZNULL:tnkeys;
+}
+
+int context_ok(char* fun)
+{
+    if (btact->cntxt->lf.lfblk == ZNULL || btact->cntxt->lf.lfpos == ZNULL
+        || !btact->cntxt->lf.lfexct) {
+        bterr(fun,QBADCTXT,NULL);
+        return FALSE;
+    }
+    return TRUE;
 }
