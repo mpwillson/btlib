@@ -1,4 +1,4 @@
-# test for current key in context functionality (introduced for dup keys)
+# test for curent key in context functionality (introduced for dup keys)
 create test_db
 execute ../inskeysrand.bt
 echo on
@@ -41,7 +41,7 @@ next
 next
 next
 next
-update-value-curr 100
+update-value-cur 100
 position start
 next
 next
@@ -81,12 +81,14 @@ next
 next
 next
 next
-remove-curr
+remove-cur
 position start
 list
 close
 create test_db
+echo off
 execute ../defdata.bt
+echo on
 position start
 next-data
 next-data
@@ -126,7 +128,7 @@ next-data
 next-data
 next-data
 next-data
-update-data-curr this_is_a_new_data_record
+update-data-cur this_is_a_new_data_record
 position start
 next-data
 next-data
@@ -166,6 +168,6 @@ next-data
 next-data
 next-data
 next-data
-remove-data-curr
+remove-data-cur
 position start
 list-data

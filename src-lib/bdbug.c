@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.13 2010-11-21 20:51:52 mark Exp $
+ * $Id: bdbug.c,v 1.14 2010-12-04 20:14:57 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -10,7 +10,7 @@
  *
  * N.B. bdbug has rather too much knowledge of the btree internals
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004, 2010 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

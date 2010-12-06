@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.30 2010-11-21 20:51:52 mark Exp $
+ * $Id: bt.c,v 1.31 2010-12-04 20:14:57 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -980,8 +980,8 @@ CMDENTRY bt_cmds[] = {
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
     "qualifier indicates shared mode." },
-  { "position","pos",pos,"{start|end}",0,
-    "Position current root.  Start positions prior to first key; end after "
+  { "position","pos",pos,"{s|e}",1,
+    "Position current root.  s positions prior to first key; e after "
     "last key." },
   { "previous","prv",prev_key,"",0,"Display previous key and value." },
   { "previous-data","pd",previous_data,"",0,
@@ -990,10 +990,10 @@ CMDENTRY bt_cmds[] = {
     "Toggle prompting before reading command."},
   { "quit","q",quit,"",0,"Quit bt program." },
   { "remove","r",remove_key,"key",1,"Remove key." },
-  { "remove-curr","rc",remove_key_current,"",0,"Remove key at current "
+  { "remove-cur","rc",remove_key_current,"",0,"Remove key at current "
     "index postion." },
   { "remove-data","rd",remove_data,"key",1,"Remove key and associated data." },
-  { "remove-data-curr","rdc",remove_data_current,"",0,"Remove current key from "
+  { "remove-data-cur","rdc",remove_data_current,"",0,"Remove current key from "
     "context, and associated data." },
   { "remove-root","rr",remove_root,"root",1,"Remove root." },
   { "show","s",show_debug,"arg",0,"Show debug info. arg one of "
@@ -1006,12 +1006,12 @@ CMDENTRY bt_cmds[] = {
   { "update-data","ud",update_data,"key [s|*b]",0,
     "Update data associated with key using string s or contents of data "
     "buffer *b.  If both omitted, update uses zero-length string." },
-  { "update-data-curr","udc",update_data_current,"{s|*b}",1,
+  { "update-data-cur","udc",update_data_current,"{s|*b}",1,
     "Update data associated with current key in context, using string s or "
     "contents of data buffer *b." },
   { "update-value","uv",update_value,"key val",2,"Update value of key "
     "to val." },
-  { "update-value-curr","uvc",update_value_current,"val",1,"Update "
+  { "update-value-cur","uvc",update_value_current,"val",1,"Update "
     "value of current key in context to val." },
   { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
   { "","",unknown_command,"",0,"Unknown command found"}

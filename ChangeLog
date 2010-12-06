@@ -1,3 +1,7 @@
+2010-12-06  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c: Fixed problem of erratic error message display.
+
 2010-11-23  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* btcmd.c: Moved interrupt handling from bt.c, so that exit from
@@ -26,8 +30,8 @@
 	the current root allows duplicate keys.
 
 	* bfndky.c: Revised to support searching when duplicate keys
-	exist.  IF duplicate key found, it will be the first of the
-	duplicate set.
+	exist.  If duplicate keys exist for the required key, the first of
+	the duplicate set is returned.
 
 2010-11-02  Mark Willson  <mark@amber.hydrus.org.uk>
 

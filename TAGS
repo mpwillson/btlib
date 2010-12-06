@@ -22,7 +22,7 @@ src-lib/bcpybk.c,20
 int bcpybk(38,1243
 
 src-lib/bdbug.c,19
-int bdbug(40,1214
+int bdbug(40,1220
 
 src-lib/bdelk1.c,20
 int bdelk1(38,1167
@@ -491,8 +491,8 @@ int pos(885,18747
 int chk_order(893,18863
 int unknown_command(925,19669
 CMDENTRY bt_cmds[bt_cmds931,19789
-void report_error(1020,24874
-int main(1037,25207
+void report_error(1020,24858
+int main(1037,25191
 
 src-main/btcmd.c,1105
 #define TRUE 67,2563
