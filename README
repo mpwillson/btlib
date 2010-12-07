@@ -40,7 +40,7 @@ INTRODUCTION
     This version (3.1.0) adds support for duplicate keys.
 
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
-    7.3, Mac OS X 10.6.3 and Cygwin.
+    8.1, Mac OS X 10.6.5 and Cygwin.
 
 UPDATING 
     If migrating from a pre-3.0 release of the BT library, be aware
@@ -73,12 +73,13 @@ COMPILING
     by GNU make.  The test harness, bt, will be built with readline
     support, if the make file detects support on the build
     platform. To build the BT library and associated programs for up
-    to 2GB file support, cd to the BT source directory and issue the
+    to 2GiB file support, cd to the BT source directory and issue the
     following command:
 
        make
 
-    To build the LFS version of BT, issue the following command:
+    To build the LFS version of BT (supports files >2GiB), issue the
+    following command:
 
        make LFS=1
 

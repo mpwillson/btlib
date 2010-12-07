@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.23 2010-11-07 21:01:27 mark Exp $
+ * $Id: bc.h,v 1.24 2010-12-04 20:14:57 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -90,8 +90,6 @@ typedef int BTint;
 /* Message buffer sizes */
 #define ZRNAMESZ 16
 #define ZMSGSZ 132
-
-/* End implementation defined constants */
 
 /* Indexes into block info words - first ZINFSZ words in every block */
 /*
