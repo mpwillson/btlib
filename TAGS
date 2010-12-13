@@ -488,11 +488,11 @@ int update_value_current(856,18170
 int decode_addr(864,18328
 int dups(880,18674
 int pos(885,18747
-int chk_order(893,18863
-int unknown_command(925,19669
-CMDENTRY bt_cmds[bt_cmds931,19789
-void report_error(1020,24858
-int main(1037,25191
+int chk_order(893,18859
+int unknown_command(925,19665
+CMDENTRY bt_cmds[bt_cmds931,19785
+void report_error(1020,24854
+int main(1037,25187
 
 src-main/btcmd.c,1105
 #define TRUE 67,2563

@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.31 2010-12-04 20:14:57 mark Exp $
+ * $Id: bt.c,v 1.32 2010-12-06 14:58:19 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -886,7 +886,7 @@ int pos(CMDBLK* c)
 {
     int pos;
 
-    pos = (strcmp(c->arg,"start")==0)?ZSTART:ZEND;
+    pos = (strcmp(c->arg,"s")==0)?ZSTART:ZEND;
     return btpos(btp,pos);
 }
 
