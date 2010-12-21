@@ -2,7 +2,7 @@
 create test_db
 execute ../inskeysrand.bt
 echo on
-position start
+position s
 next
 next
 next
@@ -42,7 +42,7 @@ next
 next
 next
 update-value-cur 100
-position start
+position s
 next
 next
 next
@@ -82,14 +82,14 @@ next
 next
 next
 remove-cur
-position start
+position s
 list
 close
 create test_db
 echo off
 execute ../defdata.bt
 echo on
-position start
+position s
 next-data
 next-data
 next-data
@@ -129,7 +129,7 @@ next-data
 next-data
 next-data
 update-data-cur this_is_a_new_data_record
-position start
+position s
 next-data
 next-data
 next-data
@@ -169,5 +169,5 @@ next-data
 next-data
 next-data
 remove-data-cur
-position start
+position s
 list-data

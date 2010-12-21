@@ -14,9 +14,9 @@ execute ../inskeysrand.bt
 execute ../inskeysrand.bt
 execute ../inskeysrand.bt
 execute ../inskeysrand.bt
-position start
+position s
 list c
-position end
+position e
 list-prev c
 find a
 next
@@ -74,6 +74,6 @@ execute ../delkeysrand.bt
 execute ../delkeysrand.bt
 execute ../delkeysrand.bt
 execute ../delkeysrand.bt
-position start
+position s
 list c
 quit

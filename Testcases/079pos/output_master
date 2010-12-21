@@ -1,4 +1,4 @@
-bt: position start
+bt: position s
 bt: next
 Key: '@@Nf000652' = 0
 bt: next
@@ -76,7 +76,7 @@ Key: 'BPhc000626' = 0
 bt: next
 Key: 'BZlv000115' = 0
 bt: update-value-cur 100
-bt: position start
+bt: position s
 bt: next
 Key: '@@Nf000652' = 0
 bt: next
@@ -154,7 +154,7 @@ Key: 'BPhc000626' = 0
 bt: next
 Key: 'BZlv000115' = 100
 bt: remove-cur
-bt: position start
+bt: position s
 bt: list
 Key: '@@Nf000652' = 0
 Key: '@Eiz000130' = 0
@@ -1159,7 +1159,7 @@ bt: close
 warning: no in-use btree file
 bt: create test_db
 bt: echo off
-bt: position start
+bt: position s
 bt: next-data
 Key: 'aaaa0000' - Data: 'aaaa0000
 bt: next-data
@@ -1237,7 +1237,7 @@ Key: 'aaaa0036' - Data: 'aaaa0036
 bt: next-data
 Key: 'aaaa0037' - Data: 'aaaa0037
 bt: update-data-cur this_is_a_new_data_record
-bt: position start
+bt: position s
 bt: next-data
 Key: 'aaaa0000' - Data: 'aaaa0000
 bt: next-data
@@ -1315,7 +1315,7 @@ Key: 'aaaa0036' - Data: 'aaaa0036
 bt: next-data
 Key: 'aaaa0037' - Data: 'this_is_a_new_data_record
 bt: remove-data-cur
-bt: position start
+bt: position s
 bt: list-data
 Key: 'aaaa0000' - Data: 'aaaa0000'
 Key: 'aaaa0001' - Data: 'aaaa0001'
