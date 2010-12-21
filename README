@@ -1,6 +1,6 @@
 BT Library README File
 
-10th December, 2010
+21st December, 2010
 
 CONTENTS
     INTRODUCTION
@@ -159,6 +159,7 @@ RELEASE HISTORY
      4th June,      2010        3.0.0   Large file support (> 2GiB)
      2nd July,      2010        3.0.1   Added readline support; bug fixes
     10th December,  2010        3.1.0   Support duplicate keys; previous key
+    21st December,  2010        3.1.1   Fix broken test scripts
  
 ACKNOWLDGEMENTS 
     Many thanks to Pedro Serotto for nudging me to work on Large File
