@@ -1,5 +1,5 @@
 /*
- * $Id: btpos.c,v 1.1 2010-11-07 21:01:27 mark Exp $
+ * $Id: btpos.c,v 1.2 2010-11-21 15:04:28 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.
@@ -7,8 +7,6 @@
  * Parameters:
  *    b      index file context pointer
  *    pos    ZSTART or ZEND
- *    indups if TRUE, position based on current key within duplicate
- *           set.  If dups are not permitted, acts as if set to FALSE.
  *    
  * When btpos returns (with no error), with an argument of ZSTART,
  * bnxtky will return the first key in the index (or the first key in
@@ -46,6 +44,10 @@
 int btpos(BTA *b,int pos)
 {
     int status;
+    char key[ZKYLEN];
+    BTint val, link1, link2;
+    
+    
     
     bterr("",0,NULL);
     if ((status=bvalap("BTPOS",b)) != 0) return(status);
@@ -65,12 +67,26 @@ int btpos(BTA *b,int pos)
     bpush(ZNULL);
     btact->cntxt->lf.lfblk = btact->cntxt->super.scroot;
     if (pos == ZSTART) {
+        strcpy(btact->cntxt->lf.lfkey,""); /* set lfkey for shared
+                                              mode */
         btact->cntxt->lf.lfpos = 0;
         bleaf(0);
     }
     else if (pos == ZEND) {
+        int loc;
         btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->super.scroot,ZNKEYS);
         bleaf(1);
+        /* set lfkey for shared mode */
+        loc = btact->cntxt->lf.lfpos-1;
+        bsrhbk(btact->cntxt->lf.lfblk,key,&loc,&val,
+               &link1,&link2,&status);
+        if (status < 0) {
+            bterr("BTPOS",QPOSERR,itostr(btact->cntxt->lf.lfblk));
+        }
+        else {
+            key[strlen(key)-1]++;   /* make lfkey greater than last key */
+            strcpy(btact->cntxt->lf.lfkey,key);
+        }
     }
  
     if (btact->shared) bulock();

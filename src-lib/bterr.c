@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.21 2010-11-07 21:01:27 mark Exp $
+ * $Id: bterr.c,v 1.22 2010-12-04 20:14:57 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -105,6 +105,7 @@ char *msgblk[] = {
     " Data record address is negative: %s",
     " Defined block size is not a power of 2: %s",
     " Duplicates are not permitted in superroot.",
+    " Location search exceeds key count at block: %s",
     " No message exists for this error code"
 };
 

@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.24 2010-12-04 20:14:57 mark Exp $
+ * $Id: bc.h,v 1.25 2010-12-07 16:56:18 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -245,5 +245,7 @@ typedef int BTint;
 
 #define QBLKSZERR 55
 #define QNODUPS 56
+
+#define QPOSERR 57
 
 #endif /* _btconst_ */
