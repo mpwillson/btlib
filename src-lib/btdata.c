@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.23 2010-11-07 21:01:27 mark Exp $
+ * $Id: btdata.c,v 1.24 2010-12-04 20:14:57 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -90,6 +90,49 @@
 /* #undef DEBUG */
 /* #define DEBUG 1 */
 
+int setup(char *fname,char *key,BTint *draddr)
+{
+    int status = 0, result;
+    BTint link1,link2;
+    char lkey[ZKYLEN];
+    
+    if (!dataok(btact)) {
+        bterr(fname,QDAERR,NULL);
+    }
+    else {
+        if (key == NULL) {
+            if (btact->lckcnt > 0) {
+                if (!context_ok(fname)) {
+                    goto fin;
+                }
+                if (btact->shared) block();
+                bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
+                       draddr,&link1,&link2,&result);
+                if (result != 0) {
+                    bterr(fname,QBADCTXT,NULL);
+                    goto fin;
+                }
+            }
+            else {
+                bterr(fname,QNOTOP,NULL);
+                goto fin;
+            }
+        }
+        else {
+            if (btact->shared) {
+                if (!block()) {
+                    bterr(fname,QBUSY,NULL);
+                    goto fin;
+                }
+            }
+            /* find key in btree */
+            status = bfndky(btact,key,draddr);
+        }
+    }
+  fin:
+    return btgerr();
+}
+
 
 /*------------------------------------------------------------------------
  * The btins routine will insert key and an associated data record
@@ -108,7 +151,6 @@ int btins(BTA *b,char *key, char *data, int dsize)
 {
     int status;
     BTint draddr = 0;
-    BTint dontcare;
 
     bterr("",0,NULL);
     if ((status=bvalap("BTINS",b)) != 0) return(status);
@@ -127,19 +169,6 @@ int btins(BTA *b,char *key, char *data, int dsize)
         }
     }
 
-    /* does key already exist? */
-    status = bfndky(btact,key,&dontcare);
-    if (status == 0) {
-        bterr("BTINS",QDUP,NULL);
-        goto fin;
-    }
-    else if (status != QNOKEY) {
-        goto fin;
-    }
-
-    /* clear error code */
-    bterr("",0,NULL);
-    
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
         draddr = binsdt(data,dsize);
@@ -149,8 +178,11 @@ int btins(BTA *b,char *key, char *data, int dsize)
                 goto fin;
             }
             status = binsky(btact,key,draddr);
-            if (status != 0){
-                /* can't insert new key, therefore must delete data */
+            if (status != 0) {
+                /* re-state error */
+                bterr("",0,NULL);
+                bterr("BTINS",status,key);
+                /* can't insert new key, must delete data */
                 status = bdeldt(draddr);
             }
         }
@@ -182,8 +214,6 @@ int btupd(BTA *b,char *key, char *data, int dsize)
 {
     BTint draddr;
     int status, result;
-    BTint link1,link2;
-    char lkey[ZKYLEN];
     
     bterr("",0,NULL);
     if ((result=bvalap("BTUPD",b)) != 0) return(result);
@@ -200,32 +230,9 @@ int btupd(BTA *b,char *key, char *data, int dsize)
         goto fin;
     }
     
-    if (btact->shared) {
-        if (!block()) {
-            bterr("BTUPD",QBUSY,NULL);
-            goto fin;
-        }
-    }
-    if (key == NULL) {
-        if (!context_ok("BTUPD")) {
-            goto fin;
-        }
-        else {
-            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
-                   &draddr,&link1,&link2,&result);
-            if (result != 0 ) {
-                bterr("BTUPD",QBADCTXT,NULL);
-                goto fin;
-            }
-            status = 0;
-        }
-    }
-    else {
-        /* find key in btree */
-        status = bfndky(b,key,&draddr);
-        if (status != 0) goto fin;
-    }
-
+    status = setup("BTUPD",key,&draddr);
+    if (status != 0) goto fin;
+    
     /* update data in btree */
     status = bupddt(draddr,data,dsize);
 
@@ -303,44 +310,15 @@ int btdel(BTA *b,char *key)
 {
     BTint draddr;
     int status, result;
-    BTint link1,link2;
-    char lkey[ZKYLEN];
     
     bterr("",0,NULL);
     if ((result=bvalap("BTDEL",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
-    if (!dataok(btact)) {
-        bterr("BTDEL",QDAERR,NULL);
-        goto fin;
-    }
-
-    if (btact->shared) {
-        if (!block()) {
-            bterr("BTDEL",QBUSY,NULL);
-            goto fin;
-        }
-    }
-
-    if (key == NULL) {
-        if (!context_ok("BTUPD")) {
-            goto fin;
-        }
-        else {
-            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
-                   &draddr,&link1,&link2,&result);
-            if (result != 0 ) {
-                bterr("BTUPD",QBADCTXT,NULL);
-                goto fin;
-            }
-        }
-    }
-    else {
-        /* find key in btree */
-        status = bfndky(btact,key,&draddr);
-        if (status != 0) goto fin;
-    }
+    status = setup("BTDEL",key,&draddr);
+    if (status != 0) goto fin;
+    
     /* delete data record first */
     status = bdeldt(draddr);
     if (status == 0) {
@@ -374,18 +352,26 @@ int btseln(BTA *b,char *key, char *data, int dsize,int *rsize)
         goto fin;
     }
 
-    if (b->shared) {
-        if (!block()) {
-            bterr("BTSELN",QBUSY,NULL);
-            goto fin;
+    if (btact->shared) {
+        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
+            /* root supports duplicate keys; must be locked */
+            if (btact->lckcnt == 0) {
+                bterr("BTSELN",QNOTOP,NULL);
+                goto fin;
+            }
+            block(); /* balance bulock at routine exit */
+        }
+        else {
+            if (!block()) {
+                bterr("BTSELN",QBUSY,NULL);
+                goto fin;
+            }
         }
     }
 
-    /* return next key in btree */
+    /* position to next key in btree */
     status = bnxtky(btact,key,&draddr);
     if (status != 0) goto fin;
-
-    /* TBD check for valid data pointer */
 
     /* retrieve data from btree */
     *rsize = bseldt(draddr,data,dsize);
@@ -416,14 +402,24 @@ int btselp(BTA *b,char *key, char *data, int dsize,int *rsize)
         goto fin;
     }
 
-    if (b->shared) {
-        if (!block()) {
-            bterr("BTSELP",QBUSY,NULL);
-            goto fin;
+    if (btact->shared) {
+        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
+            /* root supports duplicate keys; must be locked */
+            if (btact->lckcnt == 0) {
+                bterr("BTSELN",QNOTOP,NULL);
+                goto fin;
+            }
+            block(); /* balance bulock at routine exit */
+        }
+        else {
+            if (!block()) {
+                bterr("BTSELN",QBUSY,NULL);
+                goto fin;
+            }
         }
     }
 
-    /* return next key in btree */
+    /* position to preceeding key in btree */
     status = bprvky(btact,key,&draddr);
     if (status != 0) goto fin;
 
@@ -445,46 +441,17 @@ fin:
 
 int btrecs(BTA *b, char *key, int *rsize)
 {
-    BTint draddr,link1,link2;
+    BTint draddr;
     int status, result;
-    char lkey[ZKYLEN];
 
     bterr("",0,NULL);
     if ((result=bvalap("BTRECS",b)) != 0) return(result);
 
     btact = b;      /* set context pointer */
 
-    if (!dataok(btact)) {
-        bterr("BTRECS",QDAERR,NULL);
-        goto fin;
-    }
+    status = setup("BTRECS",key,&draddr);
+    if (status != 0) goto fin;
     
-    if (btact->shared) {
-        if (!block()) {
-            bterr("BTRECS",QBUSY,NULL);
-            goto fin;
-        }
-    }
-    if (key == NULL) {
-        if (!context_ok("BTUPD")) {
-            goto fin;
-        }
-        else {
-            bsrhbk(btact->cntxt->lf.lfblk,lkey,&(btact->cntxt->lf.lfpos),
-                   &draddr,&link1,&link2,&result);
-            if (result != 0 ) {
-                bterr("BTUPD",QBADCTXT,NULL);
-                goto fin;
-            }
-            status = 0;
-        }
-    }
-    else {
-        /* find key in btree */
-        status = bfndky(b,key,&draddr);
-        if (status != 0) goto fin;
-    }
-
     *rsize = brecsz(draddr);
 
   fin:
@@ -993,7 +960,7 @@ int getseginfo(BTint draddr, int *size, BTint *nextseg)
  */
 int dataok(BTA* b)
 {
-    if (b->cntxt->super.scroot == ZSUPER)
+    if (b->cntxt->super.scroot == ZSUPER || b->cntxt->super.smode != 0)
         return FALSE;
     else
         return TRUE;

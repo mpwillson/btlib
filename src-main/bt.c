@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.32 2010-12-06 14:58:19 mark Exp $
+ * $Id: bt.c,v 1.33 2010-12-13 14:24:47 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -465,7 +465,7 @@ int next_key(CMDBLK* c)
         printf("No more keys\n");
         suppress_error_msg = TRUE;
     }
-    else {
+    else if (status == 0) {
         printf("Key: '%s' = " ZINTFMT "\n",key,val);
     }
     return status;
@@ -518,7 +518,7 @@ int prev_key(CMDBLK* c)
         printf("No more keys\n");
         suppress_error_msg = TRUE;
     }
-    else {
+    else if (status == 0) {
         printf("Key: '%s' = " ZINTFMT "\n",key,val);
     }
     return status;

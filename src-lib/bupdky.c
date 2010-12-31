@@ -1,5 +1,5 @@
 /*
- * $Id: bupdky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bupdky.c,v 1.8 2010-12-04 20:14:57 mark Exp $
  *
  * bupdky:  updates value of  key
  *
@@ -41,14 +41,7 @@ int bupdky(BTA *b, char *key,BTint val)
     
     bterr("",0,NULL);
     if ((status=bvalap("BUPDKY",b)) != 0) return(status);
-
     btact = b;
-    if (btact->shared) {
-        if (!block()) {
-            bterr("BUPDKY",QBUSY,NULL);
-            goto fin;
-        }
-    }
 
     if (b->cntxt->super.smode != 0) {
         /* read only, can't update */
@@ -56,12 +49,22 @@ int bupdky(BTA *b, char *key,BTint val)
     }
     else {
         if (key == NULL) {
-            if (!context_ok("BUPDKY")) {
-                goto fin;
+            if (btact->lckcnt > 0) {
+                if (!context_ok("BUPDKY")) {
+                    goto fin;
+                }
+                if (btact->shared) block();
             }
-            status = 0;
+            else {
+                bterr("BDELKY",QNOTOP,NULL);
+                goto fin;
+            }   
         }
         else {
+            if (btact->shared && !block()) {
+                bterr("BUPDKY",QBUSY,NULL);
+                goto fin;
+            }
             status = bfndky(b,key,&lval);
         }
         if (status == 0) {

@@ -1,5 +1,5 @@
 /*
- * $Id: btcls.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btcls.c,v 1.8 2010-06-02 10:29:10 mark Exp $
  *
  *
  * btcls: close B tree index file
@@ -44,12 +44,9 @@ int btcls(BTA* b)
 
     btact = b;      /* set context pointer */
 
-    if (!btact->shared) {
-        /* Unlock exclusive access and flush buffers before closing file
-         * Buffers will already be flushed to disk for shared access
-         */
-        bulock();
-    }
+
+    /* Undo any locks and flush buffers before closing file */
+    while (btact->lckcnt > 0) bulock();
     
     /* close index file and free context memory */
     ioerr = fclose(btact->idxunt);

@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.11 2010-11-02 21:46:50 mark Exp $
+ * $Id: bnxtky.c,v 1.12 2010-11-07 21:01:27 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -47,17 +47,29 @@ int bnxtky(BTA* b,char *key,BTint *val)
     btact = b;          /* set global context pointer */
 
     if (btact->shared) {
-        if (!block()) {
-            bterr("BNXTKY",QBUSY,NULL);
-            goto fin;
+        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
+            /* root supports duplicate keys; must be locked */
+            if (btact->lckcnt == 0) {
+                bterr("BNXTKY",QNOTOP,NULL);
+                goto fin;
+            }
+            block(); /* balance bulock at routine exit */
         }
-        /* position to last found key via bfndky, since context could
-         * have been invalidated by concurrent updates by other users.
-         * Note we don't care if the key is found or not, so the error
-         * status is always cleared. */
-        status = bfndky(b,btact->cntxt->lf.lfkey,val);
-        bterr("",0,NULL);
+        else {
+            /* can re-position when no dups */
+            if (!block()) {
+                bterr("BNXTKY",QBUSY,NULL);
+                goto fin;
+            }
+            /* position to last found key via bfndky, since context could
+             * have been invalidated by concurrent updates by other users.
+             * Note we don't care if the key is found or not, so the error
+             * status is always cleared. */
+            status = bfndky(btact,btact->cntxt->lf.lfkey,val);
+            bterr("",0,NULL);
+        }
     }
+    
 
     found = FALSE;
     while (btact->cntxt->lf.lfblk != ZNULL && !found) {

@@ -1,5 +1,5 @@
 /*
- * $Id: bdelky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bdelky.c,v 1.8 2010-12-04 20:14:57 mark Exp $
  *
  * bdelky:  deletes key in index
  *
@@ -41,24 +41,27 @@ int bdelky(BTA *b,char *key)
     if ((status=bvalap("BDELKY",b)) != 0) return(status);
     btact = b;
 
-    if (btact->shared) {
-        if (!block()) {
-            bterr("BDELKY",QBUSY,NULL);
-            goto fin;
-        }
-    }
-
-    if (b->cntxt->super.smode != 0) {
+     if (b->cntxt->super.smode != 0) {
         bterr("BDELKY",QNOWRT,NULL);
     }
     else {
         if (key == NULL) {
-            if (!context_ok("BDELKY")) {
-                goto fin;
-                status = 0;
+            if (btact->lckcnt > 0) {            
+                if (!context_ok("BDELKY")) {
+                    goto fin;
+                }
+                if (btact->shared) block();
             }
+            else {
+                bterr("BDELKY",QNOTOP,NULL);
+                goto fin;
+            }   
         }
         else {
+             if (btact->shared && !block()) {
+                bterr("BDELKY",QBUSY,NULL);
+                goto fin;
+            }
             status = bfndky(b,key,&val);
         }
         if (status == 0) {

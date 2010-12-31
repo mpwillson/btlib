@@ -1,5 +1,5 @@
 /*
- * $Id: btlock.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btlock.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * btlock: locks index file for exclusive use
  *
@@ -58,6 +58,11 @@ int btlock(BTA *b)
         /* only lock if shared */
         if (!block()) {
             bterr("BTLOCK",QBUSY,NULL);
+        }
+        else {
+            /* invalidate context; app must re-establish context while
+               index is locked */
+            bclrlf();
         }
     }
     return(btgerr());
