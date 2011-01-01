@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.24 2010-12-04 20:14:57 mark Exp $
+ * $Id: btdata.c,v 1.25 2010-12-31 14:20:52 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -90,6 +90,7 @@
 /* #undef DEBUG */
 /* #define DEBUG 1 */
 
+/* Common setup for btupd, btdel and btrecs */
 int setup(char *fname,char *key,BTint *draddr)
 {
     int status = 0, result;
@@ -169,6 +170,11 @@ int btins(BTA *b,char *key, char *data, int dsize)
         }
     }
 
+    if (b->cntxt->super.smode != 0) {
+        bterr("BTINS",QNOWRT,NULL);
+        goto fin;
+    }
+
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
         draddr = binsdt(data,dsize);
@@ -229,15 +235,19 @@ int btupd(BTA *b,char *key, char *data, int dsize)
         bterr("BTUPD",QDAERR,NULL);
         goto fin;
     }
-    
-    status = setup("BTUPD",key,&draddr);
-    if (status != 0) goto fin;
-    
-    /* update data in btree */
-    status = bupddt(draddr,data,dsize);
 
-fin:
-    if (btact->shared) bulock();
+    if (b->cntxt->super.smode != 0) {
+        bterr("BTINS",QNOWRT,NULL);
+    }
+    else {
+        status = setup("BTUPD",key,&draddr);
+        if (status == 0) {
+            /* update data in btree */
+            status = bupddt(draddr,data,dsize);
+        }
+        if (btact->shared) bulock();
+    }
+  fin:
     return(btgerr());
 }
 
@@ -316,17 +326,20 @@ int btdel(BTA *b,char *key)
 
     btact = b;      /* set context pointer */
 
-    status = setup("BTDEL",key,&draddr);
-    if (status != 0) goto fin;
-    
-    /* delete data record first */
-    status = bdeldt(draddr);
-    if (status == 0) {
-        status = bdelky(btact,NULL);
+    if (b->cntxt->super.smode != 0) {
+        bterr("BTINS",QNOWRT,NULL);
     }
-
-fin:
-    if (btact->shared) bulock();
+    else {
+        status = setup("BTDEL",key,&draddr);
+        if (status == 0) {
+            /* delete data record first */
+            status = bdeldt(draddr);
+            if (status == 0) {
+                status = bdelky(btact,NULL);
+            }
+            if (btact->shared) bulock();
+        }
+    }
     return(btgerr());
 }
 
@@ -449,14 +462,17 @@ int btrecs(BTA *b, char *key, int *rsize)
 
     btact = b;      /* set context pointer */
 
-    status = setup("BTRECS",key,&draddr);
-    if (status != 0) goto fin;
-    
-    *rsize = brecsz(draddr);
-
-  fin:
-    if (btact->shared) bulock();
-    return(btgerr());
+    if (b->cntxt->super.smode != 0) {
+        bterr("BTINS",QNOWRT,NULL);
+    }
+    else {
+        status = setup("BTRECS",key,&draddr);
+        if (status == 0) {
+            *rsize = brecsz(draddr);
+            if (btact->shared) bulock();
+        }
+    }
+    return btgerr();
 }
 
 
@@ -960,7 +976,7 @@ int getseginfo(BTint draddr, int *size, BTint *nextseg)
  */
 int dataok(BTA* b)
 {
-    if (b->cntxt->super.scroot == ZSUPER || b->cntxt->super.smode != 0)
+    if (b->cntxt->super.scroot == ZSUPER)
         return FALSE;
     else
         return TRUE;

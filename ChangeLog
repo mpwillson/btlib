@@ -1,3 +1,18 @@
+2010-12-31  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c: Improve error handling in next and previous commands.
+
+	* bupdky.c: Prohibit current context operations when index file is
+	opened shared and duplicate keys exist.
+
+	* bdelky.c: Prohibit current context operations when index file is
+	opened shared and duplicate keys exist.
+ 
+	* btdata.c: Enforced read-only access in data functions.  Revised
+	support for btseln and btselp when index file is opened shared and
+	the current root supports duplicate keys. Prohibit current context
+	operations when shared and duplicate keys exist.
+
 2010-12-06  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c: Fixed problem of erratic error message display.

@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.33 2010-12-13 14:24:47 mark Exp $
+ * $Id: bt.c,v 1.34 2010-12-31 14:21:23 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -361,6 +361,21 @@ int open_file(CMDBLK* c)
     BTA* svbtp = btp;
 
     btp = btopn(c->arg,0,c->qualifier[0] == 's');
+    if (btp != NULL) {
+        add(c->arg,btp);
+    }
+    else {
+        btp = svbtp;
+        return 1;
+    }
+    return 0;
+}
+
+int open_file_readonly(CMDBLK* c)
+{
+    BTA* svbtp = btp;
+
+    btp = btopn(c->arg,1,c->qualifier[0] == 's');
     if (btp != NULL) {
         add(c->arg,btp);
     }
@@ -980,6 +995,8 @@ CMDENTRY bt_cmds[] = {
   { "next-data","nd",next_data,"",0,"Display next key and associated data." },
   { "open","o",open_file,"file [s]",0,"Open existing index file.  s "
     "qualifier indicates shared mode." },
+  { "open-readonly","or",open_file_readonly,"file [s]",0,"Open existing index "
+    "file in read-only mode.  s qualifier indicates shared." },
   { "position","pos",pos,"{s|e}",1,
     "Position current root.  s positions prior to first key; e after "
     "last key." },

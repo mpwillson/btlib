@@ -1,6 +1,6 @@
 BT Library README File
 
-21st December, 2010
+3rd January, 2011
 
 CONTENTS
     INTRODUCTION
@@ -37,7 +37,7 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    This version (3.1.0) adds support for duplicate keys.
+    This version (3.1.x) adds support for duplicate keys.
 
     The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
     8.1, Mac OS X 10.6.5 and Cygwin.
@@ -132,7 +132,7 @@ ERROR REPORTING
     email mark@hydrus.org.uk with relevant details.
 
 LICENCE
-    Copyright (C) 2003, 2004, 2005, 2008, 2010  Mark Willson
+    Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011  Mark Willson
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -160,7 +160,8 @@ RELEASE HISTORY
      2nd July,      2010        3.0.1   Added readline support; bug fixes
     10th December,  2010        3.1.0   Support duplicate keys; previous key
     21st December,  2010        3.1.1   Fix broken test scripts
- 
+     3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
+
 ACKNOWLDGEMENTS 
     Many thanks to Pedro Serotto for nudging me to work on Large File
     Support in 3.0.0 and for testing the release betas.
