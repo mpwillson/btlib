@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.34 2010-12-31 14:21:23 mark Exp $
+ * $Id: bt.c,v 1.35 2011-01-01 20:36:26 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -500,7 +500,8 @@ int list(CMDBLK* c)
             count++;
         }
     }
-    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
+    if ((status == 0 || status == QNOKEY) && strcmp(c->arg,"c") == 0)
+        printf("%d keys listed\n",count);
     return ((status==0||status==QNOKEY)?0:status);
 }
 
@@ -518,7 +519,8 @@ int list_keys(CMDBLK* c)
             count++;
         }
     }
-    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
+    if ((status == 0 || status == QNOKEY) && strcmp(c->arg,"c") == 0)
+        printf("%d keys listed\n",count);
     return ((status==0||status==QNOKEY)?0:status);
 }
 
@@ -553,7 +555,8 @@ int list_keys_prev(CMDBLK* c)
             count++;
         }
     }
-    if (strcmp(c->arg,"c") == 0) printf("%d keys listed\n",count);
+    if ((status == 0 || status == QNOKEY) && strcmp(c->arg,"c") == 0)
+        printf("%d keys listed\n",count);
     return ((status==0||status==QNOKEY)?0:status);
 }
 
