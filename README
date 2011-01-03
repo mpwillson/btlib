@@ -54,7 +54,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-3.1.0.tar.gz -C ~/dev
+        tar xzf bt-3.1.2.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
