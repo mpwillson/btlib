@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.25 2010-12-07 16:56:18 mark Exp $
+ * $Id: bc.h,v 1.26 2010-12-29 10:31:51 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -22,6 +22,8 @@
 
 #ifndef _btconst_
 #define _btconst_
+
+#include <limits.h>
 
 /* Support for large files (> 2GB); define macro _FILE_OFFSET_BITS=64 */
 #if _FILE_OFFSET_BITS == 64
@@ -93,20 +95,20 @@ typedef int BTint;
 
 /* Indexes into block info words - first ZINFSZ words in every block */
 /*
- * ZBTYPE       ZSUPER      ZROOT           ZINUSE  ZFREE   ZDATA 
- * ZMISC        #free blks  dups_allowed    Unused  Unused  bytes free
- * ZNXBLK       free list   data blk list   Unused  flink   flink 
- * ZNKEYS       # keys      # keys          # keys  Unused  next free byte 
- * ZNBLKS       # blocks    Unused          Unused  Unused  blink
+ * ZBTYPE       ZSUPER      ZROOT           ZINUSE       ZFREE   ZDATA 
+ * ZMISC        #free blks  dups_allowed    Unused       Unused  bytes free
+ * ZNXBLK       free list   data blk list   Parent blk # flink   flink 
+ * ZNKEYS       # keys      # keys          # keys       Unused  next free byte 
+ * ZNBLKS       # blocks    root blk #      root blk #   Unused  blink
  * 
  */
 
 /* ZVERS must be incremented when structure of B Tree index file
  * changes */
 #if _FILE_OFFSET_BITS == 64 
-#define ZVERS 0x3
+#define ZVERS 0x4
 #else
-#define ZVERS 0x2
+#define ZVERS 0x3
 #endif
 
 /* ZBTYPE and ZBTVER share information word 0 */

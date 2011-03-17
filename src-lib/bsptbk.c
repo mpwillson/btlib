@@ -1,5 +1,5 @@
 /*
- * $Id: bsptbk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bsptbk.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  *
   bsptbk: splits block into two
@@ -39,7 +39,7 @@ int bsptbk(BTint blk,BTint *newblk)
 {
     BTint val,link1,link2,blk1,blk2,pblk;
     int sp,sp2,type;
-    int result;
+    int result = 0;
     char tkey[ZKYLEN];
 
     *newblk = ZNULL;
@@ -53,15 +53,15 @@ int bsptbk(BTint blk,BTint *newblk)
     if (type == ZROOT) {
         /* splitting root, so need two free blocks */
         blk1 = bgtfre();
-        if (blk1 < 0) return(0);
+        if (blk1 < 0) return(ZNULL);
         blk2 = bgtfre();
-        if (blk2 < 0) return(0);
+        if (blk2 < 0) return(ZNULL);
         /* copy first half of root to first block */
         bcpybk(blk1,blk,0,0,sp);
         /* copy second half of root to second block */
         bcpybk(blk2,blk,0,sp+1,sp2);
-        bsetbk(blk1,ZINUSE,0,blk,sp,0);
-        bsetbk(blk2,ZINUSE,0,blk,sp2,0);
+        bsetbk(blk1,ZINUSE,0,blk,sp,btact->cntxt->super.scroot);
+        bsetbk(blk2,ZINUSE,0,blk,sp2,btact->cntxt->super.scroot);
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
         if (result != 0) {
@@ -88,7 +88,7 @@ int bsptbk(BTint blk,BTint *newblk)
         /* get parent block from last found block */
         pblk = btact->cntxt->lf.lfblk;
         /* set info for new block */
-        bsetbk(*newblk,ZINUSE,0,pblk,sp2,0);
+        bsetbk(*newblk,ZINUSE,0,pblk,sp2,btact->cntxt->super.scroot);
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
 #if DEBUG >= 2
@@ -106,5 +106,5 @@ int bsptbk(BTint blk,BTint *newblk)
     }
     btact->cntxt->stat.xsplit++;
 fin:
-    return(0);
+    return (result==0?0:ZNULL);
 }

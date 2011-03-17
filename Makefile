@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.20 2010-12-06 14:55:56 mark Exp $
+# $Id: Makefile,v 1.21 2010-12-21 09:13:18 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 #DEBUG=-g
@@ -74,7 +74,7 @@ HDR := ${wildcard ${INC_DIR}/*.h}
 
 .INTERMEDIATE: ${OBJ}
 
-all:	depend bt kcp bigt bigtdel
+all:	depend bt kcp bigt bigtdel btr
 
 # include dependencies (no message if it doesn't exist)
 -include 	${DEP}
@@ -113,6 +113,9 @@ bigt: ${SRC_MAIN}/bigt.c ${LIB_FILE}
 
 bigtdel:  ${SRC_MAIN}/bigtdel.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/bigtdel.c ${LIBS}
+
+btr:  ${SRC_MAIN}/btr.c ${LIB_FILE}
+	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/btr.c ${LIBS}
 
 release:
 ifndef REL
