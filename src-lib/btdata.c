@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.25 2010-12-31 14:20:52 mark Exp $
+ * $Id: btdata.c,v 1.26 2011-01-01 20:36:17 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -468,7 +468,7 @@ int btrecs(BTA *b, char *key, int *rsize)
     else {
         status = setup("BTRECS",key,&draddr);
         if (status == 0) {
-            *rsize = brecsz(draddr);
+            *rsize = brecsz(draddr,NULL);
             if (btact->shared) bulock();
         }
     }
@@ -507,18 +507,16 @@ int bseldt(BTint draddr, char *data, int dsize)
     while (sprem > 0 && draddr != 0) {
         /* unpick data pointer */
         cnvdraddr(draddr,&dblk,&offset);
-
         if (bgtinf(dblk,ZBTYPE) != ZDATA) {
             bterr("BSELDT",QNOTDA,itostr(dblk));
             totsz = -1;
             goto fin;
         }
-
         status = brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 #if DEBUG > 0
-        fprintf(stderr,"BSELDT: Using draddr 0x " ZXFMT " (" ZINTFMT
-                ",%d), found 0x " ZXFMT "\n",
+        fprintf(stderr,"BSELDT: Using draddr 0x" ZXFMT " (" ZINTFMT
+                ",%d), found 0x" ZXFMT "\n",
                 draddr,dblk,offset,*(d->data+offset+ZDOVRH));
 #endif
 
@@ -802,13 +800,30 @@ int insdat(BTint blk,char *data, int dsize, BTint prevseg)
  * ----------------------------------------------------------
  */
 
-int brecsz(BTint draddr)
+int brecsz(BTint draddr, BTA* dr_index)
 {
     BTint blk,newdraddr;
-    int offset, segsz, recsz;
+    BTA* b;
+    int offset, segsz, recsz, status;
     
     recsz = 0;
     while (draddr != 0) {
+        if (dr_index != NULL) {
+            /* recovery mode; check for circular draddr references */
+            char dr_str[80];
+            b = btact;              /* save active index handle */
+            sprintf(dr_str,ZXFMT,draddr);
+            status = binsky(dr_index,dr_str,0);
+            btact = b;              
+            if (status != 0) {
+                if (status == QDUP) {
+                    bterr("",0,NULL);
+                    bterr("BRECSZ",QDLOOP,dr_str);
+                }
+                goto fin;
+            }
+        }
+
         cnvdraddr(draddr,&blk,&offset);
 #if DEBUG > 0
         fprintf(stderr,"BRECSZ: Processing draddr: 0x" ZXFMT ", blk: " ZINTFMT
@@ -828,12 +843,15 @@ int brecsz(BTint draddr)
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
                segment */
-            bterr("BRECSZ",QDLOOP,NULL);
+            char dr_str[80];
+            sprintf(dr_str,ZXFMT,draddr);
+            bterr("BRECSZ",QDLOOP,dr_str);
             return(0);
         }
         draddr = newdraddr;
         recsz += segsz;
     }
+  fin:
     return(recsz);
 }
 

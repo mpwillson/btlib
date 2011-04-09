@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.10 2010-11-21 15:04:28 mark Exp $
+ * $Id: btree_int.h,v 1.11 2010-12-04 20:14:57 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -85,7 +85,7 @@ extern int bupddt(BTint, char *, int);
 extern int bdeldt(BTint);
 extern int deldat(BTint, int);
 extern int bseldt(BTint, char *, int);
-extern int brecsz(BTint);
+extern int brecsz(BTint, BTA *);
 extern void cnvdraddr(BTint, BTint *, int *);
 extern  BTint mkdraddr(BTint, int);
 extern int getseginfo(BTint, int *, BTint *);

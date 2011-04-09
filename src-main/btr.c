@@ -1,5 +1,5 @@
 /*
- *  $Id:$
+ *  $Id: btr.c,v 1.1 2011-03-17 19:06:23 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -68,11 +68,13 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define "$Id:$"
+#define VERSION "$Id: btr.c,v 1.1 2011-03-17 19:06:23 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
 char *prog;
+char *data_record;
+int data_record_size = ZBLKSZ;
 
 int file_exists(char *pathname)
 {
@@ -97,6 +99,17 @@ void print_bterror(void)
     btcerr(&errorcode,&ioerr,fname,msg);
     fprintf(stderr,"%s: btree error (%d) [%s] - %s\n",
             prog,errorcode,fname,msg);
+}
+
+void kalloc(char **buf,int bufsiz)
+{
+    *buf = (char *) malloc(bufsiz);
+    /* fprintf(stderr,"..allocating %d bytes\n",bufsiz); */
+    if (buf == NULL) {
+        fprintf(stderr,"%s: cannot acquire enough memory (%d bytes)\n",
+                prog,bufsiz);
+        exit(EXIT_FAILURE);
+    }
 }
 
 /* Open btree index file in recovery mode (i.e. limited checking) */
@@ -167,10 +180,39 @@ fin:
     return(NULL);
 }
 
-int copy_data_record(BTA* in, BTA* out, BTA* da, BTint draddr)
+int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
+                     int vlevel)
 {
-    
-    return 0;
+    int status,rsize;
+
+    /* TDB validate draddr */
+
+    btact = in;
+    rsize = brecsz(draddr,da);
+    status = btgerr();
+    if (status != 0) print_bterror();
+    if (rsize > data_record_size) {
+        free(data_record);
+        data_record_size = rsize;
+        kalloc(&data_record,data_record_size);
+    }
+    if (vlevel >= 3) {
+        fprintf(stderr,"Reading data record for key: %s; draddr: 0x" ZXFMT " ",
+                key,draddr);
+    }
+    rsize = bseldt(draddr,data_record,rsize);
+    status = btgerr();
+    if (status == 0) {
+        if (vlevel >= 3) {
+            fprintf(stderr," (%d bytes read)\n",rsize);
+        }
+        status = btins(out,key,data_record,rsize);
+    }
+    else {
+        if (vlevel >= 3)
+            fprintf(stderr,"\n");
+    }
+    return status;
 }
 
 int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
@@ -221,13 +263,17 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
                     status = binsky(out,keys[j],vals[j]);
                 }
                 else if (mode == DATA) {
-                    status = copy_data_record(in,out,da,vals[j]);
+                    status = copy_data_record(in,out,da,keys[j],vals[j],vlevel);
                 }
                 else {
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
                     return 0;
                 }
                 free(keys[j]);
+                if (status != 0) {
+                    print_bterror();
+                    return nioerrs;
+                }
             }
         }   
     }
@@ -238,7 +284,7 @@ int main(int argc, char *argv[])
 {
     int exit_status;
     int more_args = TRUE;
-    BTA *in, *out, *da;
+    BTA *in, *out, *da = NULL;
     char current_root[ZKYLEN],*s;
     int copy_mode = KEYS;
     int nioerrs, ioerror_max = 0;
@@ -285,6 +331,10 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (vlevel > 0) {
+        fprintf(stderr,"BTree Recovery: %s\n",VERSION);
+    }
+        
     if (btinit() != 0) {
         print_bterror();
         return EXIT_FAILURE;
@@ -297,6 +347,7 @@ int main(int argc, char *argv[])
             print_bterror();
             return EXIT_FAILURE;
         }
+        kalloc(&data_record,data_record_size);
     }
     
     exit_status = EXIT_SUCCESS;
@@ -328,6 +379,7 @@ int main(int argc, char *argv[])
         nioerrs = copy_index(copy_mode,in,out,da,vlevel,ioerror_max);
         btcls(in);
         btcls(out);
+        if (da != NULL) btcls(da);
         if (vlevel > 0) {
             fprintf(stderr,"%s: %d I/O errors encountered.\n",prog,nioerrs);
         }

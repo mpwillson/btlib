@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.22 2010-12-04 20:14:57 mark Exp $
+ * $Id: bterr.c,v 1.23 2010-12-29 10:31:51 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -89,7 +89,7 @@ char *msgblk[] = {
     " Data block usage gone bad: %s",
     " Data segment header references a non-data block: %s",
     " Index context invalid for current key operation",
-    " Circular data segment pointer encountered",
+    " Circular data segment pointer encountered at: 0x%s",
     " Unlock operation failed",
     " LRU queue corrupt - index not in list",
     " Data record action not permitted for current root",
