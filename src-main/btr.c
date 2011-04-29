@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.1 2011-03-17 19:06:23 mark Exp $
+ *  $Id: btr.c,v 1.2 2011-04-09 20:40:02 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -68,7 +68,7 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define VERSION "$Id: btr.c,v 1.1 2011-03-17 19:06:23 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.2 2011-04-09 20:40:02 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -157,7 +157,7 @@ BTA *btropn(char *fid,int vlevel)
        recovery mode is invoked.  Also need to pass back a variable
        to indicate limited recovery mode is in effect. */
     if (bgtinf(ZSUPER,ZBTVER) != ZVERS) {
-        fprintf(stderr,"%s: index file is version: %d. "
+        fprintf(stderr,"%s: index file is version: " ZINTFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,bgtinf(ZSUPER,ZBTVER));    
     }
@@ -188,6 +188,8 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     /* TDB validate draddr */
 
     btact = in;
+    /* Call brecsz with BTA*, which will cause it to record all
+     * draddrs and error on a duplicate */
     rsize = brecsz(draddr,da);
     status = btgerr();
     if (status != 0) print_bterror();
@@ -244,13 +246,15 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
             /* TDB perform various checks on block info */
             if (nkeys < 0 || nkeys >= ZMXKEY) {
                 if (vlevel >= 2) {
-                    fprintf(stderr,"btr: block: %d, bad ZNKEYS value: %d\n",
+                    fprintf(stderr,"btr: block: " ZINTFMT
+                            ", bad ZNKEYS value: %d\n",
                             blkno,nkeys);
                 }
                 continue;
             }
             if (vlevel >=3) {
-                fprintf(stderr,"Processing block: %d, keys: %d\n",blkno,nkeys);
+                fprintf(stderr,"Processing block: " ZINTFMT
+                        ", keys: %d\n",blkno,nkeys);
             }
             /* copy keys from block */
             for (j=0;j<nkeys;j++) {
