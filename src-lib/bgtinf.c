@@ -1,5 +1,5 @@
 /*
- * $Id: bgtinf.c,v 1.7 2004/10/02 16:10:08 mark Exp $
+ * $Id: bgtinf.c,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  * bgtinf: get information about block
  *
@@ -39,6 +39,9 @@ BTint bgtinf(BTint blk,int type)
 {
     BTint val;
     int ioerr,idx;
+#ifdef _FILE_OFFSET_BITS
+    BTint hdr;
+#endif                    
 
     val = 0;
     if (type >= ZINFSZ)
@@ -52,10 +55,22 @@ BTint bgtinf(BTint blk,int type)
             switch (type) {
                 case ZBTYPE:
                     val = ((btact->memrec)+idx)->infblk[ZBTYPE] & MASK;
+#ifdef _FILE_OFFSET_BITS
+                    val &= 0xffff;
+#endif                    
                     break;
                 case ZBTVER:
                     val = ((btact->memrec)+idx)->infblk[ZBTYPE] >>
                         ((ZBPW/2)*ZBYTEW);
+#ifdef _FILE_OFFSET_BITS
+                    hdr = val >> ZBYTEW*2;
+                    if (hdr == LFSHDR) {
+                        val &= 0xffff;
+                    }
+                    else {
+                        bterr("BGTINF",QNOT64BIT,0);
+                    }
+#endif
                     break;
                 default:
                     val = ((btact->memrec)+idx)->infblk[type];

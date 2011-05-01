@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.26 2010-12-29 10:31:51 mark Exp $
+ * $Id: bc.h,v 1.27 2011-03-17 19:06:23 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -25,6 +25,8 @@
 
 #include <limits.h>
 
+/*  B tree constants */
+
 /* Support for large files (> 2GB); define macro _FILE_OFFSET_BITS=64 */
 #if _FILE_OFFSET_BITS == 64
 typedef long long BTint;
@@ -40,15 +42,13 @@ typedef int BTint;
 #define ZINTFMT "%d"
 #endif
 
-/*
- *  B tree constants
- */
-
-
 #define DEBUG 0
 
 #define TRUE 1
 #define FALSE 0
+
+/* First two bytes of header for index with LFS */
+#define LFSHDR 0x7462
 
 /* Implementation defined constants */
 
@@ -93,8 +93,8 @@ typedef int BTint;
 #define ZRNAMESZ 16
 #define ZMSGSZ 132
 
-/* Indexes into block info words - first ZINFSZ words in every block */
-/*
+/* Indexes into block info words - first ZINFSZ words in every block 
+ *
  * ZBTYPE       ZSUPER      ZROOT           ZINUSE       ZFREE   ZDATA 
  * ZMISC        #free blks  dups_allowed    Unused       Unused  bytes free
  * ZNXBLK       free list   data blk list   Parent blk # flink   flink 
@@ -105,11 +105,7 @@ typedef int BTint;
 
 /* ZVERS must be incremented when structure of B Tree index file
  * changes */
-#if _FILE_OFFSET_BITS == 64 
 #define ZVERS 0x4
-#else
-#define ZVERS 0x3
-#endif
 
 /* ZBTYPE and ZBTVER share information word 0 */
 #define ZBTYPE 0
@@ -249,5 +245,8 @@ typedef int BTint;
 #define QNODUPS 56
 
 #define QPOSERR 57
+
+#define QNOT64BIT 58
+#define Q64BIT 59
 
 #endif /* _btconst_ */

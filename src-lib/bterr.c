@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.23 2010-12-29 10:31:51 mark Exp $
+ * $Id: bterr.c,v 1.24 2011-04-09 20:40:02 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -106,6 +106,8 @@ char *msgblk[] = {
     " Defined block size is not a power of 2: %s",
     " Duplicates are not permitted in superroot.",
     " Location search exceeds key count at block: %s",
+    " Index was not built with LFS (64bit) enabled.",
+    " Index was built with LFS (64bit) enabled; this implementation was not.",
     " No message exists for this error code"
 };
 

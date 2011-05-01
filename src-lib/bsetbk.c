@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbk.c,v 1.7 2004/10/02 16:10:08 mark Exp $
+ * $Id: bsetbk.c,v 1.8 2010-05-26 12:39:16 mark Exp $
  *
  *
   bsetbk:  sets info array in block
@@ -47,8 +47,7 @@ int bsetbk(BTint blk,BTint type,BTint misc,BTint nxblk,BTint nkeys,BTint nblks)
         bterr("BSETBK",QRDBLK,itostr(blk));
     }
     else {
-        ((btact->memrec)+idx)->infblk[ZBTYPE] =
-            (((BTint) ZVERS) << ((ZBPW/2)*ZBYTEW)) | type;
+        bstinf(blk,ZBTYPE,type);
         ((btact->memrec)+idx)->infblk[ZMISC] = misc;
         ((btact->memrec)+idx)->infblk[ZNXBLK] = nxblk;
         ((btact->memrec)+idx)->infblk[ZNKEYS] = nkeys;

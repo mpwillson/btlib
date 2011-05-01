@@ -1,5 +1,5 @@
 /*
- * $Id: bstinf.c,v 1.10 2010-05-26 12:39:16 mark Exp $
+ * $Id: bstinf.c,v 1.11 2010-11-07 21:01:27 mark Exp $
  *
  *
  *  bstinf: set information about block
@@ -50,6 +50,13 @@ int bstinf(BTint blk,int type,BTint val)
                 case ZBTYPE:
                     ((btact->memrec)+idx)->infblk[type] =
                         (((BTint) ZVERS) << ((ZBPW/2)*ZBYTEW)) | val;
+#ifdef _FILE_OFFSET_BITS
+                    /* add 64bit file marker */
+                    ((btact->memrec)+idx)->infblk[type] |=
+                        (((BTint) LFSHDR) << ((ZBPW-2)*ZBYTEW));
+                    ((btact->memrec)+idx)->infblk[type] |=
+                        (((BTint) LFSHDR) << ((ZBPW-6)*ZBYTEW));
+#endif                        
                 case ZBTVER:
                     break; /* always set implicitly by ZBTYPE */
                 default:

@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: bsuper.c,v 1.9 2010-07-01 09:43:51 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -35,20 +35,27 @@
 int brdsup()
 {
     int ioerr,idx;
-
+    BTint ver;
+    
     ioerr = brdblk(ZSUPER,&idx);
     if (ioerr != 0) {
         bterr("BRDSUP",QRDSUP,(ioerr<0)?"(EOF?)":"");
         goto fin;
     } 
+    ver = bgtinf(ZSUPER,ZBTVER);
+    if (ver == LFSHDR) {
+        bterr("BRDSUP",Q64BIT,NULL);
+        ioerr = Q64BIT;
+        goto fin;
+    }
+    else if (ver != ZVERS) {
+        bterr("BRDSUP",QBADVR,itostr(ZVERS));
+        ioerr = QBADVR;
+        goto fin;
+    }
     if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {
         bterr("BRDSUP",QSRNR,NULL);
         ioerr = QSRNR;
-        goto fin;
-    }
-    if (bgtinf(ZSUPER,ZBTVER) != ZVERS) {
-        bterr("BRDSUP",QBADVR,itostr(ZVERS));
-        ioerr = QBADVR;
         goto fin;
     }
     
