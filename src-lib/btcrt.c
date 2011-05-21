@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.10 2010-06-02 10:29:10 mark Exp $
+ * $Id: btcrt.c,v 1.11 2010-06-07 12:16:04 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -42,6 +42,8 @@
 #include "bt.h"
 #include "btree.h"
 #include "btree_int.h"
+
+#define DEFAULT_ROOT 1
 
 BTA *btcrt(char *fid, int nkeys,int shared)
 {
@@ -94,7 +96,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     strcpy(((btact->memrec)+idx)->keyblk[1],"$$super");
     ((btact->memrec)+idx)->valblk[1] = ZSUPER;
     strcpy(((btact->memrec)+idx)->keyblk[0],"$$default");
-    ((btact->memrec)+idx)->valblk[0] = 1; /* record address of default root */
+    ((btact->memrec)+idx)->valblk[0] = DEFAULT_ROOT;
     for (i=0;i<=2;i++) ((btact->memrec)+idx)->lnkblk[i] = ZNULL;
 
     /* write it out */
@@ -109,18 +111,18 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     ((btact->cntrl)+idx)->inmem = 1;
     btact->cntxt->super.scroot = 1;
     strcpy(btact->cntxt->super.scclas,"$$default");
-    bsetbk(1,ZROOT,0,ZNULL,0,0);
-    ioerr = bwrblk(1);
+    bsetbk(1,ZROOT,0,ZNULL,0,DEFAULT_ROOT);
+    ioerr = bwrblk(DEFAULT_ROOT);
     if (ioerr != 0) {
         bterr("BTCRT",QWRBLK,itostr(1));
         goto fin;
     }
-    ioerr = brdblk(1,&idx);
+    ioerr = brdblk(DEFAULT_ROOT,&idx);
     if (ioerr != 0) {
         bterr("BTCRT",QRDBLK,itostr(1));
         goto fin;
     }
-    bsetbs(1,1);
+    bsetbs(DEFAULT_ROOT,TRUE);
     /* initialise free list if required */
     if (nkeys != 0) {
         idx = bgtslt();

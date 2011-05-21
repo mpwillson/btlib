@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.35 2011-01-01 20:36:26 mark Exp $
+ * $Id: bt.c,v 1.36 2011-01-03 10:09:50 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -33,6 +33,9 @@
 #include "btree.h"
 #include "btree_int.h"
 #include "btcmd.h"
+
+#define NORMAL_QUIT -1
+#define INSTANT_QUIT -2
 
 /* Structures for handling active bt context pointers */
 struct bt_plist {
@@ -388,7 +391,12 @@ int open_file_readonly(CMDBLK* c)
 
 int quit(CMDBLK* c)
 {
-    return -1;
+    if (strcmp(c->arg,"x") == 0) {
+        return INSTANT_QUIT;
+    }
+    else {
+        return NORMAL_QUIT;
+    }
 }
 
 /* closes open index files prior to exit */
@@ -1008,7 +1016,8 @@ CMDENTRY bt_cmds[] = {
     "Display previous key and associated data." },
   { "prompt","p",btcmd_prompt,"",0,
     "Toggle prompting before reading command."},
-  { "quit","q",quit,"",0,"Quit bt program." },
+  { "quit","q",quit,"[x]",0,"Quit bt program.  If x arg specified, "
+    "terminate without closing open index files." },
   { "remove","r",remove_key,"key",1,"Remove key." },
   { "remove-cur","rc",remove_key_current,"",0,"Remove key at current "
     "index postion." },
@@ -1056,6 +1065,7 @@ void report_error(int i)
     
 int main(int argc,char *argv[])
 {
+    int quit_type;
     char *ps = "bt: ";
     
     if (btinit() != 0) {
@@ -1064,9 +1074,8 @@ int main(int argc,char *argv[])
     }
     else {
         /* read commands from command stream */
-        btcmd(ps,bt_cmds,report_error);
-
-        shutdown();
+        quit_type = btcmd(ps,bt_cmds,report_error);
+        if (quit_type == NORMAL_QUIT) shutdown();
     }
     return EXIT_SUCCESS;
 }

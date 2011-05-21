@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.3 2011-04-29 13:52:58 mark Exp $
+ *  $Id: btr.c,v 1.4 2011-05-01 19:49:30 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -68,7 +68,7 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define VERSION "$Id: btr.c,v 1.3 2011-04-29 13:52:58 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.4 2011-05-01 19:49:30 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -263,13 +263,22 @@ BTKEYS* get_keys(int idx, int nkeys,BTKEYS* k)
 
 int load_superroot_names(BTA* in,int vlevel)
 {
-    int idx, nkeys;
+    int i, idx, nkeys;
     
     idx = load_block(in,ZSUPER,vlevel);
-    if (idx != 0) return idx;
+    if (idx < 0) return idx;
     nkeys = bgtinf(ZSUPER,ZNKEYS);
     superroot_keys = get_keys(idx,nkeys,NULL);
     /* TBD: for some vlevel, print root names and blocks */
+    if (vlevel >= 1) {
+        printf("\nAttempting to recover the following root names:\n");
+        printf("%-32s %s\n","RootName","BlockNum");
+        for (i=0; i<nkeys; i++) {
+            printf("%-32s " ZINTFMT "\n",superroot_keys->keys[i],
+                   superroot_keys->vals[i]);
+        }
+        puts("");
+    }
     return 0;
 }
 
@@ -283,7 +292,6 @@ char* name_of_root(BTint blkno)
             return superroot_keys->keys[j];
         }
     }
-    sprintf(root_name,"root-" ZINTFMT,blkno);
     return root_name;
 }
 
@@ -329,34 +337,29 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     return status;
 }
 
-int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
+int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
+               int allow_dups)
 {
     int j,idx,status,block_type,nkeys;
     BTint blkno,root;
     BTKEYS* keyblk = NULL;
     char* current_root = "$$default";
     char* root_name;
-    
-    if (load_superroot_names(in,vlevel) != 0) return stats.nioerrs;
+
+    status = load_superroot_names(in,vlevel);
+    if (!limited_recovery && status < 0) return status;
     
     for (blkno=1;blkno<BTINT_MAX;blkno++) {
        idx = load_block(in,blkno,vlevel);
-        if (idx == EOF || stats.nioerrs > ioerr_max) {
-            return stats.nioerrs;
+        if (idx < 0 || stats.nioerrs > ioerr_max) {
+            return idx;
         }
 
         block_type = bgtinf(blkno,ZBTYPE);
         if (block_type == ZROOT || block_type == ZINUSE) {
-            if (!limited_recovery) {
-                root = bgtinf(blkno,ZNBLKS);
-                root_name = name_of_root(root);
-                if (strcmp(root_name,current_root) != 0) {
-                    /* TBD: attempt to create root */
-                }
-            }
             nkeys = bgtinf(blkno,ZNKEYS);
             /* TDB: perform various checks on block info */
-            if (nkeys < 0 || nkeys >= ZMXKEY) {
+            if (nkeys < 0 || nkeys > ZMXKEY) {
                 if (vlevel >= 2) {
                     fprintf(stderr,"btr: block: " ZINTFMT
                             ", bad ZNKEYS value: %d\n",
@@ -365,13 +368,39 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
                 continue;
             }
             stats.key_blocks_processed++;
-            if (vlevel >= 3) {
-                fprintf(stderr,"Processing block: " ZINTFMT
-                        ", keys: %d\n",blkno,nkeys);
-            }
-            /* copy keys from block; re-use keyblk */
+             /* copy keys from block; re-use keyblk */
             keyblk = get_keys(idx,nkeys,keyblk);
-            /* insert into new btree file */
+            if (!limited_recovery) {
+                /* check for multi-root index */
+                root = bgtinf(blkno,ZNBLKS);
+                root_name = name_of_root(root);
+                if (strcmp(root_name,current_root) != 0) {
+                    /* attempt to switch to root; create if it
+                     * doesn't exist */
+                    status = btchgr(out,root_name);
+                    if (status == QNOKEY) {
+                        status = btcrtr(out,root_name);
+                    }
+                    if (status != 0) {
+                        print_bterror();
+                        return status;
+                    }
+                    if (allow_dups) {
+                        status = btdups(out,TRUE);
+                        if (status != 0) {
+                            print_bterror();
+                            return status;
+                        }
+                    }
+                    current_root = root_name;
+                }   
+            }
+            if (vlevel >= 2) {
+                fprintf(stderr,"Processing block: " ZINTFMT
+                        ", keys: %d [%s," ZINTFMT "]\n",blkno,nkeys,
+                        current_root,root);
+            }
+           /* insert into new btree file */
             for (j=0;j<nkeys;j++) {
                 if (mode == KEYS) {
                     stats.keys++;
@@ -381,6 +410,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
                     stats.keys++;
                     status = copy_data_record(in,out,da,keyblk->keys[j],
                                               keyblk->vals[j],vlevel);
+                    if (status == QDLOOP) stats.seg_addr_loops++;
                 }
                 else {
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
@@ -389,12 +419,12 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max)
                 free(keyblk->keys[j]);
                 if (status != 0) {
                     print_bterror();
-                    return stats.nioerrs;
+                    return status;
                 }
             }
         }   
     }
-    return stats.nioerrs;
+    return status;
 }
 
 int main(int argc, char *argv[])
@@ -408,6 +438,7 @@ int main(int argc, char *argv[])
     int vlevel = 0;
     int preserve = TRUE;
     int allow_dups = FALSE;
+    int status;
 
     current_root[0] = '\0';
     s = strrchr(argv[0],'/');
@@ -498,20 +529,27 @@ int main(int argc, char *argv[])
             print_bterror();
             return EXIT_FAILURE;
         }
-    
-        stats.nioerrs = copy_index(copy_mode,in,out,da,vlevel,ioerror_max);
+        if (allow_dups) {
+            status = btdups(out,TRUE);
+            if (status != 0) {
+                print_bterror();
+                return EXIT_FAILURE;
+            }
+        }   
+        status = copy_index(copy_mode,in,out,da,vlevel,ioerror_max,
+                            allow_dups);
         btcls(in);
         btcls(out);
         if (da != NULL) btcls(da);
-        puts("BTRecovery Statistics:");
-        printf("\t%-25s " Z20DFMT "\n","Keys Processed:",stats.keys);
-        printf("\t%-25s " Z20DFMT "\n","Data Records Processed:",stats.records);
-        printf("\t%-25s " Z20DFMT "\n","Record Address Loops:",
+        puts("\nBTRecovery Statistics:");
+        printf("  %-25s " Z20DFMT "\n","Keys Processed:",stats.keys);
+        printf("  %-25s " Z20DFMT "\n","Data Records Processed:",stats.records);
+        printf("  %-25s " Z20DFMT "\n","Record Address Loops:",
                stats.seg_addr_loops);
-        printf("\t%-25s " Z20DFMT "\n","Key Blocks Processed:",
+        printf("  %-25s " Z20DFMT "\n","Key Blocks Processed:",
                stats.key_blocks_processed);
         if (vlevel > 0) {
-            fprintf(stdout,"\t%-25s %20d\n","I/O errors encountered:",
+            fprintf(stdout,"  %-25s %20d\n","I/O errors encountered:",
                     stats.nioerrs);
         }
     }

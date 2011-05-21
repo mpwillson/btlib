@@ -1,3 +1,25 @@
+2011-05-21  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c, btcmd.c: Add instant quit option to make it easy to create
+	damaged index files.
+
+2011-05-02  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btr.c: Created initial version.
+
+	* btcrt.c, btcrtr.c: Root block number stored in ZNBLKS info word
+	in ZROOT blocks.
+
+	* bterr.c, bsuper.c, bstinf.c, bsetbk.c, bgtinf.c, bc.h: Bumped
+	version of BT index to x04.  Added code to detect use of 64 bit
+	index file with 32 bit library (and vice versa).
+
+	* btdata.c: Added duplicate draddr detection to brecsz for BT
+	recovery.
+
+	* bsptbk.c: Store root block number in ZNBLKS info word of a
+	ZINUSE block.  Added to aid BT recovery.
+
 2010-12-31  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c: Improve error handling in next and previous commands.

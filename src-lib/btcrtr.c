@@ -1,5 +1,5 @@
 /*
- * $Id: btcrtr.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btcrtr.c,v 1.8 2010-11-07 21:01:27 mark Exp $
  *
  * btcrtr: creates a new root in index file
  *
@@ -70,7 +70,7 @@ int btcrtr(BTA *b, char *root)
         /* update root block number */
         status = bupdky(b,root,blk);
         if (status != 0 ) goto fin;
-        bsetbk(blk,ZROOT,0,ZNULL,0,0);
+        bsetbk(blk,ZROOT,0,ZNULL,0,blk);
         btact->cntxt->super.scroot = blk;
         strcpy(btact->cntxt->super.scclas,root);
         bsetbs(btact->cntxt->super.scroot,TRUE);

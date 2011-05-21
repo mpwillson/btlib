@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.8 2010-08-22 15:40:16 mark Exp $
+ * $Id: btcmd.c,v 1.9 2010-12-04 20:14:57 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -420,7 +420,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     return;
 }
     
-void btcmd(char* prompt_string,CMDENTRY app_cmds[],
+int btcmd(char* prompt_string,CMDENTRY app_cmds[],
               void(error_handler)(int))
 {
     char* rlbuf = NULL;
@@ -465,7 +465,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
         }
         if (cp == NULL && rlbuf == NULL) {
             if (input == stdin) {
-                return; /* end of file in tty command stream */
+                return 0; /* end of file in tty command stream */
             }
             else {
                 btcmd_close_execute(&cblk);
@@ -495,7 +495,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
                         "command file processing terminated "
                         "(error on).\n");
                 if (input == stdin) {
-                    return; /* must be error in here document */
+                    return 0; /* must be error in here document */
                 }
                 else {
                     while (input != stdin) btcmd_close_execute(&cblk);
@@ -504,7 +504,7 @@ void btcmd(char* prompt_string,CMDENTRY app_cmds[],
         }
     }
     signal(SIGINT,SIG_DFL);
-    return;
+    return status;
 }
 
 
