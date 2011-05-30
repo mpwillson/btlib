@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.4 2011-05-01 19:49:30 mark Exp $
+ *  $Id: btr.c,v 1.5 2011-05-21 16:27:58 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -16,8 +16,10 @@
  *     not be used as a typical example of use of the btree API.
  *  
  *  MODIFICATION HISTORY
- *  Mnemonic        Rel Date    Who
- *      
+ *  Mnemonic        Rel Date     Who
+ *  BTR             1.0 20110401 mpw
+ *    Created.
+ *    
  * Copyright (C) 2011 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -68,11 +70,13 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define VERSION "$Id: btr.c,v 1.4 2011-05-01 19:49:30 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.5 2011-05-21 16:27:58 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
 #define IOERROR -2
+#define BAD_DRADDR -3
+#define DR_READ_ERROR -4
 
 /* version of btlib for which full recovery is possible, that is each
  * block records the root of the tree */
@@ -92,6 +96,8 @@ struct {
     BTint records;
     BTint seg_addr_loops;
     BTint key_blocks_processed;
+    BTint bad_draddrs;
+    BTint dr_read_errors;
 } stats;
 
 /* Hold keys and values read from block */
@@ -133,7 +139,7 @@ void print_bterror(void)
 
 void kalloc(char **buf,int bufsiz)
 {
-    *buf = (char *) malloc(bufsiz);
+    *buf = malloc(bufsiz);
     /* fprintf(stderr,"..allocating %d bytes\n",bufsiz); */
     if (buf == NULL) {
         fprintf(stderr,"%s: cannot acquire enough memory (%d bytes)\n",
@@ -295,21 +301,40 @@ char* name_of_root(BTint blkno)
     return root_name;
 }
 
+int valid_draddr(BTint draddr)
+{
+    BTint dblk;
+    int offset;
+
+    cnvdraddr(draddr,&dblk,&offset);
+    return (dblk > ZSUPER &&
+            dblk < btact->cntxt->super.sblkmx &&
+            bgtinf(dblk,ZBTYPE) == ZDATA &&
+            offset > ZDOVRH &&
+            offset < ZBLKSZ);
+}
+ 
 int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
                      int vlevel)
 {
     int status,rsize;
 
-    /* TDB validate draddr */
-
     btact = in;
+    if (!valid_draddr(draddr)) {
+        if (vlevel >=3) {
+            fprintf(stderr,"Invalid data address for key %s: 0x" ZXFMT "\n",
+                    key,draddr);
+        }
+        return BAD_DRADDR;
+    }
+    
     /* Call brecsz with BTA*, which will cause it to record all
      * draddrs and error on a duplicate */
     rsize = brecsz(draddr,da);
     status = btgerr();
     if (status != 0) {
         print_bterror();
-        return status;
+        return DR_READ_ERROR;
     }
     
     if (rsize > data_record_size) {
@@ -331,6 +356,8 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         status = btins(out,key,data_record,rsize);
     }
     else {
+        print_bterror();
+        status = DR_READ_ERROR;
         if (vlevel >= 3)
             fprintf(stderr,"\n");
     }
@@ -407,10 +434,19 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
                 }
                 else if (mode == DATA) {
-                    stats.keys++;
                     status = copy_data_record(in,out,da,keyblk->keys[j],
                                               keyblk->vals[j],vlevel);
                     if (status == QDLOOP) stats.seg_addr_loops++;
+                    if (status == BAD_DRADDR) stats.bad_draddrs++;
+                    if (status == DR_READ_ERROR) stats.dr_read_errors++;
+                    if (status < 0) {
+                        /* copy_data_record can't access the data
+                         * record; insert key only, if so.
+                         */
+                        status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
+                        if (status < 0) status = 0; /* ignore btr errors */
+                    }
+                    if (status == 0) stats.keys++;
                 }
                 else {
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
@@ -542,12 +578,16 @@ int main(int argc, char *argv[])
         btcls(out);
         if (da != NULL) btcls(da);
         puts("\nBTRecovery Statistics:");
-        printf("  %-25s " Z20DFMT "\n","Keys Processed:",stats.keys);
-        printf("  %-25s " Z20DFMT "\n","Data Records Processed:",stats.records);
-        printf("  %-25s " Z20DFMT "\n","Record Address Loops:",
-               stats.seg_addr_loops);
         printf("  %-25s " Z20DFMT "\n","Key Blocks Processed:",
                stats.key_blocks_processed);
+        printf("  %-25s " Z20DFMT "\n","Keys Processed:",stats.keys);
+        printf("  %-25s " Z20DFMT "\n","Data Records Processed:",stats.records);
+        printf("  %-25s " Z20DFMT "\n","Data Record Read Errors",
+               stats.dr_read_errors);
+        printf("  %-25s " Z20DFMT "\n","Record Address Loops:",
+               stats.seg_addr_loops);
+         printf("  %-25s " Z20DFMT "\n","Bad Data Block Addresses:",
+               stats.bad_draddrs);
         if (vlevel > 0) {
             fprintf(stdout,"  %-25s %20d\n","I/O errors encountered:",
                     stats.nioerrs);
