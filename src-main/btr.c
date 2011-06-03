@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.5 2011-05-21 16:27:58 mark Exp $
+ *  $Id: btr.c,v 1.6 2011-05-30 10:22:42 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -70,7 +70,7 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define VERSION "$Id: btr.c,v 1.5 2011-05-21 16:27:58 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.6 2011-05-30 10:22:42 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -91,7 +91,7 @@ int limited_recovery = FALSE;
 
 /* Recovery statistics */
 struct {
-    int nioerrs;
+    int   nioerrs;
     BTint keys;
     BTint records;
     BTint seg_addr_loops;
@@ -436,7 +436,13 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                 else if (mode == DATA) {
                     status = copy_data_record(in,out,da,keyblk->keys[j],
                                               keyblk->vals[j],vlevel);
-                    if (status == QDLOOP) stats.seg_addr_loops++;
+                    
+                    if (status == QDLOOP) {
+                        /* mostly likely problem on input side; let's
+                           just copy the key */                        
+                        stats.seg_addr_loops++;
+                        status = -1;
+                    }
                     if (status == BAD_DRADDR) stats.bad_draddrs++;
                     if (status == DR_READ_ERROR) stats.dr_read_errors++;
                     if (status < 0) {
@@ -444,7 +450,6 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                          * record; insert key only, if so.
                          */
                         status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
-                        if (status < 0) status = 0; /* ignore btr errors */
                     }
                     if (status == 0) stats.keys++;
                 }
