@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.6 2011-05-30 10:22:42 mark Exp $
+ *  $Id: btr.c,v 1.7 2011-06-03 20:14:55 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -70,7 +70,7 @@
  * Write errors to stderr.  Write stats on keys and/or data recovered.
  */
 
-#define VERSION "$Id: btr.c,v 1.6 2011-05-30 10:22:42 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.7 2011-06-03 20:14:55 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -264,7 +264,7 @@ BTKEYS* get_keys(int idx, int nkeys,BTKEYS* k)
  * can't trust the index, only the superroot block is processed.
  * We assume that there will be fewer roots than ZMXKEY.  If this
  * assumption is incorrect, then roots are named using the root block
- * number. 
+ * number (for btree index files >= FULL_RECOVERY_VERSION). 
  */
 
 int load_superroot_names(BTA* in,int vlevel)
