@@ -1,5 +1,5 @@
 /*
- * $Id: btinit.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btinit.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  * btinit: initialise B tree tables 
  *
@@ -62,6 +62,7 @@ int btinit()
         btat[i].memrec = NULL;
         btat[i].cntxt = NULL;
         btat[i].fd = -1;
+        btat[i].wt_threshold = 0;
     }
 
     btinited = TRUE;

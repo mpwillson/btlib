@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.26 2011-01-01 20:36:17 mark Exp $
+ * $Id: btdata.c,v 1.27 2011-04-09 20:40:02 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -770,6 +770,10 @@ int deldat(BTint blk,int offset)
     else {
         bstinf(blk,ZMISC,freesz);
     }
+    if ( btact->wt_threshold > 0 &&
+         ((btact->cntrl)+idx)->writes > btact->wt_threshold) {
+        bwrblk(blk);
+    }
     return (0);
 }
 
@@ -793,6 +797,10 @@ int insdat(BTint blk,char *data, int dsize, BTint prevseg)
     bstinf(blk,ZNKEYS,offset+ZDOVRH+dsize);
     freesz = bgtinf(blk,ZMISC);
     bstinf(blk,ZMISC,freesz-(ZDOVRH+dsize));
+    if ( btact->wt_threshold > 0 &&
+         ((btact->cntrl)+idx)->writes > btact->wt_threshold) {
+        bwrblk(blk);
+    }
     return(offset);
 }
 /*-----------------------------------------------------------

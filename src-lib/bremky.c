@@ -1,5 +1,5 @@
 /*
- * $Id: bremky.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bremky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bremky: deletes key (and rlink) at pos from blk
  *
@@ -50,6 +50,10 @@ void bremky(BTint blk,int pos)
     }
 
     ((btact->cntrl)+idx)->writes++;
+    if ( btact->wt_threshold > 0 &&
+         ((btact->cntrl)+idx)->writes > btact->wt_threshold) {
+        bwrblk(blk);
+    }
 fin:
     return;
 }

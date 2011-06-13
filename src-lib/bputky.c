@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: bputky.c,v 1.10 2010-11-21 15:04:28 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -117,6 +117,10 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
     }
     ((btact->memrec)+idx)->infblk[ZNKEYS]++;
     ((btact->cntrl)+idx)->writes++;
-fin:
+    if ( btact->wt_threshold > 0 &&
+         ((btact->cntrl)+idx)->writes > btact->wt_threshold) {
+        bwrblk(blk);
+    }
+  fin:
     return(0);
 }

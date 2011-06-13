@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: bt.h,v 1.7 2010-05-28 11:45:28 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -140,6 +140,7 @@ struct bt_active {
     int fd;                 /* used to hold index file descriptor */
     int lckcnt;             /* re-entrant lock count */
     int shared;
+    int wt_threshold;       /* write through threshold */
     CNTRL *cntrl;
     MEMREC *memrec;
     CNTXT *cntxt;

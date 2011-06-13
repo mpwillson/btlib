@@ -1,3 +1,11 @@
+2011-06-13  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bt.c: Added wt command to set write through threshold.
+
+	* bt.h, bputky.c, bremky.c, bdata.c, btthresh.c: Added support for
+	block write through when write threshold is reached, as an attempt
+	to reduce the index file damage on unexpected btree termination.
+
 2011-05-21  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c, btcmd.c: Add instant quit option to make it easy to create

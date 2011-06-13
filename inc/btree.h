@@ -1,5 +1,5 @@
 /*
- * $Id: btree.h,v 1.9 2010-11-07 21:01:27 mark Exp $
+ * $Id: btree.h,v 1.10 2010-11-21 15:04:28 mark Exp $
  * 
  * Standard btree header
  * Defines all API functions
@@ -54,6 +54,7 @@ extern int btlock(BTA *);
 extern int btunlock(BTA *);
 
 extern int btpos(BTA *,int);
+extern int btthresh(BTA*, int);
 
 
 

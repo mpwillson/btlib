@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.36 2011-01-03 10:09:50 mark Exp $
+ * $Id: bt.c,v 1.37 2011-05-21 16:27:58 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -887,6 +887,13 @@ int update_value_current(CMDBLK* c)
     return status;
 }
 
+int wr_thresh(CMDBLK* c)
+{
+    
+    btthresh(btp,strtol(c->arg,NULL,10));
+    return 0;
+}
+
 int decode_addr(CMDBLK* c)
 {
     int status;
@@ -1043,6 +1050,8 @@ CMDENTRY bt_cmds[] = {
   { "update-value-cur","uvc",update_value_current,"val",1,"Update "
     "value of current key in context to val." },
   { "use-file","u",use_file,"[file]",0,"Make file current in-use index file." },
+  { "write-threshold","wt",wr_thresh,"n",1,"Set write threshold for current "
+    "index file as n." },
   { "","",unknown_command,"",0,"Unknown command found"}
 };
 
