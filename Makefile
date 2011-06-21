@@ -22,10 +22,10 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.22 2011-03-17 19:06:23 mark Exp $
+# $Id: Makefile,v 1.23 2011-04-09 20:40:02 mark Exp $
 
 # Uncomment the following line for a debug version of the library
-DEBUG=-g
+#DEBUG=-g
 
 # Headers in INC_DIR
 INC_DIR=./inc
@@ -87,6 +87,9 @@ bt:	${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE}
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
 
+btr:  ${SRC_MAIN}/btr.c ${LIB_FILE}
+	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/btr.c ${LIBS}
+
 clean:
 	rm -f bt bt.exe bigt bigt.exe bigtdel bigtdel.exe ${LIB_FILE} kcp kcp.exe ${OBJ}
 
@@ -107,15 +110,16 @@ test_init:
 	cd ${TESTCASES};sh ./create_output_masters.sh
 	find ${TESTCASES} -type f -name "test_db" -exec rm  {} \;
 
-# Build big file tester
+# Build testing binaries
 bigt: ${SRC_MAIN}/bigt.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/bigt.c ${LIBS}
 
 bigtdel:  ${SRC_MAIN}/bigtdel.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/bigtdel.c ${LIBS}
 
-btr:  ${SRC_MAIN}/btr.c ${LIB_FILE}
-	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/btr.c ${LIBS}
+corrupt:  ${TESTCASES}/corrupt.c
+	${CC} ${CFLAGS} -o ${TESTCASES}/$@ ${TESTCASES}/corrupt.c
+
 
 release:
 ifndef REL

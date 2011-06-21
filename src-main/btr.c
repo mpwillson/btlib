@@ -1,19 +1,55 @@
 /*
- *  $Id: btr.c,v 1.7 2011-06-03 20:14:55 mark Exp $
+ *  $Id: btr.c,v 1.8 2011-06-03 20:18:05 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
  *  
  *  SYNOPSIS
- *      btr {-k|-d} [-n cnt] [-v] [--] old_file new_file
+ *      btr {-k|-d} [-n cnt] [-v] [-a] [--] old_file new_file
  *  
  *  DESCRIPTION
-  *
- *  NOTES
+ *      btr will attempt the copy the contents of the btree inex file
+ *      old_file into new_file, mediated by the following command
+ *      arguments:
  *
+ *      -k        copy keys only
+ *      -d        copy keys and data
+ *      -n cnt    accept up to cnt io errors before failing
+ *      -a        allow duplicates in the new btree index file
+ *      -v        be verbose (up to three levels of verbosity by -vv
+ *                and -vvv)
+ *
+ *       btr will also attempt to copy index files created with
+ *       previous versions of btree, but recovery is limited as
+ *       necessary information for btree index reconstruction is not
+ *       available in earlier versions of the index structure.  This
+ *       mostly affects multi-rooted trees, where the roots will be
+ *       lost and all keys copied into the $$default root.
+ *
+ *  NOTES
+ *      Open corrupt btree file using btr version of btopn (if
+ *      necessary), to bypass some consistency checks.
+ *
+ *      Try and read superroot.  If successful, store root names and root
+ *      blocks.  Only the roots in the superroot are retained.
+ *
+ *      For each block, starting from 1, read it in.  If marked as
+ *      ZROOT or ZINSUE, extract the keys and values directly from the
+ *      in-memory array.  If -k specified, write key and value to new
+ *      btree index file.  If -d specified, if value is a valid
+ *      draddr, try and read data record.  Data record addresses are
+ *      stored in a supporting bt index file, so that we can detect
+ *      circular references.  If data record read OK, write key and
+ *      record to new btree file.
+ *
+ *      In version 4 (and later) of the btree index, each ZINUSE block
+ *      will contain the root block it belongs to.  This will allow us to
+ *      partition keys by their roots, although if we cannot read the
+ *      superroot correctly, the original root names will be lost.
+ * 
  *  BUGS
- *     btr delves into the innards of a btree index file and should
- *     not be used as a typical example of use of the btree API.
+ *      btr delves into the innards of a btree index file and should
+ *      not be used as a typical example of use of the btree API.
  *  
  *  MODIFICATION HISTORY
  *  Mnemonic        Rel Date     Who
@@ -47,30 +83,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-/*
- * Open corrupt btree file using btr version of btopn, to bypass any
- * consistency checks.
- *
- * Try and read superroot.  If successful, store root names and root
- * blocks.
- *
- * For each block, starting from 1, read it in.  If marked as ZROOT or
- * ZINSUE, extract the keys and values directly from the in-memory
- * array.  If -k specified, write key and value to new btree index
- * file.  If -d specified, assume value is a valid draddr, and try and
- * read data record.  This might require special code to remember each
- * draddr so that we can detect circular references.  If data record
- * read OK, write key and record to new btree file.
- *
- * In later versions of the btree, each ZINUSE block will contain the
- * root block it belongs to.  This will allow us to partition keys by
- * their roots, although if we cannot read the superroot correctly,
- * the original root names will be lost.
- * 
- * Write errors to stderr.  Write stats on keys and/or data recovered.
- */
-
-#define VERSION "$Id: btr.c,v 1.7 2011-06-03 20:14:55 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.8 2011-06-03 20:18:05 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -98,6 +111,7 @@ struct {
     BTint key_blocks_processed;
     BTint bad_draddrs;
     BTint dr_read_errors;
+    BTint bad_blocks;
 } stats;
 
 /* Hold keys and values read from block */
@@ -188,26 +202,29 @@ BTA *btropn(char *fid,int vlevel)
     if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {
         fprintf(stderr,"%s: superroot is not a root: possible file damage?\n",
                 prog);
+        /* superroot data cannot be trusted */
+        btact->cntxt->super.snfree = 0;
+        btact->cntxt->super.sfreep = 0;
+        btact->cntxt->super.sblkmx = BTINT_MAX;
     }
+    else {
+        /* retain free list pointers et al */
+        btact->cntxt->super.snfree = bgtinf(ZSUPER,ZMISC);
+        btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
+        btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
+    }
+    
     if (bgtinf(ZSUPER,ZBTVER) < FULL_RECOVERY_VERSION) {
         limited_recovery = TRUE;
         fprintf(stderr,"%s: index file is version: " ZINTFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,bgtinf(ZSUPER,ZBTVER));    
     }
-    
-    /* retain free list pointers et al */
-    btact->cntxt->super.snfree = bgtinf(ZSUPER,ZMISC);
-    btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
-    btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
     /* change to default root */
     status = btchgr(btact,"$$default");
     if (status != 0) {
         fprintf(stderr,"%s: no $$default root found.\n",prog);
     }
-
-    if (btgerr() != 0) 
-        goto fin;
     return(btact);
 fin:
     bacfre(btact);
@@ -310,7 +327,7 @@ int valid_draddr(BTint draddr)
     return (dblk > ZSUPER &&
             dblk < btact->cntxt->super.sblkmx &&
             bgtinf(dblk,ZBTYPE) == ZDATA &&
-            offset > ZDOVRH &&
+            offset >= 0 &&
             offset < ZBLKSZ);
 }
  
@@ -371,7 +388,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
     BTint blkno,root;
     BTKEYS* keyblk = NULL;
     char* current_root = "$$default";
-    char* root_name;
+    char* root_name = "*UNKNOWN*";
 
     status = load_superroot_names(in,vlevel);
     if (!limited_recovery && status < 0) return status;
@@ -436,7 +453,9 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                 else if (mode == DATA) {
                     status = copy_data_record(in,out,da,keyblk->keys[j],
                                               keyblk->vals[j],vlevel);
-                    
+
+                    /* attempt to ignore (but count) errors on input
+                       side */
                     if (status == QDLOOP) {
                         /* mostly likely problem on input side; let's
                            just copy the key */                        
@@ -451,7 +470,9 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                          */
                         status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
                     }
-                    if (status == 0) stats.keys++;
+                    else if (status == 0) {
+                        stats.keys++;
+                    }
                 }
                 else {
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
@@ -463,7 +484,14 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     return status;
                 }
             }
-        }   
+        }
+        else {
+            if (vlevel >= 3 && block_type != ZFREE && block_type != ZDATA) {
+                fprintf(stderr,"%s: ignoring block " ZINTFMT
+                        " of unknown type 0x%x\n",prog,blkno,block_type);
+                stats.bad_blocks++;
+            }
+        }
     }
     return status;
 }
@@ -556,8 +584,6 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
-    /* Create the new file; need to check if existing index file roots
-     * supports duplicates */
     argv++;
     if (preserve && file_exists(*argv)) {
         fprintf(stderr,"%s: target index file (%s) already exists.\n",
@@ -583,18 +609,18 @@ int main(int argc, char *argv[])
         btcls(out);
         if (da != NULL) btcls(da);
         puts("\nBTRecovery Statistics:");
-        printf("  %-25s " Z20DFMT "\n","Key Blocks Processed:",
+        printf("  %-26s " Z20DFMT "\n","Key Blocks Processed:",
                stats.key_blocks_processed);
-        printf("  %-25s " Z20DFMT "\n","Keys Processed:",stats.keys);
-        printf("  %-25s " Z20DFMT "\n","Data Records Processed:",stats.records);
-        printf("  %-25s " Z20DFMT "\n","Data Record Read Errors",
+        printf("  %-26s " Z20DFMT "\n","Keys Processed:",stats.keys);
+        printf("  %-26s " Z20DFMT "\n","Data Records Processed:",stats.records);
+        printf("  %-26s " Z20DFMT "\n","Data Record Read Errors:",
                stats.dr_read_errors);
-        printf("  %-25s " Z20DFMT "\n","Record Address Loops:",
+        printf("  %-26s " Z20DFMT "\n","Record Address Loops:",
                stats.seg_addr_loops);
-         printf("  %-25s " Z20DFMT "\n","Bad Data Block Addresses:",
-               stats.bad_draddrs);
+        printf("  %-26s " Z20DFMT "\n","Bad Blocks (invalid type):",
+               stats.bad_blocks);
         if (vlevel > 0) {
-            fprintf(stdout,"  %-25s %20d\n","I/O errors encountered:",
+            fprintf(stdout,"  %-26s %20d\n","I/O errors encountered:",
                     stats.nioerrs);
         }
     }
