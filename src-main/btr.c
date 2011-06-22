@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.9 2011-06-21 15:15:12 mark Exp $
+ *  $Id: btr.c,v 1.10 2011-06-22 19:21:30 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -84,7 +84,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.9 2011-06-21 15:15:12 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.10 2011-06-22 19:21:30 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -205,7 +205,7 @@ BTA *btropn(char *fid,int vlevel)
                 prog);
         /* superroot data cannot be trusted */
         btact->cntxt->super.snfree = 0;
-        btact->cntxt->super.sfreep = 0;
+        btact->cntxt->super.sfreep = ZNULL;
         btact->cntxt->super.sblkmx = BTINT_MAX;
     }
     else {
@@ -316,6 +316,7 @@ char* name_of_root(BTint blkno)
             return superroot_keys->keys[j];
         }
     }
+    sprintf(root_name,"root_" ZINTFMT,blkno);
     return root_name;
 }
 
