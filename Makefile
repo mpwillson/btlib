@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.23 2011-04-09 20:40:02 mark Exp $
+# $Id: Makefile,v 1.24 2011-06-21 15:14:40 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 #DEBUG=-g
@@ -82,7 +82,8 @@ all:	depend bt kcp bigt bigtdel btr
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
 bt:	${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c ${LIBS} 
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c \
+	${LIBS} 
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
@@ -91,7 +92,8 @@ btr:  ${SRC_MAIN}/btr.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/btr.c ${LIBS}
 
 clean:
-	rm -f bt bt.exe bigt bigt.exe bigtdel bigtdel.exe ${LIB_FILE} kcp kcp.exe ${OBJ}
+	rm -f bt bt.exe bigt bigt.exe bigtdel bigtdel.exe ${LIB_FILE} kcp kcp.exe \
+	${OBJ} ${TESTCASES}/corrupt
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
 	@etags $^

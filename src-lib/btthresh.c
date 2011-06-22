@@ -1,11 +1,11 @@
 /*
- * $Id:$
+ * $Id: btthresh.c,v 1.1 2011-06-13 19:34:46 mark Exp $
  *
  * bthresh: sets write through threshold for disk blocks
  *
  * Parameters:
  *    bta    btree index to set write through threshold for
- *    n      # writes that causes block to be written to disk
+ *    n      number of updates that causes block to be written to disk
  *
  * Copyright (C) 2011 Mark Willson.
  *

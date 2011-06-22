@@ -1,3 +1,7 @@
+2011-06-22  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* samples; Added directory with some BT Library API examples.
+
 2011-06-13  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bt.c: Added wt command to set write through threshold.

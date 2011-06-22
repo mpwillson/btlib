@@ -1,6 +1,6 @@
 BT Library README File
 
-3rd January, 2011
+24th June, 2011
 
 CONTENTS
     INTRODUCTION
@@ -37,10 +37,10 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    This version (3.1.x) adds support for duplicate keys.
+    This version (4.0) adds an index file recovery facility.
 
-    The BT library has been tested on GNU/Linux (Debian Lenny), FreeBSD
-    8.1, Mac OS X 10.6.5 and Cygwin.
+    The BT library has been tested on GNU/Linux (Debian Squeeze), FreeBSD
+    8.2, Mac OS X 10.6.5 and Cygwin.
 
 UPDATING 
     If migrating from a pre-3.0 release of the BT library, be aware
@@ -54,7 +54,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-3.1.2.tar.gz -C ~/dev
+        tar xzf bt-4.0.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -66,6 +66,7 @@ COMPILING
                             utility
         inc                 C header files
         lib                 holds BT library archive
+        samples             simple programs showing library API usage
         Testcases           driver and master output files for testing
 
     The BT library, a test harness (bt), additional testing tools for
@@ -76,12 +77,12 @@ COMPILING
     to 2GiB file support, cd to the BT source directory and issue the
     following command:
 
-       make
+       make clean && make
 
     To build the LFS version of BT (supports files >2GiB), issue the
     following command:
 
-       make LFS=1
+       make clean && make LFS=1
 
     The BT library is a standard UNIX object archive, built by ar.
 
@@ -161,6 +162,7 @@ RELEASE HISTORY
     10th December,  2010        3.1.0   Support duplicate keys; previous key
     21st December,  2010        3.1.1   Fix broken test scripts
      3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
+    24th June       2011        4.0.0   Added recovery capabilities
 
 ACKNOWLDGEMENTS 
     Many thanks to Pedro Serotto for nudging me to work on Large File
