@@ -1,11 +1,11 @@
 /*
- *  $Id: btr.c,v 1.8 2011-06-03 20:18:05 mark Exp $
+ *  $Id: btr.c,v 1.9 2011-06-21 15:15:12 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
  *  
  *  SYNOPSIS
- *      btr {-k|-d} [-n cnt] [-v] [-a] [--] old_file new_file
+ *      btr {-k|-d} [-n cnt] [-v] [-a] [-f] [--] old_file new_file
  *  
  *  DESCRIPTION
  *      btr will attempt the copy the contents of the btree inex file
@@ -18,6 +18,7 @@
  *      -a        allow duplicates in the new btree index file
  *      -v        be verbose (up to three levels of verbosity by -vv
  *                and -vvv)
+ *      -f        overwrite new_file if it exists
  *
  *       btr will also attempt to copy index files created with
  *       previous versions of btree, but recovery is limited as
@@ -34,7 +35,7 @@
  *      blocks.  Only the roots in the superroot are retained.
  *
  *      For each block, starting from 1, read it in.  If marked as
- *      ZROOT or ZINSUE, extract the keys and values directly from the
+ *      ZROOT or ZINUSE, extract the keys and values directly from the
  *      in-memory array.  If -k specified, write key and value to new
  *      btree index file.  If -d specified, if value is a valid
  *      draddr, try and read data record.  Data record addresses are
@@ -83,7 +84,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.8 2011-06-03 20:18:05 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.9 2011-06-21 15:15:12 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -441,7 +442,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             }
             if (vlevel >= 2) {
                 fprintf(stderr,"Processing block: " ZINTFMT
-                        ", keys: %d [%s," ZINTFMT "]\n",blkno,nkeys,
+                        ", keys: %8d [%s," ZINTFMT "]\n",blkno,nkeys,
                         current_root,root);
             }
            /* insert into new btree file */
@@ -514,7 +515,7 @@ int main(int argc, char *argv[])
     prog = (s==NULL)?argv[0]:(s+1);
 
     if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s {-k|-d} [-n cnt] [-v] [-a] [--] "
+        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [--] "
                 "old_file new_file\n",
                 prog,prog);
         return EXIT_FAILURE;
