@@ -13,10 +13,11 @@
  *
  * 	MODIFICATION HISTORY
  * 	Mnemonic	Rel	Date	Who
- *
+ *  corrupt     1.0 110621  mpw
  * 		Written.
  *
- */
+ *  $Id:$		
+ */  
 
 #include <stdlib.h>
 #include <stdio.h>
