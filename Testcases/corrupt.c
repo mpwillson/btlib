@@ -6,17 +6,19 @@
  *      corrupt filename offset length [character]
  *
  * 	DESCRIPTION
- *
+ *      Clobbers part of a file (defined by byte offset and length)
+ *      with character.  If character is not provided, \0 is the
+ *      default.
  *
  * 	NOTES
- *
+ *      Only the righteous files will survive.
  *
  * 	MODIFICATION HISTORY
  * 	Mnemonic	Rel	Date	Who
  *  corrupt     1.0 110621  mpw
  * 		Written.
  *
- *  $Id:$		
+ *  $Id: corrupt.c,v 1.2 2011-06-23 09:58:00 mark Exp $		
  */  
 
 #include <stdlib.h>
