@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.10 2011-06-22 19:21:30 mark Exp $
+ *  $Id: btr.c,v 1.11 2011-06-22 19:28:02 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -84,7 +84,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.10 2011-06-22 19:21:30 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.11 2011-06-22 19:28:02 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -254,13 +254,13 @@ int load_block(BTA* in, BTint blkno, int vlevel)
 }
 
 /* copy keys from block */
-BTKEYS* get_keys(int idx, int nkeys,BTKEYS* k)
+BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
 {
     int j;
     BTKEYS* keyblk;
 
     if (k == NULL) {
-        keyblk = (BTKEYS *) malloc(sizeof(BTKEYS));
+        keyblk = malloc(sizeof(BTKEYS));
         if (keyblk == NULL) {
             fprintf(stderr,"%s: get_keys: unable to allocate memory.\n",
                     prog);
@@ -293,7 +293,6 @@ int load_superroot_names(BTA* in,int vlevel)
     if (idx < 0) return idx;
     nkeys = bgtinf(ZSUPER,ZNKEYS);
     superroot_keys = get_keys(idx,nkeys,NULL);
-    /* TBD: for some vlevel, print root names and blocks */
     if (vlevel >= 1) {
         printf("\nAttempting to recover the following root names:\n");
         printf("%-32s %s\n","RootName","BlockNum");
@@ -567,7 +566,7 @@ int main(int argc, char *argv[])
 
     if (copy_mode == DATA) {
         /* create index for remembering disk addresses */
-        da = btcrt(".da.idx",0,FALSE);
+        da = btcrt(".bt_da.db",0,FALSE);
         if (da == NULL) {
             print_bterror();
             return EXIT_FAILURE;
