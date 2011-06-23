@@ -20,6 +20,7 @@
  *  btcopy      1.0 110622  mpw
  * 		Written.
  *
+ *  $Id:$ 		
  */
 
 #include <stdio.h>
