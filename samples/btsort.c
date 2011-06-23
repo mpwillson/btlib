@@ -1,6 +1,6 @@
 /*
  * 	NAME
- *      btsort - an inefficient and basic version of the UNIX sort command.
+ *      btsort - an inefficient and limited version of the UNIX sort command.
  *
  * 	SYNOPSIS
  *      btsort <unsorted_data 
@@ -17,7 +17,8 @@
  *  btsort      1.0 110622  mpw
  * 		Written.
  *
- */
+ *  $Id:$		
+ */  
 
 #include <unistd.h>
 #include <stdio.h>
