@@ -1,5 +1,5 @@
 /*
- * $Id: btthresh.c,v 1.1 2011-06-13 19:34:46 mark Exp $
+ * $Id: btthresh.c,v 1.2 2011-06-22 20:07:51 mark Exp $
  *
  * bthresh: sets write through threshold for disk blocks
  *
@@ -26,11 +26,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "bc.h"
-#include "bt.h"
+#include "btree.h"
+#include "btree_int.h"
 
 int btthresh(BTA *b, int n)
 {
+    int status;
+    
+    bterr("",0,NULL);
+    if ((status=bvalap("BTTHRESH",b)) != 0) return(status);
+
     b->wt_threshold = n;
     return 0;
 }

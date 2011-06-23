@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.37 2011-05-21 16:27:58 mark Exp $
+ * $Id: bt.c,v 1.38 2011-06-13 19:34:46 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -889,9 +889,7 @@ int update_value_current(CMDBLK* c)
 
 int wr_thresh(CMDBLK* c)
 {
-    
-    btthresh(btp,strtol(c->arg,NULL,10));
-    return 0;
+    return btthresh(btp,strtol(c->arg,NULL,10));
 }
 
 int decode_addr(CMDBLK* c)
