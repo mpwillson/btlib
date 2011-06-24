@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.26 2011-06-22 20:07:51 mark Exp $
+ * $Id: bterr.c,v 1.27 2011-06-24 10:13:55 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -49,7 +49,7 @@ static char qname[ZMSGSZ];
 
 char *msgblk[] = {
     "null",
-    " The block at the super root location is not a root",
+    " Block %s is not a root block",
     " Unable to close index file: %s",
     " Unable to create index file: %s",
     " Unable to read source or destination block ",

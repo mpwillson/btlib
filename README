@@ -54,7 +54,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-4.0.tar.gz -C ~/dev
+        tar xzf bt-4.0.0.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -70,12 +70,12 @@ COMPILING
         Testcases           driver and master output files for testing
 
     The BT library, a test harness (bt), additional testing tools for
-    large files (bigt and bigtdel) and a copy utility (kcp) are built
-    by GNU make.  The test harness, bt, will be built with readline
-    support, if the make file detects support on the build
-    platform. To build the BT library and associated programs for up
-    to 2GiB file support, cd to the BT source directory and issue the
-    following command:
+    large files (bigt and bigtdel), recovyer tool (btr) and a copy
+    utility (kcp) are built by GNU make.  The test harness, bt, will
+    be built with readline support, if the make file detects support
+    on the build platform. To build the BT library and associated
+    programs for up to 2GiB file support, cd to the BT source
+    directory and issue the following command:
 
        make clean && make
 

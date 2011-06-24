@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.28 2011-05-01 19:49:30 mark Exp $
+ * $Id: bc.h,v 1.29 2011-06-24 10:13:04 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -172,7 +172,7 @@ typedef int BTint;
    Error codes
 */
 
-#define QSRNR    1
+#define QBLKNR   1
 #define QCLSIO   2
 #define QCRTIO   3
 #define QCPBLK   4

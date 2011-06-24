@@ -1,5 +1,5 @@
 /*
- * $Id: btchgr.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: btchgr.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
  * btchgr: change B tree root
@@ -64,8 +64,13 @@ int btchgr(BTA *b,char *root)
     status = bfndky(b,root,&blk);
     bsetbs(b->cntxt->super.scroot,FALSE);
     bclrlf();
-    /* if ok, set up new root, else  restore old root */
+    /* if ok, set up new root, else restore old root */
     if (status == 0) {
+        /* check block type */
+        if (bgtinf(blk,ZBTYPE) != ZROOT) {
+            bterr("BTCHGR",QBLKNR,itostr(blk));
+            goto fin;
+        }
         b->cntxt->super.scroot = blk;
         strcpy(b->cntxt->super.scclas,root);
         bsetbs(b->cntxt->super.scroot,TRUE);

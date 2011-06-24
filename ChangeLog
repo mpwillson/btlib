@@ -1,3 +1,7 @@
+2011-06-24  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btchgr.c: Added check on block type of candidate root.
+
 2011-06-22  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* samples; Added directory with some BT Library API examples.

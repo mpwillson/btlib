@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.12 2011-06-23 10:14:13 mark Exp $
+ *  $Id: btr.c,v 1.13 2011-06-24 10:14:36 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -85,7 +85,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.12 2011-06-23 10:14:13 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.13 2011-06-24 10:14:36 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -491,9 +491,11 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             }
         }
         else {
-            if (vlevel >= 3 && block_type != ZFREE && block_type != ZDATA) {
-                fprintf(stderr,"%s: ignoring block " ZINTFMT
-                        " of unknown type 0x%x\n",prog,blkno,block_type);
+            if (block_type != ZFREE && block_type != ZDATA) {
+                if (vlevel >= 3) {
+                    fprintf(stderr,"%s: ignoring block " ZINTFMT
+                            " of unknown type 0x%x\n",prog,blkno,block_type);
+                }
                 stats.bad_blocks++;
             }
         }
