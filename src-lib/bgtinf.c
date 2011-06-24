@@ -1,5 +1,5 @@
 /*
- * $Id: bgtinf.c,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: bgtinf.c,v 1.9 2011-05-01 19:49:30 mark Exp $
  *
  * bgtinf: get information about block
  *
@@ -8,6 +8,9 @@
  *   type   type of information required
  *   
  * bgtinf returns the info requested
+ *
+ * NOTE: The munging performed by bgtinf (and bstinf) to detect LFS vs
+ * non-LFS will only only work little-endian architectures.
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -33,7 +36,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-#define MASK ((((BTint) 1)<<((ZBPW/2)*ZBYTEW))-1)
+#define MASK (BTint) 0xffff
 
 BTint bgtinf(BTint blk,int type)
 {
@@ -41,7 +44,7 @@ BTint bgtinf(BTint blk,int type)
     int ioerr,idx;
 #ifdef _FILE_OFFSET_BITS
     BTint hdr;
-#endif                    
+#endif  
 
     val = 0;
     if (type >= ZINFSZ)
@@ -55,20 +58,15 @@ BTint bgtinf(BTint blk,int type)
             switch (type) {
                 case ZBTYPE:
                     val = ((btact->memrec)+idx)->infblk[ZBTYPE] & MASK;
-#ifdef _FILE_OFFSET_BITS
-                    val &= 0xffff;
-#endif                    
                     break;
                 case ZBTVER:
-                    val = ((btact->memrec)+idx)->infblk[ZBTYPE] >>
-                        ((ZBPW/2)*ZBYTEW);
+                    val = (((btact->memrec)+idx)->infblk[ZBTYPE] >>
+                           (2*ZBYTEW)) & MASK;
 #ifdef _FILE_OFFSET_BITS
-                    hdr = val >> ZBYTEW*2;
-                    if (hdr == LFSHDR) {
-                        val &= 0xffff;
-                    }
-                    else {
-                        bterr("BGTINF",QNOT64BIT,0);
+                    hdr = (((btact->memrec)+idx)->infblk[ZBTYPE] >>
+                        ((ZBPW/2)*ZBYTEW)) & 0xffffffff;
+                    if (hdr != LFSHDR) {
+                        val = LFSHDR;
                     }
 #endif
                     break;

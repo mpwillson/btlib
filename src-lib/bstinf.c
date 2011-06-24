@@ -1,5 +1,5 @@
 /*
- * $Id: bstinf.c,v 1.11 2010-11-07 21:01:27 mark Exp $
+ * $Id: bstinf.c,v 1.12 2011-05-01 19:49:30 mark Exp $
  *
  *
  *  bstinf: set information about block
@@ -9,6 +9,9 @@
  *     blk    block for which information must be set
  *     type   type of information to set
  *     val    info value
+ *
+ * NOTE: The munging performed by bgtinf (and bstinf) to detect LFS vs
+ * non-LFS will only only work little-endian architectures.
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -49,13 +52,12 @@ int bstinf(BTint blk,int type,BTint val)
             switch (type) {
                 case ZBTYPE:
                     ((btact->memrec)+idx)->infblk[type] =
-                        (((BTint) ZVERS) << ((ZBPW/2)*ZBYTEW)) | val;
+                        (((BTint) ZVERS) << (2*ZBYTEW)) |
+                        val;
 #ifdef _FILE_OFFSET_BITS
                     /* add 64bit file marker */
                     ((btact->memrec)+idx)->infblk[type] |=
-                        (((BTint) LFSHDR) << ((ZBPW-2)*ZBYTEW));
-                    ((btact->memrec)+idx)->infblk[type] |=
-                        (((BTint) LFSHDR) << ((ZBPW-6)*ZBYTEW));
+                        (((BTint) LFSHDR) << 32);
 #endif                        
                 case ZBTVER:
                     break; /* always set implicitly by ZBTYPE */

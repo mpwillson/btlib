@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.27 2011-03-17 19:06:23 mark Exp $
+ * $Id: bc.h,v 1.28 2011-05-01 19:49:30 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -47,8 +47,7 @@ typedef int BTint;
 #define TRUE 1
 #define FALSE 0
 
-/* First two bytes of header for index with LFS */
-#define LFSHDR 0x7462
+#define LFSHDR 0xFFBADDEF
 
 /* Implementation defined constants */
 

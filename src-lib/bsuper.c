@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.9 2010-07-01 09:43:51 mark Exp $
+ * $Id: bsuper.c,v 1.10 2011-05-01 19:49:30 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -13,7 +13,7 @@
  * This file is part of the B Tree library.
  *
  * The B Tree library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
+c * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
@@ -34,62 +34,59 @@
 /* get super root from disk */
 int brdsup()
 {
-    int ioerr,idx;
-    BTint ver;
+    int errcode,idx;
+    BTint ver, type, misc;
     
-    ioerr = brdblk(ZSUPER,&idx);
-    if (ioerr != 0) {
-        bterr("BRDSUP",QRDSUP,(ioerr<0)?"(EOF?)":"");
-        goto fin;
-    } 
-    ver = bgtinf(ZSUPER,ZBTVER);
-    if (ver == LFSHDR) {
-        bterr("BRDSUP",Q64BIT,NULL);
-        ioerr = Q64BIT;
-        goto fin;
+    errcode = brdblk(ZSUPER,&idx);
+    if (errcode != 0) {
+        bterr("BRDSUP",QRDSUP,(errcode<0)?"(EOF?)":"");
     }
-    else if (ver != ZVERS) {
-        bterr("BRDSUP",QBADVR,itostr(ZVERS));
-        ioerr = QBADVR;
-        goto fin;
+    else {
+        ver = bgtinf(ZSUPER,ZBTVER);
+        type = bgtinf(ZSUPER,ZBTYPE);
+        misc = bgtinf(ZSUPER,ZMISC);
+        if (type != ZROOT) {
+            bterr("BRDSUP",QSRNR,NULL);
+        }
+        else if (ver == LFSHDR) {
+            bterr("BRDSUP",QNOT64BIT,NULL);
+        }
+        else  if (ver != ZVERS) {
+            bterr("BRDSUP",QBADVR,itostr(ZVERS));
+        }
+        else if (misc == LFSHDR) {
+            bterr("BRDSUP",Q64BIT,NULL);
+        }
+        else {
+            /* retain free list pointers et al */
+            btact->cntxt->super.snfree = misc;
+            btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
+            btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
+        }
     }
-    if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {
-        bterr("BRDSUP",QSRNR,NULL);
-        ioerr = QSRNR;
-        goto fin;
-    }
-    
-    /* retain free list pointers et al */
-    btact->cntxt->super.snfree = bgtinf(ZSUPER,ZMISC);
-    btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
-    btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
-    return(0);
-fin:
-    return(ioerr);
+    return btgerr();
 }
 
 /* update super root on disk */
 int bwrsup()
 {
-    int ioerr,idx;
+    int errcode,idx;
     BTint nkeys;
 
-    ioerr = brdblk(ZSUPER,&idx);
-    if (ioerr != 0) {
+    errcode = brdblk(ZSUPER,&idx);
+    if (errcode != 0) {
         bterr("BWRSUP",QRDSUP,itostr(ZSUPER));
-        goto fin;
     }
-    nkeys = bgtinf(ZSUPER,ZNKEYS);
-    bsetbk(ZSUPER,ZROOT,btact->cntxt->super.snfree,
-        btact->cntxt->super.sfreep,
-        nkeys,
-        btact->cntxt->super.sblkmx);
-    ioerr = bwrblk(ZSUPER);
-    if (ioerr != 0) {
-        bterr("BWRSUP",QWRSUP,itostr(ZSUPER));
-        goto fin;
+    else {
+        nkeys = bgtinf(ZSUPER,ZNKEYS);
+        bsetbk(ZSUPER,ZROOT,btact->cntxt->super.snfree,
+               btact->cntxt->super.sfreep,
+               nkeys,
+               btact->cntxt->super.sblkmx);
+        errcode = bwrblk(ZSUPER);
+        if (errcode != 0) {
+            bterr("BWRSUP",QWRSUP,itostr(ZSUPER));
+        }
     }
-    return(0);
-fin:
-    return(ioerr);
+    return errcode;
 }

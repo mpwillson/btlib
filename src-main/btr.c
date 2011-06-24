@@ -1,11 +1,11 @@
 /*
- *  $Id: btr.c,v 1.11 2011-06-22 19:28:02 mark Exp $
+ *  $Id: btr.c,v 1.12 2011-06-23 10:14:13 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
  *  
  *  SYNOPSIS
- *      btr {-k|-d} [-n cnt] [-v] [-a] [-f] [--] old_file new_file
+ *      btr {-k|-d} [-n cnt] [-v] [-a] [-f] [-r] [--] old_file new_file
  *  
  *  DESCRIPTION
  *      btr will attempt the copy the contents of the btree inex file
@@ -19,7 +19,8 @@
  *      -v        be verbose (up to three levels of verbosity by -vv
  *                and -vvv)
  *      -f        overwrite new_file if it exists
- *
+ *      -r        request full recovery attempt
+ *      
  *       btr will also attempt to copy index files created with
  *       previous versions of btree, but recovery is limited as
  *       necessary information for btree index reconstruction is not
@@ -84,7 +85,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.11 2011-06-22 19:28:02 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.12 2011-06-23 10:14:13 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -164,10 +165,11 @@ void kalloc(char **buf,int bufsiz)
 }
 
 /* Open btree index file in recovery mode (i.e. limited checking) */
-BTA *btropn(char *fid,int vlevel)
+BTA *btropn(char *fid,int vlevel,int full_recovery)
 {
     int idx,ioerr,status;
-
+    BTint ver;
+    
     bterr("",0,NULL);
 
     btact = bnewap(fid);
@@ -214,10 +216,10 @@ BTA *btropn(char *fid,int vlevel)
         btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
         btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
     }
-    
-    if (bgtinf(ZSUPER,ZBTVER) < FULL_RECOVERY_VERSION) {
+    ver = bgtinf(ZSUPER,ZBTVER);
+    if (!full_recovery && (ver < FULL_RECOVERY_VERSION || ver == LFSHDR)) {
         limited_recovery = TRUE;
-        fprintf(stderr,"%s: index file is version: " ZINTFMT ". "
+        fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,bgtinf(ZSUPER,ZBTVER));    
     }
@@ -293,7 +295,7 @@ int load_superroot_names(BTA* in,int vlevel)
     if (idx < 0) return idx;
     nkeys = bgtinf(ZSUPER,ZNKEYS);
     superroot_keys = get_keys(idx,nkeys,NULL);
-    if (vlevel >= 1) {
+    if (vlevel >= 1 && nkeys > 0) {
         printf("\nAttempting to recover the following root names:\n");
         printf("%-32s %s\n","RootName","BlockNum");
         for (i=0; i<nkeys; i++) {
@@ -388,9 +390,11 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
     int j,idx,status,block_type,nkeys;
     BTint blkno,root;
     BTKEYS* keyblk = NULL;
-    char* current_root = "$$default";
-    char* root_name = "*UNKNOWN*";
+    char current_root[ZKYLEN+1];
+    char root_name[ZKYLEN+1];
 
+    strcpy(current_root,"$$default");
+    strcpy(root_name,"*UNKNOWN*");
     status = load_superroot_names(in,vlevel);
     if (!limited_recovery && status < 0) return status;
     
@@ -418,7 +422,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             if (!limited_recovery) {
                 /* check for multi-root index */
                 root = bgtinf(blkno,ZNBLKS);
-                root_name = name_of_root(root);
+                strcpy(root_name,name_of_root(root));
                 if (strcmp(root_name,current_root) != 0) {
                     /* attempt to switch to root; create if it
                      * doesn't exist */
@@ -437,11 +441,11 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                             return status;
                         }
                     }
-                    current_root = root_name;
+                    strcpy(current_root,root_name);
                 }   
             }
             if (vlevel >= 2) {
-                fprintf(stderr,"Processing block: " ZINTFMT
+                fprintf(stderr,"Processing block: " Z20DFMT
                         ", keys: %8d [%s," ZINTFMT "]\n",blkno,nkeys,
                         current_root,root);
             }
@@ -509,14 +513,17 @@ int main(int argc, char *argv[])
     int preserve = TRUE;
     int allow_dups = FALSE;
     int status;
-
+    int full_recovery = FALSE;
+    char *infile;
+    
+    
     current_root[0] = '\0';
     s = strrchr(argv[0],'/');
     prog = (s==NULL)?argv[0]:(s+1);
 
     if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [--] "
-                "old_file new_file\n",
+        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [-o version]"
+                "[--] old_file new_file\n",
                 prog,prog);
         return EXIT_FAILURE;
     }
@@ -542,6 +549,8 @@ int main(int argc, char *argv[])
                 case 'v':
                     vlevel++;
                     break;
+                case 'r':
+                    full_recovery = TRUE;
                 case '-' :
                     more_args = FALSE;
                     ++argv;
@@ -575,23 +584,23 @@ int main(int argc, char *argv[])
     }
     
     exit_status = EXIT_SUCCESS;
-    /* Open the original file */
-    in = btopn(*argv,0,FALSE);
-    if (in == NULL) {
-        /* open file using fallback routine */
-        in = btropn(*argv,vlevel);
-        if (in == NULL) {
-            print_bterror();
-            return EXIT_FAILURE;
-        }
-    }
-    argv++;
+    infile = *argv++;
     if (preserve && file_exists(*argv)) {
         fprintf(stderr,"%s: target index file (%s) already exists.\n",
                 prog,*argv);
         exit_status = EXIT_FAILURE;
     }
     else {
+        /* attempt to open input file normally */
+        in = btopn(infile,0,FALSE);
+        if (in == NULL) {
+            /* open file using fallback routine */
+            in = btropn(infile,vlevel,full_recovery);
+            if (in == NULL) {
+                print_bterror();
+                return EXIT_FAILURE;
+            }
+        }
         out = btcrt(*argv,0,FALSE);
         if (out == NULL) {
             print_bterror();

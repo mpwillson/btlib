@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.25 2011-05-01 19:49:30 mark Exp $
+ * $Id: bterr.c,v 1.26 2011-06-22 20:07:51 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -98,16 +98,16 @@ char *msgblk[] = {
     " Key \"%s\" does not exist in index",
     " Write access to index prohibited",
     " Block on free list is not marked as free",
-    " Index file is incompatible with this version: %s",
+    " Index file is incompatible with current version: %s",
     " Data capacity exceeded at block: %s",
     " Index file is at maximum size",
     " Unable to set alarm for locking",
     " Data record address is negative: %s",
-    " Defined block size is not a power of 2: %s",
+    " Defined block size is not a power of two: %s",
     " Duplicates are not permitted in superroot.",
     " Location search exceeds key count at block: %s",
-    " Index was not built with LFS (64bit) enabled; doesn't match library.",
-    " Index was built with LFS (64bit) enabled; doesn't match library.",
+    " Index file likely not LFS (64bit) enabled; doesn't match library.",
+    " Index file likely LFS (64bit) enabled; doesn't match library.",
     " No message exists for this error code"
 };
 
