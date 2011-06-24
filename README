@@ -37,7 +37,7 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    This version (4.0) adds an index file recovery facility.
+    This version (4.0.0) adds an BTree file recovery facility.
 
     The BT library has been tested on GNU/Linux (Debian Squeeze), FreeBSD
     8.2, Mac OS X 10.6.5 and Cygwin.
@@ -70,7 +70,7 @@ COMPILING
         Testcases           driver and master output files for testing
 
     The BT library, a test harness (bt), additional testing tools for
-    large files (bigt and bigtdel), recovyer tool (btr) and a copy
+    large files (bigt and bigtdel), recovery tool (btr) and a copy
     utility (kcp) are built by GNU make.  The test harness, bt, will
     be built with readline support, if the make file detects support
     on the build platform. To build the BT library and associated
