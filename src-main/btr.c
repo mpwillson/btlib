@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.13 2011-06-24 10:14:36 mark Exp $
+ *  $Id: btr.c,v 1.14 2011-06-24 11:02:59 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -85,7 +85,7 @@
 #include "btree.h"
 #include "btree_int.h"
 
-#define VERSION "$Id: btr.c,v 1.13 2011-06-24 10:14:36 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.14 2011-06-24 11:02:59 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -524,8 +524,8 @@ int main(int argc, char *argv[])
     prog = (s==NULL)?argv[0]:(s+1);
 
     if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [-o version]"
-                "[--] old_file new_file\n",
+        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] "
+                "[-r] [--] old_file new_file\n",
                 prog,prog);
         return EXIT_FAILURE;
     }
