@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.9 2010-12-04 20:14:57 mark Exp $
+ * $Id: btcmd.c,v 1.10 2011-05-21 16:27:58 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -139,7 +139,7 @@ FILE* pullcf()
     }
 }
 
-/* Return char pointer to first first space or tab character before
+/* Return char pointer to first space or tab character before
  * the character position max in string s */
 char* strbrk(char* s, int max)
 {

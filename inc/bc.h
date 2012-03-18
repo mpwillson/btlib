@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.29 2011-06-24 10:13:04 mark Exp $
+ * $Id: bc.h,v 1.30 2011-06-24 11:01:44 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -78,9 +78,11 @@ typedef int BTint;
 #endif
 
 /* number of keys per block */
-#define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW)) 
+#define ZMXKEY4 ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW)) 
+#define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+3*ZBPW)) 
 /* number of pad words required */
-#define ZPAD ((ZBLKSZ-(ZKYLEN+2*ZBPW)*ZMXKEY-ZBPW-ZINFSZ*ZBPW)/ZBPW)
+#define ZPAD4 ((ZBLKSZ-(ZKYLEN+2*ZBPW)*ZMXKEY-ZBPW-ZINFSZ*ZBPW)/ZBPW)
+#define ZPAD ((ZBLKSZ-(ZKYLEN+3*ZBPW)*ZMXKEY-ZBPW-ZINFSZ*ZBPW)/ZBPW)
 /* threshold for block joining */
 #define ZTHRES 3
 /* number of bt indexes that may be open concurrently */
@@ -104,7 +106,7 @@ typedef int BTint;
 
 /* ZVERS must be incremented when structure of B Tree index file
  * changes */
-#define ZVERS 0x4
+#define ZVERS 0x5
 
 /* ZBTYPE and ZBTVER share information word 0 */
 #define ZBTYPE 0
@@ -121,6 +123,7 @@ typedef int BTint;
 /* max info word index */
 #define ZINFSZ 5
 
+/* BLOCK TYPES */
 /* block type of root */
 #define ZROOT 1
 /* block type of inuse */
@@ -129,6 +132,9 @@ typedef int BTint;
 #define ZFREE 3
 /* block type of data */
 #define ZDATA 4
+/* duplicate key blocks */
+#define ZDUP 5
+
 /* super block location in index file */
 #define ZSUPER 0
 /* null block pointer */

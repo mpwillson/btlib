@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.15 2011-06-24 20:46:23 mark Exp $
+ *  $Id: btr.c,v 1.16 2011-06-25 16:01:42 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -84,8 +84,9 @@
 
 #include "btree.h"
 #include "btree_int.h"
+#include "btr.h"
 
-#define VERSION "$Id: btr.c,v 1.15 2011-06-24 20:46:23 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.16 2011-06-25 16:01:42 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -162,6 +163,27 @@ void kalloc(char **buf,int bufsiz)
                 prog,bufsiz);
         exit(EXIT_FAILURE);
     }
+}
+
+/* Read disk blocks from files pre version 5 */
+int btrdblk(BTint blk,MEMREC4 *inmem)
+{
+    BTint pos;
+    int ioerr;
+
+    ioerr = 0;
+    pos = fseeko(btact->idxunt, blk*ZBLKSZ,SEEK_SET);
+    if (pos >= 0) {
+        if ((ioerr = fread(inmem,sizeof(char),
+                           ZBLKSZ,btact->idxunt)) == ZBLKSZ) {
+            btact->cntxt->stat.xphyrd++;
+            ioerr = 0;
+        }
+        else {
+            ioerr = -1;
+        }
+    }
+    return ioerr;
 }
 
 /* Open btree index file in recovery mode (i.e. limited checking) */
@@ -524,7 +546,7 @@ int main(int argc, char *argv[])
     prog = (s==NULL)?argv[0]:(s+1);
 
     if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [-f]"
+        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [-f] "
                 "[-r] [--] old_file new_file\n",
                 prog,prog);
         return EXIT_FAILURE;
