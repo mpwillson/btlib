@@ -51,22 +51,11 @@ struct bt_lru {
    B tree in-memory cached blocks
 */
 
-struct bt_memrec4x {
-   BTint infblk[ZINFSZ];
-   char keyblk[ZMXKEY4] [ZKYLEN];
-   BTint valblk[ZMXKEY4];
-   BTint lnkblk[ZMXKEY4+1];
-#if ZPAD != 0
-    BTint padblk[ZPAD4];
-#endif
-};
-
 struct bt_memrec {
-    BTint infblk[ZINFSZ];
-    char keyblk[ZMXKEY] [ZKYLEN];
-    BTint dupblk[ZMXKEY];
-    BTint valblk[ZMXKEY];
-    BTint lnkblk[ZMXKEY+1];
+   BTint infblk[ZINFSZ];
+   char keyblk[ZMXKEY] [ZKYLEN];
+   BTint valblk[ZMXKEY];
+   BTint lnkblk[ZMXKEY+1];
 #if ZPAD != 0
     BTint padblk[ZPAD];
 #endif
@@ -83,19 +72,6 @@ struct bt_datblk {
 
 typedef struct bt_datblk DATBLK;
 
-
-/* structure for duplicate key block
- *
- * duplicate key is stored in block to allow recovery
- */
-
-struct bt_dup {
-    BTint infblk[ZINFSZ];
-    char key[ZKYLEN];
-    BTint valblk[ZBLKSZ - (ZINFSZ*ZBPW) - ZKYLEN];
-};
-
-typedef struct bt_dup DUPBLK;
 
 /* context from last find operation */
 

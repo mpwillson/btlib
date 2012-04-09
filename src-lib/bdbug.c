@@ -149,11 +149,10 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                 bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
                 goto fin;
             }
-            fprintf(stdout,"  %32s%2s%20s%20s%20s\n","Key","D","Val","Llink","Rlink");
+            fprintf(stdout,"  %32s%20s%20s%20s\n","Key","Val","Llink","Rlink");
             for (j=0;j<((btact->memrec)+idx)->infblk[ZNKEYS];j++)
-                fprintf(stdout,"  %32s%2s" Z20DFMT Z20DFMT Z20DFMT "\n",
+                fprintf(stdout,"  %32s " Z20DFMT Z20DFMT Z20DFMT "\n",
                         ((btact->memrec)+idx)->keyblk[j],
-                        (((btact->memrec)+idx)->dupblk[j]>0?"D":" "),
                         ((btact->memrec)+idx)->valblk[j],
                         ((btact->memrec)+idx)->lnkblk[j],
                         ((btact->memrec)+idx)->lnkblk[j+1]);

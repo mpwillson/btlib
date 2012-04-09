@@ -68,7 +68,6 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
             /* block empty */
             strcpy(((btact->memrec)+idx)->keyblk[0],lkey);
             ((btact->memrec)+idx)->valblk[0] = val;
-            ((btact->memrec)+idx)->dupblk[0] = 0;
             ((btact->memrec)+idx)->lnkblk[0] = link1;
             ((btact->memrec)+idx)->lnkblk[1] = link2;
         }
@@ -87,8 +86,6 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
                                ((btact->memrec)+idx)->keyblk[i-1]);
                         ((btact->memrec)+idx)->valblk[i] = 
                             ((btact->memrec)+idx)->valblk[i-1];
-                        ((btact->memrec)+idx)->dupblk[i] = 
-                            ((btact->memrec)+idx)->dupblk[i-1];
                         ((btact->memrec)+idx)->lnkblk[i+1] = 
                             ((btact->memrec)+idx)->lnkblk[i];
                     }
@@ -105,7 +102,6 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
             }
             strcpy(((btact->memrec)+idx)->keyblk[i],lkey);
             ((btact->memrec)+idx)->valblk[i] = val;
-            ((btact->memrec)+idx)->dupblk[i] = 0;
             if (link1 == ZNULL && link2 == ZNULL) {
                 /* inserting a leaf key */
                 ((btact->memrec)+idx)->lnkblk[i] = ZNULL;
