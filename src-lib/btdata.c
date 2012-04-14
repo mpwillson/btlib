@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.27 2011-04-09 20:40:02 mark Exp $
+ * $Id: btdata.c,v 1.28 2011-06-13 19:34:46 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -93,8 +93,8 @@
 /* Common setup for btupd, btdel and btrecs */
 int setup(char *fname,char *key,BTint *draddr)
 {
-    int status = 0, result;
-    BTint link1,link2;
+    int status = 0, result,offset;
+    BTint link1,link2,dblk;
     char lkey[ZKYLEN];
     
     if (!dataok(btact)) {
@@ -128,6 +128,11 @@ int setup(char *fname,char *key,BTint *draddr)
             }
             /* find key in btree */
             status = bfndky(btact,key,draddr);
+            cnvdraddr(*draddr,&dblk,&offset);
+            if (bgtinf(dblk,ZBTYPE) != ZDATA) {
+                bterr(fname,QNOTDA,NULL);
+                goto fin;
+            }
         }
     }
   fin:

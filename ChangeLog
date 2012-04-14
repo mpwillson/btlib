@@ -1,3 +1,11 @@
+2012-04-11    <mark@GB-L-108394>
+
+	* bterr.c: Make error message for QNOTDA error code less cryptic.
+
+2012-04-10    <mark@GB-L-108394>
+
+	* btdata.c: Check value of key is a valid draddr before use.
+
 2011-06-24  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* btchgr.c: Added check on block type of candidate root.
