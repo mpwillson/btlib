@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.8 2011-06-13 19:34:46 mark Exp $
+ * $Id: bt.h,v 1.10 2012-04-09 16:03:57 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -52,10 +52,11 @@ struct bt_lru {
 */
 
 struct bt_memrec {
-   BTint infblk[ZINFSZ];
-   char keyblk[ZMXKEY] [ZKYLEN];
-   BTint valblk[ZMXKEY];
-   BTint lnkblk[ZMXKEY+1];
+    BTint infblk[ZINFSZ];
+    char keyblk[ZMXKEY] [ZKYLEN];
+    BTint duptail; /*if non-zero, points to tail of dup key chain */
+    BTint valblk[ZMXKEY];
+    BTint lnkblk[ZMXKEY+1];
 #if ZPAD != 0
     BTint padblk[ZPAD];
 #endif
@@ -72,6 +73,14 @@ struct bt_datblk {
 
 typedef struct bt_datblk DATBLK;
 
+/* Structure for duplicate key entry in ZDUP block */
+struct bt_dup {
+    BTint blink;
+    char del;
+    char[ZKYLEN];
+    BTint val;
+}
+    
 
 /* context from last find operation */
 

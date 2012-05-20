@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.10 2011-05-21 16:27:58 mark Exp $
+ * $Id: btcmd.c,v 1.11 2012-03-18 21:04:00 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -48,7 +48,7 @@
  *      with a zero length string, and a command function, which will
  *      be invoked if no valid command has been entered by the user.
  *
- *      btcmd will return on either EOF on tty input or when a app
+ *      btcmd will return on either EOF on tty input or when an app
  *      function returns a negative value.  App error function is
  *      called when a command function returns a value greater than
  *      zero.
