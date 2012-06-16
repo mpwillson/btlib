@@ -1,15 +1,7 @@
 /*
- * $Id$
+ * $Id: btdups.c,v 1.1 2010-11-07 21:01:27 mark Exp $
  *
- * btbof: 
- *
- * Parameters:
- *    b      index file context pointer
- *    
- * index is left positioned at first key
- *  
- * btbof returns 0 for no errors, error code otherwise 
- * btdups:
+ * btdups: 
  *
  * Parameters:
  *   b      pointer to BT context
@@ -18,7 +10,7 @@
  *
  * Returns zero if no errors, error code otherwise
  *
- * Copyright (C) 2003, 2004 Mark Willson.
+ * Copyright (C) 2003, 2004. 2010 Mark Willson.
  *
  * This file is part of the B Tree library.
  *

@@ -1,8 +1,8 @@
 /*
- * $Id: binsky.c,v 1.9 2010-11-21 15:04:28 mark Exp $
+ * $Id: binsky.c,v 1.11 2012-04-09 16:03:57 mark Exp $
  *
  *
- * binsky:  inserts key into index (duplicates not permitted)
+ * binsky:  inserts key into index 
  *
  * Parameters:
  *    b      pointer to BT context      
@@ -63,8 +63,14 @@ int binsky(BTA *b, char *key,BTint val)
         if (status == QNOKEY || (status == 0 && dups_allowed)) {
             /* QNOKEY is not an error in this context; remove it */
             bterr("",0,NULL);
-            if (status == 0) bleaf(1);
-            bputky(btact->cntxt->lf.lfblk,key,val,ZNULL,ZNULL);
+            if (status == 0) {
+                /* inserting duplicate key */
+                btdupkey(key,val);
+            }
+            else {
+                bleaf(1);
+                bputky(btact->cntxt->lf.lfblk,key,val,ZNULL,ZNULL);
+            }
         }
         else {
             bterr("BINSKY",QDUP,key);

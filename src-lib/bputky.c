@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.11 2011-06-13 19:34:46 mark Exp $
+ * $Id: bputky.c,v 1.13 2012-04-09 16:03:57 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -70,6 +70,7 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
             ((btact->memrec)+idx)->valblk[0] = val;
             ((btact->memrec)+idx)->lnkblk[0] = link1;
             ((btact->memrec)+idx)->lnkblk[1] = link2;
+            ((btact->memrec)+idx)->duptail = ZNULL;
         }
         else {
             if (link1 == ZNULL && link2 != ZNULL) {
@@ -102,6 +103,7 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
             }
             strcpy(((btact->memrec)+idx)->keyblk[i],lkey);
             ((btact->memrec)+idx)->valblk[i] = val;
+            ((btact->memrec)+idx)->duptail = ZNULL;
             if (link1 == ZNULL && link2 == ZNULL) {
                 /* inserting a leaf key */
                 ((btact->memrec)+idx)->lnkblk[i] = ZNULL;
