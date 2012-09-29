@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.3 2010-11-21 15:04:28 mark Exp $
+ * $Id: bprvky.c,v 1.4 2010-12-31 14:20:52 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -124,10 +124,10 @@ int bprvky(BTA* b,char *key,BTint *val)
 #endif  
         if (btact->cntxt->lf.lfpos >= 0) {
             found = TRUE;
-            strcpy(key,((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos]);
+            strcpy(key,((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].key);
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
-            *val = ((btact->memrec)+idx)->valblk[btact->cntxt->lf.lfpos];
+            *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
         }
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {

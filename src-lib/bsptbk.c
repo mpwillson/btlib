@@ -1,5 +1,5 @@
 /*
- * $Id: bsptbk.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: bsptbk.c,v 1.9 2011-03-17 19:06:23 mark Exp $
  *
  *
   bsptbk: splits block into two
@@ -60,8 +60,8 @@ int bsptbk(BTint blk,BTint *newblk)
         bcpybk(blk1,blk,0,0,sp);
         /* copy second half of root to second block */
         bcpybk(blk2,blk,0,sp+1,sp2);
-        bsetbk(blk1,ZINUSE,0,blk,sp,btact->cntxt->super.scroot);
-        bsetbk(blk2,ZINUSE,0,blk,sp2,btact->cntxt->super.scroot);
+        bsetbk(blk1,ZINUSE,0,blk,sp,btact->cntxt->super.scroot,ZNULL);
+        bsetbk(blk2,ZINUSE,0,blk,sp2,btact->cntxt->super.scroot,ZNULL);
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
         if (result != 0) {
@@ -88,7 +88,7 @@ int bsptbk(BTint blk,BTint *newblk)
         /* get parent block from last found block */
         pblk = btact->cntxt->lf.lfblk;
         /* set info for new block */
-        bsetbk(*newblk,ZINUSE,0,pblk,sp2,btact->cntxt->super.scroot);
+        bsetbk(*newblk,ZINUSE,0,pblk,sp2,btact->cntxt->super.scroot,ZNULL);
         /* find middle key */
         bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
 #if DEBUG >= 2

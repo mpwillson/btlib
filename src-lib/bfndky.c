@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.11 2010-11-21 15:04:28 mark Exp $
+ * $Id: bfndky.c,v 1.12 2010-12-04 20:14:57 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -42,30 +42,12 @@
 /* #undef DEBUG */
 /* #define DEBUG 2 */
 
-/* Return index of leftmost matching key in block blk */
-int blkypos(BTint blk, char* key, int pos)
-{
-    int npos = pos;
-    char lkey[ZKYLEN];
-    BTint link1,link2,val;
-    int result;
-
-    for ( npos = pos; npos >= 0; npos--) {
-        bsrhbk(blk,lkey,&npos,&val,&link1,&link2,&result);
-        if (strcmp(key,lkey) != 0) {
-            return npos+1;
-        }
-    }
-    return 0;
-}
-
 int bfndky(BTA *b,char *key,BTint *val)
 {
     BTint cblk, link1, link2, newblk;
     int index, result, nkeys, status;
     char lkey[ZKYLEN];
-    BTint ancestor_key_blk = ZNULL;
-    BTint duplicates_allowed, ancestor_key_val;
+    BTint duplicates_allowed;
         
     bterr("",0,NULL);
     status = QNOKEY;
@@ -120,20 +102,7 @@ int bfndky(BTA *b,char *key,BTint *val)
             bsrhbk(cblk,lkey,&index,val,&link1,&link2,&result);
             btact->cntxt->lf.lfblk = cblk;
             btact->cntxt->lf.lfpos = index; /* if block is empty, leave lfpos at -1 */
-            if (result != 0 && ancestor_key_blk != ZNULL && link1 == ZNULL) {
-                /* at leaf block, can't find key here, but did in
-                 * ancestor block. Pull intervening blocks off the
-                 * stack. */
-                while (btact->cntxt->lf.lfblk != ancestor_key_blk) {
-                    btact->cntxt->lf.lfpos = bpull();
-                    btact->cntxt->lf.lfblk = bpull();
-                }
-                *val = ancestor_key_val;
-                btact->cntxt->lf.lfexct = TRUE;
-                status = 0;
-                cblk = ZNULL;
-            }
-            else if (result < 0) {
+            if (result < 0) {
                 /* must examine left block */
                 cblk = link1;
             }
@@ -144,25 +113,8 @@ int bfndky(BTA *b,char *key,BTint *val)
                 btact->cntxt->lf.lfpos++;
             }
             else {
-                /* look for leftmost instance of key */
-                int new_pos = blkypos(cblk,lkey,index);
-#if DEBUG >= 2
-                printf("Found %s in block %d, link1: %d\n",key,cblk,link1);
-                printf("Original pos: %d, new pos: %d\n",index,new_pos);
-#endif
-                if (index != new_pos)  {
-                    bsrhbk(cblk,lkey,&new_pos,val,&link1,&link2,&result);
-                }
-                if (duplicates_allowed  && link1 != ZNULL) {
-                    btact->cntxt->lf.lfpos = new_pos;
-                    ancestor_key_blk = cblk;
-                    ancestor_key_val = *val;
-                    cblk = link1;
-                    continue;
-                }
                 status = 0;
                 btact->cntxt->lf.lfexct = TRUE;
-                btact->cntxt->lf.lfpos = new_pos;
                 cblk = ZNULL;
             }
         }

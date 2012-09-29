@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbk.c,v 1.8 2010-05-26 12:39:16 mark Exp $
+ * $Id: bsetbk.c,v 1.9 2011-05-01 19:49:30 mark Exp $
  *
  *
   bsetbk:  sets info array in block
@@ -38,7 +38,8 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bsetbk(BTint blk,BTint type,BTint misc,BTint nxblk,BTint nkeys,BTint nblks)
+int bsetbk(BTint blk,BTint type,BTint misc,BTint nxblk,BTint nkeys,
+           BTint nblks,BTint dupblk)
 {
     int ioerr,idx;
     
@@ -52,6 +53,7 @@ int bsetbk(BTint blk,BTint type,BTint misc,BTint nxblk,BTint nkeys,BTint nblks)
         ((btact->memrec)+idx)->infblk[ZNXBLK] = nxblk;
         ((btact->memrec)+idx)->infblk[ZNKEYS] = nkeys;
         ((btact->memrec)+idx)->infblk[ZNBLKS] = nblks;
+        ((btact->memrec)+idx)->infblk[ZNXDUP] = dupblk;
         ((btact->cntrl)+idx)->writes++;
     }
     return(0);

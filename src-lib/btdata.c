@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.28 2011-06-13 19:34:46 mark Exp $
+ * $Id: btdata.c,v 1.29 2012-04-14 19:17:55 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -182,7 +182,7 @@ int btins(BTA *b,char *key, char *data, int dsize)
 
     /* insert data in btree if record has zero or more bytes*/
     if (dsize >= 0) {
-        draddr = binsdt(data,dsize);
+        draddr = binsdt(ZDATA,data,dsize);
         if (draddr != ZNULL) {
             if (draddr < 0) {
                 bterr("BTINS",QDRANEG,itostr(draddr));
@@ -501,7 +501,7 @@ int btrecs(BTA *b, char *key, int *rsize)
 int bseldt(BTint draddr, char *data, int dsize) 
 {
     BTint dblk;
-    int status, idx,
+    int status, idx, type,
         segsz = 0, cpsz = -1;
     int offset = 0;
     int totsz = 0;
@@ -512,7 +512,8 @@ int bseldt(BTint draddr, char *data, int dsize)
     while (sprem > 0 && draddr != 0) {
         /* unpick data pointer */
         cnvdraddr(draddr,&dblk,&offset);
-        if (bgtinf(dblk,ZBTYPE) != ZDATA) {
+        type = bgtinf(dblk,ZBTYPE);
+        if (type != ZDATA && type != ZDUP) {
             bterr("BSELDT",QNOTDA,itostr(dblk));
             totsz = -1;
             goto fin;
@@ -583,7 +584,8 @@ int bupddt(BTint draddr, char *data, int dsize)
     int offset;
     int freesz;
     int remsz = dsize;
-        
+    int type;
+    
     DATBLK *d;
 
     while (draddr != 0 && remsz >= 0) {
@@ -593,7 +595,8 @@ int bupddt(BTint draddr, char *data, int dsize)
         fprintf(stderr,"BUPDDT: processing blk: " ZINTFMT ", offset: %d\n",
                 dblk,offset);
 #endif      
-        if (bgtinf(dblk,ZBTYPE) != ZDATA) {
+        type = bgtinf(dblk,ZBTYPE);
+        if (type != ZDATA && type != ZDUP) {
             bterr("BUPDDT",QNOTDA,NULL);
             goto fin;
         }
@@ -630,7 +633,7 @@ int bupddt(BTint draddr, char *data, int dsize)
     else if (remsz > 0) {
         /* new data record is larger, need new segments for rest of record
          */
-        draddr = binsdt(data,remsz);
+        draddr = binsdt(type,data,remsz);
         if (draddr == ZNULL) {
             /* no more blocks; force this to be last segment */
             draddr = 0;
@@ -659,28 +662,29 @@ fin:
  *------------------------------------------------------------------------
  */
 
-BTint binsdt(char *data, int dsize)
+BTint binsdt(int type, char *data, int dsize)
 {
-    BTint dblk, nblk;
+    BTint nblk, dblk;
     int offset;
     char *segptr = data+dsize;
     int remsize = dsize;
     BTint segaddr = 0;
     int freesz;
-
-    /* ensure there is an active data block */
-    dblk = bgtinf(btact->cntxt->super.scroot,ZNXBLK);
+    int listidx = (type==ZDATA?ZNXBLK:ZNXDUP);
+    
+    /* ensure there is an active block of the desired type */
+    dblk = bgtinf(btact->cntxt->super.scroot,listidx);
     if (dblk == ZNULL) {
-        dblk = mkdblk();
+        dblk = mkdblk(type);
         if (dblk == ZNULL) {
             bterr("BINSDT",QNOBLK,NULL);
             goto fin;
         }
-        bstinf(btact->cntxt->super.scroot,ZNXBLK,dblk);
+        bstinf(btact->cntxt->super.scroot,listidx,dblk);
     }
 
-    /* sanity check; is this a data block? */
-    if (bgtinf(dblk,ZBTYPE) != ZDATA) {
+    /* sanity check; is this the right type of block? */
+    if (bgtinf(dblk,ZBTYPE) != type) {
         bterr("BINSDT",QNOTDA,itostr(dblk));
         goto fin;
     }
@@ -697,7 +701,7 @@ BTint binsdt(char *data, int dsize)
         }
         else if (freesz < (ZDOVRH+ZDSGMN)) {
             /* space below min seg size; need new block */
-            nblk = mkdblk();
+            nblk = mkdblk(type);
             if (nblk == ZNULL) {
                 bterr("BINSDT",QNOBLK,NULL);
                 goto fin;
@@ -711,7 +715,7 @@ BTint binsdt(char *data, int dsize)
             
             dblk = nblk;
             /* new data list head */
-            bstinf(btact->cntxt->super.scroot,ZNXBLK,dblk); 
+            bstinf(btact->cntxt->super.scroot,listidx,dblk); 
 
         }
         else {
@@ -873,7 +877,7 @@ int brecsz(BTint draddr, BTA* dr_index)
  * ----------------------------------------------------------
  */
 
-BTint mkdblk(void)
+BTint mkdblk(int blk_type)
 {
     BTint blk;
 
@@ -892,7 +896,7 @@ BTint mkdblk(void)
            3 - offset of first free byte within data area of block (0)
            4 - pointer to previous data block in block chain
         */
-        bsetbk(blk,ZDATA,ZBLKSZ-(ZINFSZ*ZBPW),ZNULL,0,ZNULL);
+        bsetbk(blk,blk_type,ZBLKSZ-(ZINFSZ*ZBPW),ZNULL,0,ZNULL,ZNULL);
         return(blk);
     }
     return(ZNULL);

@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.15 2010-12-06 14:57:42 mark Exp $
+ * $Id: bdbug.c,v 1.17 2012-04-09 16:03:57 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -68,13 +68,13 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             "  Current root blk: " Z20DFMT "\n"
             "  Current root nm:  %20s\n"
             "  Block overhead:   %20d\n"
-            "  Block size:       %20d\n"
+            "  Block size:       %20d [memrec size: %d]\n"
             "  Keys per block:   %20d\n",
             btact->cntxt->super.sblkmx,
             btact->cntxt->super.snfree,
             btact->cntxt->super.sfreep,
             btact->cntxt->super.scroot,
-            btact->cntxt->super.scclas,ZPAD,ZBLKSZ,ZMXKEY);
+                btact->cntxt->super.scclas,ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
         fprintf(stdout,"  Index file: %20s\n"
@@ -138,24 +138,31 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                     "%-12s" Z20DFMT "\n"
                     "%-12s" Z20DFMT "\n"
                     "%-12s" Z20DFMT "\n"
+                    "%-12s" Z20DFMT "\n"
                     "%-12s" Z20DFMT "\n",
                     "Block Type:",bgtinf(blkno,ZBTYPE),
                     "Misc:",bgtinf(blkno,ZMISC),
                     "Nxblk:",bgtinf(blkno,ZNXBLK),
                     "Nkeys:",bgtinf(blkno,ZNKEYS),
-                    "Nblks:",bgtinf(blkno,ZNBLKS));
-            if (bgtinf(blkno,ZBTYPE) == ZDATA) {
-                d = (DATBLK *) (btact->memrec)+idx;
-                bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
-                goto fin;
+                    "Nblks:",bgtinf(blkno,ZNBLKS),
+                    "NxDup:",bgtinf(blkno,ZNXDUP));
+            switch (bgtinf(blkno,ZBTYPE)) {
+                case ZDUP:          
+                    /* fall thru for  now */
+                case ZDATA:
+                    d = (DATBLK *) (btact->memrec)+idx;
+                    bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
+                    break;
+                default:
+                    fprintf(stdout,"  %32s %20s%20s%20s\n","Key","Val","Llink","Rlink"); 
+                    for (j=0;j<((btact->memrec)+idx)->infblk[ZNKEYS];j++)
+                        fprintf(stdout,"  %32s%c" Z20DFMT Z20DFMT Z20DFMT "\n",
+                                ((btact->memrec)+idx)->keyblk[j].key,
+                                (((btact->memrec)+idx)->keyblk[j].dup==ZNULL?' ':'*'),
+                                ((btact->memrec)+idx)->keyblk[j].val,
+                                ((btact->memrec)+idx)->lnkblk[j],
+                                ((btact->memrec)+idx)->lnkblk[j+1]);
             }
-            fprintf(stdout,"  %32s%20s%20s%20s\n","Key","Val","Llink","Rlink");
-            for (j=0;j<((btact->memrec)+idx)->infblk[ZNKEYS];j++)
-                fprintf(stdout,"  %32s " Z20DFMT Z20DFMT Z20DFMT "\n",
-                        ((btact->memrec)+idx)->keyblk[j],
-                        ((btact->memrec)+idx)->valblk[j],
-                        ((btact->memrec)+idx)->lnkblk[j],
-                        ((btact->memrec)+idx)->lnkblk[j+1]);
         }
         else {
             bterr("BDBUG",QRDBLK,itostr(blkno));

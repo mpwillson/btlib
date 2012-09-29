@@ -1,5 +1,5 @@
 /*
- * $Id: bmkfre.c,v 1.5 2004/10/02 16:10:08 mark Exp $
+ * $Id: bmkfre.c,v 1.6 2010-05-26 12:39:16 mark Exp $
  * 
  *  bmkfre: return block to free list
  *
@@ -32,7 +32,7 @@
 
 void bmkfre(BTint blk)
 {
-    bsetbk(blk,ZFREE,0,btact->cntxt->super.sfreep,0,0);
+    bsetbk(blk,ZFREE,0,btact->cntxt->super.sfreep,0,0,ZNULL);
     btact->cntxt->super.sfreep = blk;
     btact->cntxt->super.snfree++;
     btact->cntxt->stat.xrel++;

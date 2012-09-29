@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.17 2012-03-18 21:04:00 mark Exp $
+ *  $Id: btr.c,v 1.18 2012-04-09 16:03:57 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -86,7 +86,7 @@
 #include "btree_int.h"
 #include "btr.h"
 
-#define VERSION "$Id: btr.c,v 1.17 2012-03-18 21:04:00 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.18 2012-04-09 16:03:57 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -120,8 +120,7 @@ struct {
 /* Hold keys and values read from block */
 struct bt_block_keys {
     int nkeys;
-    char *keys[ZMXKEY];
-    BTint vals[ZMXKEY];
+    KEYENT keyblk[ZMXKEY];
 };
 
 typedef struct bt_block_keys BTKEYS;
@@ -261,25 +260,24 @@ int load_block(BTA* in, BTint blkno, int vlevel)
 BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
 {
     int j;
-    BTKEYS* keyblk;
+    BTKEYS* keys;
 
     if (k == NULL) {
-        keyblk = malloc(sizeof(BTKEYS));
-        if (keyblk == NULL) {
+        keys = malloc(sizeof(BTKEYS));
+        if (keys == NULL) {
             fprintf(stderr,"%s: get_keys: unable to allocate memory.\n",
                     prog);
             return NULL;
         }
     }
     else {
-        keyblk = k;
+        keys = k;
     }
     for (j=0;j<nkeys;j++) {
-        keyblk->keys[j] = strdup(((btact->memrec)+idx)->keyblk[j]);
-        keyblk->vals[j] = ((btact->memrec)+idx)->valblk[j];
+        keys->keyblk[j] = ((btact->memrec)+idx)->keyblk[j];
     }
-    keyblk->nkeys = nkeys;
-    return keyblk;
+    keys->nkeys = nkeys;
+    return keys;
 }
 
 /* load_root_names reads in the keys from the superroot.  Since we
@@ -301,8 +299,8 @@ int load_superroot_names(BTA* in,int vlevel)
         printf("\nAttempting to recover the following root names:\n");
         printf("%-32s %s\n","RootName","BlockNum");
         for (i=0; i<nkeys; i++) {
-            printf("%-32s " ZINTFMT "\n",superroot_keys->keys[i],
-                   superroot_keys->vals[i]);
+            printf("%-32s " ZINTFMT "\n",superroot_keys->keyblk[i].key,
+                   superroot_keys->keyblk[i].val);
         }
         puts("");
     }
@@ -315,8 +313,8 @@ char* name_of_root(BTint blkno)
     static char root_name[ZMXKEY+1];
     
     for (j=0;j<superroot_keys->nkeys;j++) {
-        if (superroot_keys->vals[j] == blkno) {
-            return superroot_keys->keys[j];
+        if (superroot_keys->keyblk[j].val == blkno) {
+            return superroot_keys->keyblk[j].key;
         }
     }
     sprintf(root_name,"root_" ZINTFMT,blkno);
@@ -391,7 +389,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
 {
     int j,idx,status,block_type,nkeys;
     BTint blkno,root;
-    BTKEYS* keyblk = NULL;
+    BTKEYS* keys = NULL;
     char current_root[ZKYLEN+1];
     char root_name[ZKYLEN+1];
 
@@ -420,7 +418,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             }
             stats.key_blocks_processed++;
              /* copy keys from block; re-use keyblk */
-            keyblk = get_keys(idx,nkeys,keyblk);
+            keys = get_keys(idx,nkeys,keys);
             if (!limited_recovery) {
                 /* check for multi-root index */
                 root = bgtinf(blkno,ZNBLKS);
@@ -455,11 +453,12 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             for (j=0;j<nkeys;j++) {
                 if (mode == KEYS) {
                     stats.keys++;
-                    status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
+                    status = binsky(out,keys->keyblk[j].key,
+                                    keys->keyblk[j].val);
                 }
                 else if (mode == DATA) {
-                    status = copy_data_record(in,out,da,keyblk->keys[j],
-                                              keyblk->vals[j],vlevel);
+                    status = copy_data_record(in,out,da,keys->keyblk[j].key,
+                                              keys->keyblk[j].val,vlevel);
 
                     /* attempt to ignore (but count) errors on input
                        side */
@@ -475,7 +474,8 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                         /* copy_data_record can't access the data
                          * record; insert key only, if so.
                          */
-                        status = binsky(out,keyblk->keys[j],keyblk->vals[j]);
+                        status = binsky(out,keys->keyblk[j].key,
+                                        keys->keyblk[j].val);
                     }
                     else if (status == 0) {
                         stats.keys++;
@@ -485,7 +485,6 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
                     return 0;
                 }
-                free(keyblk->keys[j]);
                 if (status != 0) {
                     print_bterror();
                     return status;

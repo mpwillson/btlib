@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bsrhbk.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  *
   bsrhbk: searches block for key
@@ -72,7 +72,7 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
         }
         else {
             *result = 0;
-            strcpy(key,((btact->memrec)+idx)->keyblk[*loc]);
+            strcpy(key,((btact->memrec)+idx)->keyblk[*loc].key);
         }
     }
     else {
@@ -86,10 +86,10 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
         while (lo <= hi && !quit) {
             quit = (lo == hi);
             md = (lo+hi)/2;
-            *result = strcmp(key,((btact->memrec)+idx)->keyblk[md]);
+            *result = strcmp(key,((btact->memrec)+idx)->keyblk[md].key);
 #if DEBUG >= 2
             printf("key: \"%s\" vs \"%s\"\n",key,
-                   ((btact->memrec)+idx)->keyblk[md]);
+                   ((btact->memrec)+idx)->keyblk[md].key);
             printf("lo: %d, hi: %d, md: %d\n",lo,hi,md);
             printf("result: %d, quit: %d\n",*result,quit);
 #endif
@@ -112,7 +112,7 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
         *link2 = ZNULL;
     }
     else {
-        *val = ((btact->memrec)+idx)->valblk[*loc];
+        *val = ((btact->memrec)+idx)->keyblk[*loc].val;
         *link1 = ((btact->memrec)+idx)->lnkblk[*loc];
         *link2 = ((btact->memrec)+idx)->lnkblk[*loc+1];
 #if DEBUG >=2

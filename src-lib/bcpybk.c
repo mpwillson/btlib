@@ -1,5 +1,5 @@
 /*
- * $Id: bcpybk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bcpybk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  * bcpybk: copies contents of one block to another
  *
@@ -63,9 +63,7 @@ int bcpybk(BTint tblk,BTint fblk,int ts,int fs,int n)
     /* copy keys and links */
     j = fs;
     for (i=ts;i<ts+n;i++) {
-        strcpy(((btact->memrec)+tidx)->keyblk[i],
-            ((btact->memrec)+fidx)->keyblk[j]);
-        ((btact->memrec)+tidx)->valblk[i] = ((btact->memrec)+fidx)->valblk[j];
+        ((btact->memrec)+tidx)->keyblk[i] = ((btact->memrec)+fidx)->keyblk[j];
         ((btact->memrec)+tidx)->lnkblk[i+inc] = 
             ((btact->memrec)+fidx)->lnkblk[j];
         j = j+1;

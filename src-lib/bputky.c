@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.13 2012-04-09 16:03:57 mark Exp $
+ * $Id: bputky.c,v 1.14 2012-06-16 19:39:43 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -39,11 +39,12 @@
 /* #undef DEBUG */
 /* #define DEBUG 2 */
 
-int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
+int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2) 
 {
     int i,idx,ioerr;
     int nkeys;
     char lkey[ZKYLEN];
+    KEYENT keyent;
     
 #if DEBUG >= 1
     fprintf(stderr,
@@ -66,11 +67,11 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
         }
         if (nkeys == 0) {
             /* block empty */
-            strcpy(((btact->memrec)+idx)->keyblk[0],lkey);
-            ((btact->memrec)+idx)->valblk[0] = val;
+            strcpy(((btact->memrec)+idx)->keyblk[0].key,lkey);
+            ((btact->memrec)+idx)->keyblk[0].val = val;
+            ((btact->memrec)+idx)->keyblk[0].dup = ZNULL;
             ((btact->memrec)+idx)->lnkblk[0] = link1;
             ((btact->memrec)+idx)->lnkblk[1] = link2;
-            ((btact->memrec)+idx)->duptail = ZNULL;
         }
         else {
             if (link1 == ZNULL && link2 != ZNULL) {
@@ -81,12 +82,10 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
                 for (i=((btact->memrec)+idx)->infblk[ZNKEYS];i>0;i--) {
                     /* ensure duplicate key is always inserted at front of
                        set so key promotion works */
-                    if (strcmp(key,((btact->memrec)+idx)->keyblk[i-1]) <= 0) {
+                    if (strcmp(key,((btact->memrec)+idx)->keyblk[i-1].key) <= 0) {
                         /* move info to make room */
-                        strcpy(((btact->memrec)+idx)->keyblk[i],
-                               ((btact->memrec)+idx)->keyblk[i-1]);
-                        ((btact->memrec)+idx)->valblk[i] = 
-                            ((btact->memrec)+idx)->valblk[i-1];
+                        ((btact->memrec)+idx)->keyblk[i] =
+                            ((btact->memrec)+idx)->keyblk[i-1];
                         ((btact->memrec)+idx)->lnkblk[i+1] = 
                             ((btact->memrec)+idx)->lnkblk[i];
                     }
@@ -101,9 +100,9 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
                 ((btact->memrec)+idx)->lnkblk[1] = 
                     ((btact->memrec)+idx)->lnkblk[0];
             }
-            strcpy(((btact->memrec)+idx)->keyblk[i],lkey);
-            ((btact->memrec)+idx)->valblk[i] = val;
-            ((btact->memrec)+idx)->duptail = ZNULL;
+            strcpy(((btact->memrec)+idx)->keyblk[i].key,lkey);
+            ((btact->memrec)+idx)->keyblk[i].val = val;
+            ((btact->memrec)+idx)->keyblk[i].dup = ZNULL;
             if (link1 == ZNULL && link2 == ZNULL) {
                 /* inserting a leaf key */
                 ((btact->memrec)+idx)->lnkblk[i] = ZNULL;

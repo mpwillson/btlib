@@ -1,5 +1,5 @@
 /*
- * $Id: brepky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: brepky.c,v 1.8 2010-05-28 10:34:38 mark Exp $
  *
  * brepky: replaces key at location loc in block
  *
@@ -50,8 +50,8 @@ int brepky(BTint blk,int loc,char *key,BTint val,BTint link1,BTint link2)
             bterr("BREPKY",QRDBLK,itostr(blk));
         }
         else {
-            strcpy(((btact->memrec)+idx)->keyblk[loc],key);
-            ((btact->memrec)+idx)->valblk[loc] = val;
+            strcpy(((btact->memrec)+idx)->keyblk[loc].key,key);
+            ((btact->memrec)+idx)->keyblk[loc].val = val;
             ((btact->memrec)+idx)->lnkblk[loc] = link1;
             ((btact->memrec)+idx)->lnkblk[loc+1] = link2;
             ((btact->cntrl)+idx)->writes++;

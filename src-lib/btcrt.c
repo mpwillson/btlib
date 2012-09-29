@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.11 2010-06-07 12:16:04 mark Exp $
+ * $Id: btcrt.c,v 1.12 2011-05-21 16:27:36 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -91,12 +91,14 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     ((btact->cntrl)+idx)->inmem = ZSUPER;
     bsetbk((BTint) ZSUPER,(BTint) ZROOT,btact->cntxt->super.snfree,
         btact->cntxt->super.sfreep,2,
-        btact->cntxt->super.sblkmx);
+           btact->cntxt->super.sblkmx,ZNULL);
     
-    strcpy(((btact->memrec)+idx)->keyblk[1],"$$super");
-    ((btact->memrec)+idx)->valblk[1] = ZSUPER;
-    strcpy(((btact->memrec)+idx)->keyblk[0],"$$default");
-    ((btact->memrec)+idx)->valblk[0] = DEFAULT_ROOT;
+    strcpy(((btact->memrec)+idx)->keyblk[1].key,"$$super");
+    ((btact->memrec)+idx)->keyblk[1].val = ZSUPER;
+    ((btact->memrec)+idx)->keyblk[1].dup = ZNULL;
+    strcpy(((btact->memrec)+idx)->keyblk[0].key,"$$default");
+    ((btact->memrec)+idx)->keyblk[0].val = DEFAULT_ROOT;
+    ((btact->memrec)+idx)->keyblk[0].dup = ZNULL;
     for (i=0;i<=2;i++) ((btact->memrec)+idx)->lnkblk[i] = ZNULL;
 
     /* write it out */
@@ -111,7 +113,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     ((btact->cntrl)+idx)->inmem = 1;
     btact->cntxt->super.scroot = 1;
     strcpy(btact->cntxt->super.scclas,"$$default");
-    bsetbk(1,ZROOT,0,ZNULL,0,DEFAULT_ROOT);
+    bsetbk(1,ZROOT,0,ZNULL,0,DEFAULT_ROOT,ZNULL);
     ioerr = bwrblk(DEFAULT_ROOT);
     if (ioerr != 0) {
         bterr("BTCRT",QWRBLK,itostr(1));

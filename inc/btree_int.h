@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.11 2010-12-04 20:14:57 mark Exp $
+ * $Id: btree_int.h,v 1.12 2011-04-09 20:40:02 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -44,7 +44,7 @@ extern int bqmove(int);
 /* extern void bqrem(int);*/
 extern int brdblk(BTint,int *);
 extern int brepky(BTint,int,char *,BTint,BTint,BTint);
-extern int bsetbk(BTint,BTint,BTint,BTint,BTint,BTint);
+extern int bsetbk(BTint,BTint,BTint,BTint,BTint,BTint,BTint);
 extern void bsetbs(BTint,int);
 extern int bstinf(BTint,int,BTint);
 extern int bsptbk(BTint,BTint *);
@@ -74,12 +74,12 @@ extern int btsync(void);
 extern int bmodky(BTint,int,BTint);
 extern void bxdump(char *,int);
 
-extern BTint mkdblk(void);
+extern BTint mkdblk(int);
 extern int rdsz(char *);
 extern BTint rdint(char *);
 extern void wrsz(int, char *);
 extern void wrint(BTint, char *);
-extern BTint binsdt(char *,int);
+extern BTint binsdt(int,char *,int);
 extern int insdat(BTint,char *,int,BTint);
 extern int bupddt(BTint, char *, int);
 extern int bdeldt(BTint);

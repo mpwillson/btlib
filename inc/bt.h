@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.11 2012-05-20 20:04:25 mark Exp $
+ * $Id: bt.h,v 1.12 2012-06-16 19:39:43 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -51,12 +51,29 @@ struct bt_lru {
    B tree in-memory cached blocks
 */
 
+/* struct bt_memrec { */
+/*     BTint infblk[ZINFSZ]; */
+/*     char keyblk[ZMXKEY] [ZKYLEN]; */
+/*     BTint dup[ZMXKEY]; /\* if non-ZNULL, key is dup; points to tail of dup */
+/*                     * key chain *\/ */
+/*     BTint valblk[ZMXKEY]; */
+/*     BTint lnkblk[ZMXKEY+1]; */
+/* #if ZPAD != 0 */
+/*     BTint padblk[ZPAD]; */
+/* #endif */
+/* }; */
+
+struct bt_keyent {
+    char key[ZKYLEN];
+    BTint val;
+    BTint dup;
+};
+
+typedef struct bt_keyent KEYENT;
+    
 struct bt_memrec {
     BTint infblk[ZINFSZ];
-    char keyblk[ZMXKEY] [ZKYLEN];
-    BTint duptail; /* if non-ZNULL, key is dup; points to tail of dup
-                    * key chain */
-    BTint valblk[ZMXKEY];
+    KEYENT keyblk[ZMXKEY];
     BTint lnkblk[ZMXKEY+1];
 #if ZPAD != 0
     BTint padblk[ZPAD];
@@ -75,7 +92,7 @@ struct bt_datblk {
 typedef struct bt_datblk DATBLK;
 
 /* Structure for duplicate key entry in ZDUP block
- * flik is provided by btdata handling */
+ * flink is provided by btdata handling */
 struct bt_dup {
     BTint blink;
     char del;
@@ -91,6 +108,7 @@ struct bt_lf {
     BTint lfblk;
     int lfpos;
     int lfexct;
+    BTint draddr;
 };
 
 /* B tree statistic counters */

@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.11 2011-06-24 10:13:55 mark Exp $
+ * $Id: bsuper.c,v 1.12 2011-06-24 11:02:21 mark Exp $
  *
  *
  * brdsup  - reads super root
@@ -82,7 +82,7 @@ int bwrsup()
         bsetbk(ZSUPER,ZROOT,btact->cntxt->super.snfree,
                btact->cntxt->super.sfreep,
                nkeys,
-               btact->cntxt->super.sblkmx);
+               btact->cntxt->super.sblkmx,ZNULL);
         errcode = bwrblk(ZSUPER);
         if (errcode != 0) {
             bterr("BWRSUP",QWRSUP,itostr(ZSUPER));

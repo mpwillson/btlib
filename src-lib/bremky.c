@@ -1,5 +1,5 @@
 /*
- * $Id: bremky.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bremky.c,v 1.8 2011-06-13 19:34:46 mark Exp $
  *
  * bremky: deletes key (and rlink) at pos from blk
  *
@@ -43,9 +43,7 @@ void bremky(BTint blk,int pos)
     }
     ((btact->memrec)+idx)->infblk[ZNKEYS]--;
     for (i=pos;i<((btact->memrec)+idx)->infblk[ZNKEYS];i++) { 
-        strcpy(((btact->memrec)+idx)->keyblk[i],
-               ((btact->memrec)+idx)->keyblk[i+1]);
-        ((btact->memrec)+idx)->valblk[i] = ((btact->memrec)+idx)->valblk[i+1];
+        ((btact->memrec)+idx)->keyblk[i] = ((btact->memrec)+idx)->keyblk[i+1];
         ((btact->memrec)+idx)->lnkblk[i+1] = ((btact->memrec)+idx)->lnkblk[i+2];
     }
 
