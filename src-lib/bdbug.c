@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.17 2012-04-09 16:03:57 mark Exp $
+ * $Id: bdbug.c,v 1.18 2012-09-29 15:06:41 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -82,10 +82,12 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                 "  Last key:   %20s\n"
                 "  Last blk:   " Z20DFMT "\n"
                 "  Last pos:   %20d\n"
+                "  Dup addr:   " Z20DFMT "\n"
                 "  LRU head:   %20d\n"
                 "  LRU tail:   %20d\n",
                 btact->idxfid,btact->shared,btact->cntxt->lf.lfkey,
                 btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
+                btact->cntxt->lf.draddr,
                 btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
         fprintf(stdout,"%10s%20s%10s%10s%10s\n","Mblk","Blk","Busy","Writes",
                 "Lrunxt");

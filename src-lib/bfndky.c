@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.12 2010-12-04 20:14:57 mark Exp $
+ * $Id: bfndky.c,v 1.13 2012-09-29 15:06:41 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -67,12 +67,10 @@ int bfndky(BTA *b,char *key,BTint *val)
     lkey[ZKYLEN-1] = '\0';
     
     /* initialise stack etc */
-    btact->cntxt->lf.lfexct = FALSE;
     cblk = btact->cntxt->super.scroot;
     duplicates_allowed = bgtinf(cblk,ZMISC);
     bstkin();
-    btact->cntxt->lf.lfblk = -1;
-    btact->cntxt->lf.lfpos = -1;
+    bclrlf();
     strcpy(btact->cntxt->lf.lfkey,lkey);
 
     while (cblk != ZNULL) {
@@ -116,6 +114,7 @@ int bfndky(BTA *b,char *key,BTint *val)
                 status = 0;
                 btact->cntxt->lf.lfexct = TRUE;
                 cblk = ZNULL;
+                chkdup(val);
             }
         }
     }

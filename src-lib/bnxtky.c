@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.13 2010-12-31 14:20:52 mark Exp $
+ * $Id: bnxtky.c,v 1.14 2012-09-29 15:06:41 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -47,30 +47,31 @@ int bnxtky(BTA* b,char *key,BTint *val)
     btact = b;          /* set global context pointer */
 
     if (btact->shared) {
-        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
-            /* root supports duplicate keys; must be locked */
-            if (btact->lckcnt == 0) {
-                bterr("BNXTKY",QNOTOP,NULL);
-                goto fin;
-            }
-            block(); /* balance bulock at routine exit */
-        }
-        else {
-            /* can re-position when no dups */
-            if (!block()) {
-                bterr("BNXTKY",QBUSY,NULL);
-                goto fin;
-            }
-            /* position to last found key via bfndky, since context could
-             * have been invalidated by concurrent updates by other users.
-             * Note we don't care if the key is found or not, so the error
-             * status is always cleared. */
-            status = bfndky(btact,btact->cntxt->lf.lfkey,val);
-            bterr("",0,NULL);
+        if (!block()) {
+            bterr("BNXTKY",QBUSY,NULL);
+            goto fin;
         }
     }
     
-
+    /* handle duplicate positioning */
+    found = btduppos(NEXT,val);
+    if (found > 0) {
+        goto fin;
+    }
+    else if (found == 0) {
+        strcpy(key,btact->cntxt->lf.lfkey);
+        goto fin;
+    }
+            
+    if (btact->shared && btact->cntxt->lf.lfblk != ZNULL) {
+        /* position to last found key via bfndky, since context could
+         * have been invalidated by concurrent updates by other users.
+         * Note we don't care if the key is found or not, so the error
+         * status is always cleared. */
+        status = bfndky(btact,btact->cntxt->lf.lfkey,val);
+        bterr("",0,NULL);
+    }
+    
     found = FALSE;
     while (btact->cntxt->lf.lfblk != ZNULL && !found) {
         status = brdblk(btact->cntxt->lf.lfblk,&idx);
@@ -108,13 +109,15 @@ int bnxtky(BTA* b,char *key,BTint *val)
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
+            chkdup(val);
         }
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {
         /* end of index reached */
+        bclrlf();
         bterr("BNXTKY",QNOKEY,NULL);
     }
 fin:
     if (btact->shared) bulock();
-    return(btgerr());
+    return btgerr();
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: $
+ * $Id: btdupkey.c,v 1.3 2012-09-29 15:17:19 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -81,7 +81,6 @@ int btdupkey(char *key, BTint val)
         /* construct duplicate key entry for original key */
         strcpy(dkey.key,keyent->key);
         dkey.val = keyent->val;
-        dkey.flink = ZNULL;
         dkey.blink = ZNULL;
         bsetbs(cblk,TRUE);
         draddr = binsdt(ZDUP,(char *) &dkey,sizeof(struct bt_dkey));
@@ -118,54 +117,69 @@ int btdupkey(char *key, BTint val)
     return btgerr();;
 }
 
-int btduppos(int direction, BTint draddr,BTint *newda)
+/* return val from next/prev undeleted dup key
+   return value: 0 = value returned; >0 error code; ZNULL no more dup
+   keys
+*/
+int btduppos(int direction, BTint *val)
 {
     BTint blk,newaddr;
     int offset,sz;
     struct bt_dkey dkey;
 
-    *newda = ZNULL;
     if (direction != NEXT && direction != PREV) {
         bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
         return btgerr();
     }
 
     
-    if (draddr == ZNULL) {
-        return 0;
+    if (btact->cntxt->lf.draddr == ZNULL) {
+        return ZNULL;
     }
     
-    cnvdraddr(draddr,&blk,&offset);
+    cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
     if (bgtinf(blk,ZBTYPE) != ZDUP) {
         bterr("BTDUPPOS",0,itostr(blk)); /*TBD: define error code */
         return btgerr();
     }
 
     /* find next/prev non-deleted key */
-    newaddr = draddr;
+    newaddr = btact->cntxt->lf.draddr;
     do {
         sz = bseldt(newaddr,(char *) &dkey,sizeof(struct bt_dkey));
         if (sz != sizeof(struct bt_dkey)) {
             bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
             return btgerr();
         }
+#if DEBUG >= 1
+        fprintf(stderr,"BTDUPPOS: dkey.key: %s, val: " ZINTFMT ", blink: "
+                ZINTFMT ", flink: " ZINTFMT "\n",
+                dkey.key, dkey.val, dkey.blink, dkey.flink);
+#endif
         newaddr = (direction==NEXT?dkey.flink:dkey.blink);
     } while (dkey.deleted && newaddr != ZNULL);
 
-    *newda = newaddr;
-    return btgerr();
+    btact->cntxt->lf.draddr = newaddr;
+    
+    *val = dkey.val;
+    
+    return 0;
 }
 
-int chkdup(BTint blk, int pos, BTint *val)
+int chkdup(BTint *val)
 {
     KEYENT* keyent;
     struct bt_dkey dkey;
     int sz;
     
-    keyent = getkeyent(blk,pos);
+    keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
     if (keyent == NULL) {
         return ZNULL;
     }
+#if DEBUG >= 1
+    fprintf(stderr,"CHKDUP: keyent->key: %s, val: " ZINTFMT
+            ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
+#endif  
     if (keyent->dup != ZNULL) {
         sz = bseldt(keyent->val,(char *) &dkey,sizeof(struct bt_dkey));
         if (sz != sizeof(struct bt_dkey)) {
@@ -175,6 +189,10 @@ int chkdup(BTint blk, int pos, BTint *val)
         btact->cntxt->lf.draddr = keyent->val;
         *val = dkey.val;
     }
+    else {
+        btact->cntxt->lf.draddr = ZNULL;
+    }
+    
     return 0;
 }
 
