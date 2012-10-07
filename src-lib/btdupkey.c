@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.4 2012-10-07 12:53:05 mark Exp $
+ * $Id: btdupkey.c,v 1.5 2012-10-07 19:25:11 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -178,6 +178,9 @@ int btduppos(int direction, BTint *val)
     if (newaddr != ZNULL) {
         if ((dkey = getdkey(newaddr)) == NULL) return btgerr();
         *val = dkey->val;
+    }
+    else {
+        return ZNULL;
     }
     return 0;
 }
