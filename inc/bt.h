@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.12 2012-06-16 19:39:43 mark Exp $
+ * $Id: bt.h,v 1.13 2012-09-29 15:06:41 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -91,15 +91,16 @@ struct bt_datblk {
 
 typedef struct bt_datblk DATBLK;
 
-/* Structure for duplicate key entry in ZDUP block
- * flink is provided by btdata handling */
-struct bt_dup {
-    BTint blink;
-    char del;
+/* Duplicate key entry in block type ZDUP */
+struct bt_dkey {
     char key[ZKYLEN];
+    int deleted;
     BTint val;
+    BTint flink;
+    BTint blink;
 };
-    
+
+typedef struct bt_dkey DKEY;
 
 /* context from last find operation */
 

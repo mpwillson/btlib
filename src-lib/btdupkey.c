@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.5 2012-10-07 19:25:11 mark Exp $
+ * $Id: btdupkey.c,v 1.6 2012-10-07 19:41:39 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -32,16 +32,6 @@
 #include "btree.h"
 #include "btree_int.h"
 #include <string.h>
-
-struct bt_dkey {
-    char key[ZKYLEN];
-    int deleted;
-    BTint val;
-    BTint flink;
-    BTint blink;
-};
-
-typedef struct bt_dkey DKEY;
 
 KEYENT* getkeyent(BTint blk, int pos)
 {
