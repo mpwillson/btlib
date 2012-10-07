@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.3 2012-09-29 15:17:19 mark Exp $
+ * $Id: btdupkey.c,v 1.4 2012-10-07 12:53:05 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -41,6 +41,8 @@ struct bt_dkey {
     BTint blink;
 };
 
+typedef struct bt_dkey DKEY;
+
 KEYENT* getkeyent(BTint blk, int pos)
 {
     int idx,ioerr;
@@ -52,6 +54,19 @@ KEYENT* getkeyent(BTint blk, int pos)
     else {
         return NULL;
     }
+}
+
+DKEY* getdkey(BTint draddr)
+{
+    static DKEY dkey;
+    int sz;
+    
+    sz = bseldt(draddr,(char *) &dkey,sizeof(DKEY));
+    if (sz != sizeof(struct bt_dkey)) {
+        bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
+        return NULL;
+    }
+    return &dkey;
 }
 
 /* Add new duplicate key to index */
@@ -124,8 +139,8 @@ int btdupkey(char *key, BTint val)
 int btduppos(int direction, BTint *val)
 {
     BTint blk,newaddr;
-    int offset,sz;
-    struct bt_dkey dkey;
+    int offset;
+    DKEY* dkey;
 
     if (direction != NEXT && direction != PREV) {
         bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
@@ -146,23 +161,24 @@ int btduppos(int direction, BTint *val)
     /* find next/prev non-deleted key */
     newaddr = btact->cntxt->lf.draddr;
     do {
-        sz = bseldt(newaddr,(char *) &dkey,sizeof(struct bt_dkey));
-        if (sz != sizeof(struct bt_dkey)) {
-            bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
+        dkey = getdkey(newaddr);
+        if (dkey == NULL) {
             return btgerr();
         }
-#if DEBUG >= 1
-        fprintf(stderr,"BTDUPPOS: dkey.key: %s, val: " ZINTFMT ", blink: "
+#if DEBUG >= 0
+        fprintf(stderr,"BTDUPPOS: draddr: " ZINTFMT ", dkey.key: %s, val: "
+                ZINTFMT ", blink: "
                 ZINTFMT ", flink: " ZINTFMT "\n",
-                dkey.key, dkey.val, dkey.blink, dkey.flink);
+                newaddr, dkey->key, dkey->val, dkey->blink, dkey->flink);
 #endif
-        newaddr = (direction==NEXT?dkey.flink:dkey.blink);
-    } while (dkey.deleted && newaddr != ZNULL);
+        newaddr = (direction==NEXT?dkey->flink:dkey->blink);
+    } while (dkey->deleted && newaddr != ZNULL);
 
     btact->cntxt->lf.draddr = newaddr;
-    
-    *val = dkey.val;
-    
+    if (newaddr != ZNULL) {
+        if ((dkey = getdkey(newaddr)) == NULL) return btgerr();
+        *val = dkey->val;
+    }
     return 0;
 }
 
@@ -176,7 +192,7 @@ int chkdup(BTint *val)
     if (keyent == NULL) {
         return ZNULL;
     }
-#if DEBUG >= 1
+#if DEBUG >= 0
     fprintf(stderr,"CHKDUP: keyent->key: %s, val: " ZINTFMT
             ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
 #endif  

@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.4 2010-12-31 14:20:52 mark Exp $
+ * $Id: bprvky.c,v 1.5 2012-09-29 15:06:41 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -50,27 +50,28 @@ int bprvky(BTA* b,char *key,BTint *val)
     btact = b;          /* set global context pointer */
 
     if (btact->shared) {
-        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
-            /* root supports duplicate keys; must be locked */
-            if (btact->lckcnt == 0) {
-                bterr("BPRVKY",QNOTOP,NULL);
-                goto fin;
-            }
-            block(); /* balance bulock at routine exit */
+        if (!block()) {
+            bterr("BPRVKY",QBUSY,NULL);
+            goto fin;
         }
-        else {
-            /* can re-position when no dups */
-            if (!block()) {
-                bterr("BPRVKY",QBUSY,NULL);
-                goto fin;
-            }
-            /* position to last found key via bfndky, since context could
-             * have been invalidated by concurrent updates by other users.
-             * Note we don't care if the key is found or not, so the error
-             * status is always cleared. */
-            status = bfndky(btact,btact->cntxt->lf.lfkey,val);
-            bterr("",0,NULL);
-        }
+    }
+    /* handle duplicate positioning */
+    found = btduppos(PREV,val);
+    if (found > 0) {
+        goto fin;
+    }
+    else if (found == 0) {
+        strcpy(key,btact->cntxt->lf.lfkey);
+        goto fin;
+    }
+   
+    if (btact->shared && btact->cntxt->lf.lfblk != ZNULL) {
+        /* position to last found key via bfndky, since context could
+         * have been invalidated by concurrent updates by other users.
+         * Note we don't care if the key is found or not, so the error
+         * status is always cleared. */
+        status = bfndky(btact,btact->cntxt->lf.lfkey,val);
+        bterr("",0,NULL);
     }
     
     found = FALSE;
