@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.6 2012-10-07 19:41:39 mark Exp $
+ * $Id: btdupkey.c,v 1.7 2012/10/07 19:49:30 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -132,7 +132,7 @@ int btduppos(int direction, BTint *val)
     int offset;
     DKEY* dkey;
 
-    if (direction != NEXT && direction != PREV) {
+    if (direction != ZNEXT && direction != ZPREV) {
         bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
         return btgerr();
     }
@@ -161,24 +161,21 @@ int btduppos(int direction, BTint *val)
                 ZINTFMT ", flink: " ZINTFMT "\n",
                 newaddr, dkey->key, dkey->val, dkey->blink, dkey->flink);
 #endif
-        newaddr = (direction==NEXT?dkey->flink:dkey->blink);
+        newaddr = (direction==ZNEXT?dkey->flink:dkey->blink);
     } while (dkey->deleted && newaddr != ZNULL);
 
     btact->cntxt->lf.draddr = newaddr;
-    if (newaddr != ZNULL) {
-        if ((dkey = getdkey(newaddr)) == NULL) return btgerr();
-        *val = dkey->val;
-    }
-    else {
-        return ZNULL;
-    }
+    if (newaddr == ZNULL) return ZNULL;
+    if ((dkey = getdkey(newaddr)) == NULL) return btgerr();
+    *val = dkey->val;
     return 0;
 }
 
-int chkdup(BTint *val)
+int chkdup(int direction, BTint *val)
 {
     KEYENT* keyent;
     struct bt_dkey dkey;
+    BTint draddr;
     int sz;
     
     keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
@@ -190,12 +187,13 @@ int chkdup(BTint *val)
             ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
 #endif  
     if (keyent->dup != ZNULL) {
-        sz = bseldt(keyent->val,(char *) &dkey,sizeof(struct bt_dkey));
+        draddr = (direction==ZNEXT?keyent->val:keyent->dup);
+        sz = bseldt(draddr,(char *) &dkey, sizeof(struct bt_dkey));
         if (sz != sizeof(struct bt_dkey)) {
             bterr("BTDUPKEY",-1,NULL); /*TDB set error code */
             return btgerr();
         }
-        btact->cntxt->lf.draddr = keyent->val;
+        btact->cntxt->lf.draddr = draddr;
         *val = dkey.val;
     }
     else {

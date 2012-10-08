@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.15 2012-10-07 12:53:05 mark Exp $
+ * $Id: bnxtky.c,v 1.16 2012/10/07 19:25:10 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -54,7 +54,7 @@ int bnxtky(BTA* b,char *key,BTint *val)
     }
     
     /* handle duplicate positioning */
-    found = btduppos(NEXT,val);
+    found = btduppos(ZNEXT,val);
     if (found > 0) {
         goto fin;
     }

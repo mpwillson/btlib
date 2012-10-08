@@ -1,5 +1,5 @@
 /*
- * $Id: binsky.c,v 1.11 2012-04-09 16:03:57 mark Exp $
+ * $Id: binsky.c,v 1.12 2012-06-16 19:39:43 mark Exp $
  *
  *
  * binsky:  inserts key into index 

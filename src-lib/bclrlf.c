@@ -1,5 +1,5 @@
 /*
- * $Id: bclrlf.c,v 1.8 2010-12-04 20:14:57 mark Exp $
+ * $Id: bclrlf.c,v 1.9 2012-09-29 15:06:41 mark Exp $
  *
  * bclrlf: initialises last key found info
  *

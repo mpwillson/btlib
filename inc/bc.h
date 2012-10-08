@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.33 2012-04-09 19:31:57 mark Exp $
+ * $Id: bc.h,v 1.34 2012-09-29 15:06:41 mark Exp $
  *
  * Copyright (C) 2003, 2004, 2012 Mark Willson.
  *
@@ -158,8 +158,8 @@ typedef int BTint;
 #define ZDSGMN 7    
 
 /* Previous/next key constants */
-#define PREV 1
-#define NEXT 2
+#define ZPREV 1
+#define ZNEXT 2
 
 /* Perform some simple constant consistency checks */
 

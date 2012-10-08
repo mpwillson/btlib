@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.5 2012-09-29 15:06:41 mark Exp $
+ * $Id: bprvky.c,v 1.6 2012/10/07 19:25:11 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -56,7 +56,7 @@ int bprvky(BTA* b,char *key,BTint *val)
         }
     }
     /* handle duplicate positioning */
-    found = btduppos(PREV,val);
+    found = btduppos(ZPREV,val);
     if (found > 0) {
         goto fin;
     }
@@ -82,7 +82,7 @@ int bprvky(BTA* b,char *key,BTint *val)
             break;
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
-#if DEBUG >= 1
+#if DEBUG >= 0
         printf("BPRVKY: lfblk: " ZINTFMT ", lfpos: %d, lexct: %d, nkeys: %d\n",
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
                btact->cntxt->lf.lfexct,nkeys);
@@ -117,7 +117,7 @@ int bprvky(BTA* b,char *key,BTint *val)
                 btact->cntxt->lf.lfexct = TRUE;
             }
         }
-#if DEBUG >= 1
+#if DEBUG >= 0
         printf("BPRVKY(2): lfblk: " ZINTFMT
                ", lfpos: %d, lexct: %d, nkeys: %d\n", 
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
@@ -129,6 +129,7 @@ int bprvky(BTA* b,char *key,BTint *val)
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
+            chkdup(ZPREV,val);
         }
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {
