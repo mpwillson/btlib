@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.6 2012/10/07 19:25:11 mark Exp $
+ * $Id: bprvky.c,v 1.7 2012/10/08 18:12:48 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -129,7 +129,7 @@ int bprvky(BTA* b,char *key,BTint *val)
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
-            chkdup(ZPREV,val);
+            btduppos(ZPREV,val);
         }
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {

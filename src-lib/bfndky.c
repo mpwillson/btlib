@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.14 2012-10-07 12:53:05 mark Exp $
+ * $Id: bfndky.c,v 1.15 2012/10/08 18:12:48 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -114,7 +114,7 @@ int bfndky(BTA *b,char *key,BTint *val)
                 status = 0;
                 btact->cntxt->lf.lfexct = TRUE;
                 cblk = ZNULL;
-                chkdup(ZNEXT,val);
+                btduppos(ZNEXT,val);
             }
         }
     }

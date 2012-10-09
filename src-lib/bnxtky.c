@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.16 2012/10/07 19:25:10 mark Exp $
+ * $Id: bnxtky.c,v 1.17 2012/10/08 18:12:48 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -109,7 +109,7 @@ int bnxtky(BTA* b,char *key,BTint *val)
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
-            chkdup(val);
+            btduppos(ZNEXT,val);
         }
     }
     if (btact->cntxt->lf.lfblk == ZNULL) {
