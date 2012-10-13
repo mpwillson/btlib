@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.8 2012/10/08 18:12:48 mark Exp $
+ * $Id: btdupkey.c,v 1.9 2012/10/09 19:39:28 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -42,6 +42,7 @@ KEYENT* getkeyent(BTint blk, int pos)
         return &(((btact->memrec)+idx)->keyblk[pos]);
     }
     else {
+        bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
         return NULL;
     }
 }
@@ -192,36 +193,69 @@ int btduppos(int direction, BTint *val)
     return 0;
 }
 
-int chkdup(int direction, BTint *val)
+/* int chkdup(int direction, BTint *val) */
+/* { */
+/*     KEYENT* keyent; */
+/*     struct bt_dkey dkey; */
+/*     BTint draddr; */
+/*     int sz; */
+    
+/*     keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos); */
+/*     if (keyent == NULL) { */
+/*         return ZNULL; */
+/*     } */
+/* #if DEBUG >= 0 */
+/*     fprintf(stderr,"CHKDUP: keyent->key: %s, val: " ZINTFMT */
+/*             ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup); */
+/* #endif   */
+/*     if (keyent->dup != ZNULL) { */
+/*         draddr = (direction==ZNEXT?keyent->val:keyent->dup); */
+/*         sz = bseldt(draddr,(char *) &dkey, sizeof(struct bt_dkey)); */
+/*         if (sz != sizeof(struct bt_dkey)) { */
+/*             bterr("BTDUPKEY",-1,NULL); /\*TDB set error code *\/ */
+/*             return btgerr(); */
+/*         } */
+/*         btact->cntxt->lf.draddr = draddr; */
+/*         *val = dkey.val; */
+/*     } */
+/*     else { */
+/*         btact->cntxt->lf.draddr = ZNULL; */
+/*     } */
+    
+/*     return 0; */
+/* } */
+
+int btdeldup (int current)
 {
+    DKEY* dkey;
     KEYENT* keyent;
-    struct bt_dkey dkey;
-    BTint draddr;
-    int sz;
     
-    keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
-    if (keyent == NULL) {
-        return ZNULL;
-    }
-#if DEBUG >= 0
-    fprintf(stderr,"CHKDUP: keyent->key: %s, val: " ZINTFMT
-            ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
-#endif  
-    if (keyent->dup != ZNULL) {
-        draddr = (direction==ZNEXT?keyent->val:keyent->dup);
-        sz = bseldt(draddr,(char *) &dkey, sizeof(struct bt_dkey));
-        if (sz != sizeof(struct bt_dkey)) {
-            bterr("BTDUPKEY",-1,NULL); /*TDB set error code */
-            return btgerr();
+    /* either bfndky or btduppos will set context dup draddr if we
+     * are at a duplicate key */
+    
+    if (btact->cntxt->lf.draddr != ZNULL) {
+        dkey = getdkey(btact->cntxt->lf.draddr);
+        if (dkey == NULL) return btgterr();
+        keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
+        if (keyent == NULL) return btgterr();
+        if (dkey->blink == ZNULL and dkey->flink == ZNULL) {
+            /* only key in chain */
+            keyent->val = dkey->val;
+            keyent->dup = ZNULL;
         }
-        btact->cntxt->lf.draddr = draddr;
-        *val = dkey.val;
+        else if (dkey->blink == ZNULL) {
+            /* deleting first in chain */
+            keyent->val = dkey->flink;
+        }
+        else if (dkey.flink == ZNULL) {
+            /* deleting last in chain */
+            keyent->dup = dkey=>blink;
+        }
+        dkey.deleted = TRUE;
+        cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
+        /* update used space in dup block; we expect deldat to leave
+         * the data record intact */
+        deldat(blk,offset);
     }
-    else {
-        btact->cntxt->lf.draddr = ZNULL;
-    }
-    
     return 0;
 }
-
-        
