@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.18 2012-09-29 15:06:41 mark Exp $
+ * $Id: bdbug.c,v 1.19 2012/10/07 12:53:05 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -67,14 +67,15 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             "  First free:       " Z20DFMT "\n"
             "  Current root blk: " Z20DFMT "\n"
             "  Current root nm:  %20s\n"
-            "  Block overhead:   %20d\n"
-            "  Block size:       %20d [memrec size: %d]\n"
-            "  Keys per block:   %20d\n",
+            "  Block overhead:   %20u\n"
+            "  Block size:       %20u [memrec size: %lu]\n"
+            "  Keys per block:   %20u\n",
             btact->cntxt->super.sblkmx,
             btact->cntxt->super.snfree,
             btact->cntxt->super.sfreep,
             btact->cntxt->super.scroot,
-                btact->cntxt->super.scclas,ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
+                btact->cntxt->super.scclas,
+                ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
         fprintf(stdout,"  Index file: %20s\n"

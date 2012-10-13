@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.11 2010-12-04 20:14:57 mark Exp $
+ * $Id: bdelk1.c,v 1.12 2012/10/13 07:11:47 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -60,9 +60,7 @@ int bdelk1(char *key)
         }
     }
     /* if key has dups, must deal with it */
-
-    TBD;
-    
+    /* TBD */
     if (llink != ZNULL) {
         /* key not in leaf block, get rightmost leaf key to replace
          * deleted key */

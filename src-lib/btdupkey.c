@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.9 2012/10/09 19:39:28 mark Exp $
+ * $Id: btdupkey.c,v 1.10 2012/10/13 19:01:08 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -229,17 +229,19 @@ int btdeldup (int current)
 {
     DKEY* dkey;
     KEYENT* keyent;
+    BTint blk;
+    int offset;
     
     /* either bfndky or btduppos will set context dup draddr if we
      * are at a duplicate key */
     
     if (btact->cntxt->lf.draddr != ZNULL) {
         dkey = getdkey(btact->cntxt->lf.draddr);
-        if (dkey == NULL) return btgterr();
+        if (dkey == NULL) return btgerr();
         keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
-        if (keyent == NULL) return btgterr();
-        if (dkey->blink == ZNULL and dkey->flink == ZNULL) {
-            /* only key in chain */
+        if (keyent == NULL) return btgerr();
+        if (dkey->blink == ZNULL && dkey->flink == ZNULL) {
+            /* only duplicate in chain */
             keyent->val = dkey->val;
             keyent->dup = ZNULL;
         }
@@ -247,11 +249,11 @@ int btdeldup (int current)
             /* deleting first in chain */
             keyent->val = dkey->flink;
         }
-        else if (dkey.flink == ZNULL) {
+        else if (dkey->flink == ZNULL) {
             /* deleting last in chain */
-            keyent->dup = dkey=>blink;
+            keyent->dup = dkey->blink;
         }
-        dkey.deleted = TRUE;
+        dkey->deleted = TRUE;
         cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
         /* update used space in dup block; we expect deldat to leave
          * the data record intact */
