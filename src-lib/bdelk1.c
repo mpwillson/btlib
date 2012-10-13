@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.10 2010-11-21 15:04:28 mark Exp $
+ * $Id: bdelk1.c,v 1.11 2010-12-04 20:14:57 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -41,10 +41,15 @@ int bdelk1(char *key)
     int result,pos,type;
     char tkey[ZKYLEN];
 
-    /* if (!btact->cntxt->lf.lfexct) { */
-    /*     bterr("BDELK1",QDELEX,NULL); */
-    /*     goto fin; */
-    /* } */
+    /* TBD: Why was this check commented out? */
+    if (!btact->cntxt->lf.lfexct) {
+        bterr("BDELK1",QDELEX,NULL);
+        goto fin;
+    }
+    
+    /* handle duplicate keys for current key context deletion */       
+    if (key == NULL && btdeldup() == 0) goto fin;
+
     pos = btact->cntxt->lf.lfpos;
     blk = btact->cntxt->lf.lfblk;
     bsrhbk(blk,tkey,&pos,&val,&llink,&rlink,&result);
@@ -54,6 +59,9 @@ int bdelk1(char *key)
             goto fin;
         }
     }
+    /* if key has dups, must deal with it */
+
+    TBD;
     
     if (llink != ZNULL) {
         /* key not in leaf block, get rightmost leaf key to replace
