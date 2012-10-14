@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.29 2012-04-14 19:17:55 mark Exp $
+ * $Id: btdata.c,v 1.30 2012-09-29 15:06:41 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -671,6 +671,7 @@ BTint binsdt(int type, char *data, int dsize)
     BTint segaddr = 0;
     int freesz;
     int listidx = (type==ZDATA?ZNXBLK:ZNXDUP);
+    int minsegsize;
     
     /* ensure there is an active block of the desired type */
     dblk = bgtinf(btact->cntxt->super.scroot,listidx);
@@ -688,7 +689,7 @@ BTint binsdt(int type, char *data, int dsize)
         bterr("BINSDT",QNOTDA,itostr(dblk));
         goto fin;
     }
-
+    minsegsize = bgtinf(dblk,ZNXDUP);
     /* process the data record */
     while (remsize >= 0) {
         /* free size is space left from first free byte onwards */
@@ -699,7 +700,7 @@ BTint binsdt(int type, char *data, int dsize)
             offset = insdat(dblk,segptr,remsize,segaddr);
             remsize = -1;
         }
-        else if (freesz < (ZDOVRH+ZDSGMN)) {
+        else if (freesz < (ZDOVRH+minsegsize)) {
             /* space below min seg size; need new block */
             nblk = mkdblk(type);
             if (nblk == ZNULL) {
@@ -880,6 +881,7 @@ int brecsz(BTint draddr, BTA* dr_index)
 BTint mkdblk(int blk_type)
 {
     BTint blk;
+    int minsegsize;
 
     blk = bgtfre();
     if (blk != ZNULL ) {
@@ -895,11 +897,24 @@ BTint mkdblk(int blk_type)
            2 - pointer to next data block in data block chain
            3 - offset of first free byte within data area of block (0)
            4 - pointer to previous data block in block chain
+           5 - minimum segment size for this block
         */
-        bsetbk(blk,blk_type,ZBLKSZ-(ZINFSZ*ZBPW),ZNULL,0,ZNULL,ZNULL);
+        switch (blk_type) {
+            case ZDATA:
+                minsegsize = ZDSGMN;
+                break;
+            case ZDUP:
+                /* never split a duplicate key segment */
+                minsegsize = sizeof(DKEY);
+                break;
+            default:
+                bterr("MKDBLK",-1,itostr(blk_type));
+                return ZNULL;
+        }
+        bsetbk(blk,blk_type,ZBLKSZ-(ZINFSZ*ZBPW),ZNULL,0,ZNULL,minsegsize);
         return(blk);
     }
-    return(ZNULL);
+    return ZNULL;
 }
 
 int rdsz(char *a)

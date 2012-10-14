@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.34 2012-09-29 15:06:41 mark Exp $
+ * $Id: bc.h,v 1.35 2012/10/08 18:12:48 mark Exp $
  *
  * Copyright (C) 2003, 2004, 2012 Mark Willson.
  *
@@ -94,11 +94,12 @@ typedef int BTint;
 
 /* Indexes into block info words - first ZINFSZ words in every block 
  *
- * ZBTYPE       ZSUPER      ZROOT           ZINUSE       ZFREE   ZDATA 
- * ZMISC        #free blks  dups_allowed    Unused       Unused  bytes free
- * ZNXBLK       free list   data blk list   Parent blk # flink   flink 
- * ZNKEYS       # keys      # keys          # keys       Unused  next free byte 
- * ZNBLKS       # blocks    root blk #      root blk #   Unused  blink
+ * ZBTYPE   ZSUPER      ZROOT           ZINUSE       ZFREE   ZDATA 
+ * ZMISC    #free blks  dups_allowed    Unused       Unused  bytes free
+ * ZNXBLK   free list   data blk list   Parent blk # flink   flink 
+ * ZNKEYS   # keys      # keys          # keys       Unused  next free byte 
+ * ZNBLKS   # blocks    root blk #      root blk #   Unused  blink
+ * ZNXDUP   Unused      Act. dup blk    Unused       Unused  min seg size
  * 
  */
 
@@ -154,7 +155,7 @@ typedef int BTint;
 #define ZDRSZ 2
 #define ZDOVRH  (ZDRSZ+ZBPW)
 
-/* minimum number of bytes for a segment */
+/* minimum number of bytes for a data segment */
 #define ZDSGMN 7    
 
 /* Previous/next key constants */

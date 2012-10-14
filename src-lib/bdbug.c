@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.19 2012/10/07 12:53:05 mark Exp $
+ * $Id: bdbug.c,v 1.20 2012/10/13 20:01:19 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -68,14 +68,14 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             "  Current root blk: " Z20DFMT "\n"
             "  Current root nm:  %20s\n"
             "  Block overhead:   %20u\n"
-            "  Block size:       %20u [memrec size: %lu]\n"
+            "  Block size:       %20u [memrec size: %u]\n"
             "  Keys per block:   %20u\n",
             btact->cntxt->super.sblkmx,
             btact->cntxt->super.snfree,
             btact->cntxt->super.sfreep,
             btact->cntxt->super.scroot,
-                btact->cntxt->super.scclas,
-                ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
+            btact->cntxt->super.scclas,
+            ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
         fprintf(stdout,"  Index file: %20s\n"
@@ -150,8 +150,9 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                     "Nblks:",bgtinf(blkno,ZNBLKS),
                     "NxDup:",bgtinf(blkno,ZNXDUP));
             switch (bgtinf(blkno,ZBTYPE)) {
-                case ZDUP:          
-                    /* fall thru for  now */
+                case ZDUP:
+                    dispdups(blkno);
+                    break;
                 case ZDATA:
                     d = (DATBLK *) (btact->memrec)+idx;
                     bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));

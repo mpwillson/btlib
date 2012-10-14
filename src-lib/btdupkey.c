@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.10 2012/10/13 19:01:08 mark Exp $
+ * $Id: btdupkey.c,v 1.11 2012/10/13 20:01:19 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -73,7 +73,13 @@ int valdraddr(BTint draddr) {
     return btgerr();
 }
 
-/* Add new duplicate key to index */
+int putdkey(BTint draddr, DKEY* dkey)
+{
+    bupddt(draddr,(char *) dkey,sizeof(struct bt_dkey));
+    return btgerr();
+}
+
+/* Add duplicate key to index */
 
 int btdupkey(char *key, BTint val)
 {
@@ -128,11 +134,10 @@ int btdupkey(char *key, BTint val)
         return btgerr();
     }
     dkey.flink = draddr;
-    if (bupddt(keyent->dup,(char *) &dkey,sizeof(struct bt_dkey)) != 0) {
-        return btgerr();
+    if (putdkey(keyent->dup,&dkey) == 0) {
+        /* set new dup list tail pointer */
+        keyent->dup = draddr;
     }
-    /* set new dup list tail pointer */
-    keyent->dup = draddr;
     return btgerr();;
 }
 
@@ -225,11 +230,11 @@ int btduppos(int direction, BTint *val)
 /*     return 0; */
 /* } */
 
-int btdeldup (int current)
+int btdeldup ()
 {
     DKEY* dkey;
     KEYENT* keyent;
-    BTint blk;
+    BTint blk, flink, blink;
     int offset;
     
     /* either bfndky or btduppos will set context dup draddr if we
@@ -253,11 +258,58 @@ int btdeldup (int current)
             /* deleting last in chain */
             keyent->dup = dkey->blink;
         }
-        dkey->deleted = TRUE;
-        cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
-        /* update used space in dup block; we expect deldat to leave
-         * the data record intact */
-        deldat(blk,offset);
+        else {
+            /* in middle of list */
+            flink = dkey->flink;
+            blink = dkey->blink;
+            dkey = getdkey(blink);
+            if (dkey == NULL) return btgerr();
+            dkey->flink = flink;
+            if (putdkey(blink,dkey) != 0) return btgerr();
+            dkey = getdkey(flink);
+            if (dkey == NULL) return btgerr();
+            dkey->blink = blink;
+            if (putdkey(flink,dkey) != 0) return btgerr();
+            dkey = getdkey(btact->cntxt->lf.draddr);
+            if (dkey == NULL) return btgerr();
+        }
+    }
+    dkey->deleted = TRUE;
+    if (putdkey(btact->cntxt->lf.draddr,dkey) != 0) return btgerr();
+    
+    cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
+    /* update used space in dup block; we expect deldat to leave
+     * the data record intact */
+    deldat(blk,offset);
+    return btgerr();
+}
+
+/* Display duplicate key entries in blk */
+int dispdups(BTint blk)
+{
+    BTint draddr, mx;
+    DATBLK* d;
+    DKEY* dkey;
+    
+    if (bgtinf(blk,ZBTYPE) != ZDUP) {
+        return btgerr();
+    }
+
+    draddr = mkdraddr(blk,0);
+    mx = mkdraddr(blk,bgtinf(blk,ZNKEYS));
+
+    while (draddr < mx) {
+        dkey = getdkey(draddr);
+        if (dkey == NULL) {
+            bterr("DISPDUPS",-1,NULL); /* TBD: internal error, most likely */
+            return 0;
+        }
+        
+        fprintf(stdout,ZINTFMT " dkey->key: %s, val: "
+                ZINTFMT ", blink: "
+                ZINTFMT ", flink: " ZINTFMT "\n",
+                draddr, dkey->key, dkey->val, dkey->blink, dkey->flink);
+        draddr += sizeof(DKEY)+ZDOVRH;
     }
     return 0;
 }
