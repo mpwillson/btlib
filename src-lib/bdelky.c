@@ -1,5 +1,5 @@
 /*
- * $Id: bdelky.c,v 1.8 2010-12-04 20:14:57 mark Exp $
+ * $Id: bdelky.c,v 1.9 2010-12-31 14:20:52 mark Exp $
  *
  * bdelky:  deletes key in index
  *
@@ -35,7 +35,7 @@ int bdelky(BTA *b,char *key)
 {
 
     BTint val;
-    int status;
+    int status = 0;
 
     bterr("",0,NULL);
     if ((status=bvalap("BDELKY",b)) != 0) return(status);
@@ -45,29 +45,16 @@ int bdelky(BTA *b,char *key)
         bterr("BDELKY",QNOWRT,NULL);
     }
     else {
-        if (key == NULL) {
-            if (btact->lckcnt > 0) {            
-                if (!context_ok("BDELKY")) {
-                    goto fin;
-                }
-                if (btact->shared) block();
-            }
-            else {
-                bterr("BDELKY",QNOTOP,NULL);
-                goto fin;
-            }   
+        if (btact->shared && !block()) {
+            bterr("BDELKY",QBUSY,NULL);
+            goto fin;
         }
-        else {
-             if (btact->shared && !block()) {
-                bterr("BDELKY",QBUSY,NULL);
-                goto fin;
-            }
-            status = bfndky(b,key,&val);
-        }
+        if (key != NULL) status = bfndky(b,key,&val);
         if (status == 0) {
             status = bdelk1(key);
             /* invalidate context on successful deletion */
-            if (status == 0) bclrlf();
+            /* if (status == 0) bclrlf(); new dup handling means
+             * context should be OK*/
         }
     }
 fin:

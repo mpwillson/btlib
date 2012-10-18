@@ -1,5 +1,5 @@
 /*
- * $Id: bmkfre.c,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: bmkfre.c,v 1.7 2012-09-29 15:06:41 mark Exp $
  * 
  *  bmkfre: return block to free list
  *
@@ -32,6 +32,12 @@
 
 void bmkfre(BTint blk)
 {
+    BTint croot = btact->cntxt->super.scroot;
+    
+    if (bgtinf(blk,ZBTYPE) == ZDUP && bgtinf(croot,ZNXDUP) == blk) {
+        /* freeing active dup block */
+        bstinf(croot,ZNXDUP,ZNULL);
+    }
     bsetbk(blk,ZFREE,0,btact->cntxt->super.sfreep,0,0,ZNULL);
     btact->cntxt->super.sfreep = blk;
     btact->cntxt->super.snfree++;

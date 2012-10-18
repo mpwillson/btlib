@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.7 2012/10/08 18:12:48 mark Exp $
+ * $Id: bprvky.c,v 1.8 2012/10/09 19:39:28 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -82,7 +82,7 @@ int bprvky(BTA* b,char *key,BTint *val)
             break;
         }
         nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
-#if DEBUG >= 0
+#if DEBUG >= 1
         printf("BPRVKY: lfblk: " ZINTFMT ", lfpos: %d, lexct: %d, nkeys: %d\n",
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
                btact->cntxt->lf.lfexct,nkeys);
@@ -102,6 +102,7 @@ int bprvky(BTA* b,char *key,BTint *val)
         }
         else {
             if (btact->cntxt->lf.lfexct) {
+                
                 idx = bleaf(1); 
                 if (idx < 0) continue;
                 btact->cntxt->lf.lfpos--;
@@ -117,7 +118,7 @@ int bprvky(BTA* b,char *key,BTint *val)
                 btact->cntxt->lf.lfexct = TRUE;
             }
         }
-#if DEBUG >= 0
+#if DEBUG >= 1
         printf("BPRVKY(2): lfblk: " ZINTFMT
                ", lfpos: %d, lexct: %d, nkeys: %d\n", 
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,

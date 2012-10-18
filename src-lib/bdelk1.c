@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.13 2012/10/13 20:01:19 mark Exp $
+ * $Id: bdelk1.c,v 1.14 2012/10/14 19:31:24 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -31,8 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "bc.h"
-#include "bt.h"
+#include "btree.h"
 #include "btree_int.h"
 
 int bdelk1(char *key)
@@ -60,7 +59,7 @@ int bdelk1(char *key)
         }
     }
     /* if key has dups, must deal with it */
-    if (btduppos(ZNEXT,&val) == 0) {
+    if (btact->cntxt->lf.draddr != ZNULL) {
         btdeldup();
         goto fin;
     }
@@ -104,6 +103,13 @@ int bdelk1(char *key)
     while (cblk != ZNULL) {
         bdemte(&cblk);
     }
+    /* due to the potential mangling of the block structure when
+     * deleting a key, need to re-establish context for next/prev key, if
+     * exclusive access */
+    if (!btact->shared) {
+        bfndky(btact,key,&val);
+    }
+    
 fin:
     return (btgerr());
 }

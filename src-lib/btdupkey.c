@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.11 2012/10/13 20:01:19 mark Exp $
+ * $Id: btdupkey.c,v 1.12 2012/10/14 19:31:24 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -50,27 +50,23 @@ KEYENT* getkeyent(BTint blk, int pos)
 DKEY* getdkey(BTint draddr)
 {
     static DKEY dkey;
-    int sz;
-    
-    sz = bseldt(draddr,(char *) &dkey,sizeof(DKEY));
-    if (sz != sizeof(struct bt_dkey)) {
-        bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
-        return NULL;
-    }
-    else {
-        return &dkey;
-    }
-}
-
-int valdraddr(BTint draddr) {
     BTint blk;
-    int offset;
-    
+    int offset,sz;
+
     cnvdraddr(draddr,&blk,&offset);
     if (bgtinf(blk,ZBTYPE) != ZDUP) {
         bterr("BTDUPPOS",0,itostr(draddr)); /*TBD: define error code */
     }
-    return btgerr();
+    else {
+        sz = bseldt(draddr,(char *) &dkey,sizeof(DKEY));
+        if (sz == sizeof(struct bt_dkey)) {
+            return &dkey;
+        }
+        else {
+            bterr("BTDUPPOS",-1,NULL); /*TDB set error code */
+        }
+    }
+    return NULL;
 }
 
 int putdkey(BTint draddr, DKEY* dkey)
@@ -156,85 +152,65 @@ int btduppos(int direction, BTint *val)
         return btgerr();
     }
 
-    /* if not exact position, can't be any dups */
-    if (!btact->cntxt->lf.lfexct) return ZNULL;
+    /* if not exact position, and not in dup chain, nothing to do */
+    if (btact->cntxt->lf.draddr == ZNULL && !btact->cntxt->lf.lfexct) {
+        return ZNULL;
+    }
     
     if (btact->cntxt->lf.draddr == ZNULL) {
         /* not in dup key chain, but are we at the start or end of
            one? */
         if ((keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos))
             == NULL) return ZNULL;
-#if DEBUG >= 0
+#if DEBUG >= 1
         fprintf(stderr,"BTDUPPOS: keyent->key: %s, val: " ZINTFMT
                 ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
 #endif  
         if (keyent->dup == ZNULL) return ZNULL;
         newaddr = (direction==ZNEXT?keyent->val:keyent->dup);
-        if (valdraddr(newaddr) != 0 ) return btgerr();
+        dkey = getdkey(newaddr);
+        if (dkey == NULL) {
+            return btgerr();
+        }
     }   
     else {
         /* find next/prev non-deleted duplicate key */
-        newaddr = btact->cntxt->lf.draddr;
+        dkey = getdkey(btact->cntxt->lf.draddr);
+        if (dkey == NULL) {
+            return btgerr();
+        }
         do {
-            if (valdraddr(newaddr) != 0 ) return btgerr();
+            newaddr = (direction==ZNEXT?dkey->flink:dkey->blink);
+            if (newaddr == ZNULL) {
+                /* at beginning/end of chain; must move to next key */
+                btact->cntxt->lf.lfexct = TRUE;
+                return ZNULL;
+            }
             dkey = getdkey(newaddr);
             if (dkey == NULL) {
                 return btgerr();
             }
-#if DEBUG >= 0
+#if DEBUG >= 1
             fprintf(stderr,"BTDUPPOS: draddr: " ZINTFMT ", dkey->key: %s, val: "
-                    ZINTFMT ", blink: "
+                    ZINTFMT "del: %d, blink: "
                     ZINTFMT ", flink: " ZINTFMT "\n",
-                    newaddr, dkey->key, dkey->val, dkey->blink, dkey->flink);
+                    newaddr, dkey->key, dkey->val, dkey->deleted,
+                    dkey->blink, dkey->flink);
 #endif
-            newaddr = (direction==ZNEXT?dkey->flink:dkey->blink);
-        } while (dkey->deleted && newaddr != ZNULL);
+        } while (dkey->deleted);
     }
         
     btact->cntxt->lf.draddr = newaddr;
-    if (newaddr == ZNULL) return ZNULL;
-    if ((dkey = getdkey(newaddr)) == NULL) return btgerr();
+    btact->cntxt->lf.lfexct = TRUE;
     *val = dkey->val;
     return 0;
 }
-
-/* int chkdup(int direction, BTint *val) */
-/* { */
-/*     KEYENT* keyent; */
-/*     struct bt_dkey dkey; */
-/*     BTint draddr; */
-/*     int sz; */
-    
-/*     keyent = getkeyent(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos); */
-/*     if (keyent == NULL) { */
-/*         return ZNULL; */
-/*     } */
-/* #if DEBUG >= 0 */
-/*     fprintf(stderr,"CHKDUP: keyent->key: %s, val: " ZINTFMT */
-/*             ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup); */
-/* #endif   */
-/*     if (keyent->dup != ZNULL) { */
-/*         draddr = (direction==ZNEXT?keyent->val:keyent->dup); */
-/*         sz = bseldt(draddr,(char *) &dkey, sizeof(struct bt_dkey)); */
-/*         if (sz != sizeof(struct bt_dkey)) { */
-/*             bterr("BTDUPKEY",-1,NULL); /\*TDB set error code *\/ */
-/*             return btgerr(); */
-/*         } */
-/*         btact->cntxt->lf.draddr = draddr; */
-/*         *val = dkey.val; */
-/*     } */
-/*     else { */
-/*         btact->cntxt->lf.draddr = ZNULL; */
-/*     } */
-    
-/*     return 0; */
-/* } */
 
 int btdeldup ()
 {
     DKEY* dkey;
     KEYENT* keyent;
-    BTint blk, flink, blink;
+    BTint blk, flink = ZNULL, blink = ZNULL;
     int offset;
     
     /* either bfndky or btduppos will set context dup draddr if we
@@ -249,46 +225,55 @@ int btdeldup ()
             /* only duplicate in chain */
             keyent->val = dkey->val;
             keyent->dup = ZNULL;
+            btact->cntxt->lf.draddr = ZNULL;
         }
         else if (dkey->blink == ZNULL) {
             /* deleting first in chain */
             keyent->val = dkey->flink;
+            flink = dkey->flink;
         }
         else if (dkey->flink == ZNULL) {
             /* deleting last in chain */
             keyent->dup = dkey->blink;
+            blink = dkey->blink;
         }
         else {
             /* in middle of list */
             flink = dkey->flink;
             blink = dkey->blink;
+        }
+
+        /* update deleted dup key */
+        dkey->deleted = TRUE;
+        if (putdkey(btact->cntxt->lf.draddr,dkey) != 0) return btgerr();
+        cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
+        /* update used space in dup block; we expect deldat to leave
+         * the data record intact */
+        deldat(blk,offset);
+
+        /* update previous/next entries as required */
+        if (blink != ZNULL) {
             dkey = getdkey(blink);
             if (dkey == NULL) return btgerr();
             dkey->flink = flink;
             if (putdkey(blink,dkey) != 0) return btgerr();
+        }
+        if (flink != ZNULL) {
             dkey = getdkey(flink);
             if (dkey == NULL) return btgerr();
             dkey->blink = blink;
             if (putdkey(flink,dkey) != 0) return btgerr();
-            dkey = getdkey(btact->cntxt->lf.draddr);
-            if (dkey == NULL) return btgerr();
         }
+        /* Mark inexact match, as we are pointing at a deleted key */
+        btact->cntxt->lf.lfexct = FALSE;
     }
-    dkey->deleted = TRUE;
-    if (putdkey(btact->cntxt->lf.draddr,dkey) != 0) return btgerr();
-    
-    cnvdraddr(btact->cntxt->lf.draddr,&blk,&offset);
-    /* update used space in dup block; we expect deldat to leave
-     * the data record intact */
-    deldat(blk,offset);
     return btgerr();
 }
 
 /* Display duplicate key entries in blk */
-int dispdups(BTint blk)
+int btdispdups(BTint blk)
 {
     BTint draddr, mx;
-    DATBLK* d;
     DKEY* dkey;
     
     if (bgtinf(blk,ZBTYPE) != ZDUP) {
@@ -298,6 +283,8 @@ int dispdups(BTint blk)
     draddr = mkdraddr(blk,0);
     mx = mkdraddr(blk,bgtinf(blk,ZNKEYS));
 
+    fprintf(stdout,"%20s%32s%20s%20s%20s%20s\n","Draddr","Key","Val","Del?",
+            "Blink", "Flink");
     while (draddr < mx) {
         dkey = getdkey(draddr);
         if (dkey == NULL) {
@@ -305,10 +292,9 @@ int dispdups(BTint blk)
             return 0;
         }
         
-        fprintf(stdout,ZINTFMT " dkey->key: %s, val: "
-                ZINTFMT ", blink: "
-                ZINTFMT ", flink: " ZINTFMT "\n",
-                draddr, dkey->key, dkey->val, dkey->blink, dkey->flink);
+        fprintf(stdout,"" Z20DFMT "%32s" Z20DFMT Z20DFMT  Z20DFMT Z20DFMT "\n",
+                draddr, dkey->key, dkey->val, dkey->deleted, dkey->blink,
+                dkey->flink);
         draddr += sizeof(DKEY)+ZDOVRH;
     }
     return 0;

@@ -1,5 +1,5 @@
 /*
- * $Id: btpos.c,v 1.2 2010-11-21 15:04:28 mark Exp $
+ * $Id: btpos.c,v 1.3 2010-12-29 10:31:51 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.
@@ -61,7 +61,8 @@ int btpos(BTA *b,int pos)
         }
     }
 
-    btact->cntxt->lf.lfexct = FALSE;
+    /* initialise context */
+    bclrlf();
     bstkin();
     bpush(ZNULL);
     bpush(ZNULL);

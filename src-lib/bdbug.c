@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.20 2012/10/13 20:01:19 mark Exp $
+ * $Id: bdbug.c,v 1.21 2012/10/14 19:31:24 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -151,7 +151,7 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                     "NxDup:",bgtinf(blkno,ZNXDUP));
             switch (bgtinf(blkno,ZBTYPE)) {
                 case ZDUP:
-                    dispdups(blkno);
+                    btdispdups(blkno);
                     break;
                 case ZDATA:
                     d = (DATBLK *) (btact->memrec)+idx;

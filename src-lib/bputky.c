@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.14 2012-06-16 19:39:43 mark Exp $
+ * $Id: bputky.c,v 1.15 2012-09-29 15:06:41 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -44,7 +44,6 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
     int i,idx,ioerr;
     int nkeys;
     char lkey[ZKYLEN];
-    KEYENT keyent;
     
 #if DEBUG >= 1
     fprintf(stderr,
