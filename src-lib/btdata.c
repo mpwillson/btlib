@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.30 2012-09-29 15:06:41 mark Exp $
+ * $Id: btdata.c,v 1.31 2012/10/14 19:31:24 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -597,7 +597,7 @@ int bupddt(BTint draddr, char *data, int dsize)
 #endif      
         type = bgtinf(dblk,ZBTYPE);
         if (type != ZDATA && type != ZDUP) {
-            bterr("BUPDDT",QNOTDA,NULL);
+            bterr("BUPDDT",QNOTDA,itostr(draddr));
             goto fin;
         }
         getseginfo(draddr,&segsz,&draddr);

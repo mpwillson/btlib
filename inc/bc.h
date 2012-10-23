@@ -1,5 +1,5 @@
 /*
- * $Id: bc.h,v 1.35 2012/10/08 18:12:48 mark Exp $
+ * $Id: bc.h,v 1.36 2012/10/14 19:31:24 mark Exp $
  *
  * Copyright (C) 2003, 2004, 2012 Mark Willson.
  *
@@ -256,5 +256,10 @@ typedef int BTint;
 
 #define QNOT64BIT 58
 #define Q64BIT 59
+
+#define QNOTDUP 60
+#define QDUPSZ 61
+#define QBADIR 61
+#define QONEDUP 62
 
 #endif /* _btconst_ */

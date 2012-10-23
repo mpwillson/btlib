@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.11 2012-03-18 21:04:00 mark Exp $
+ * $Id: btcmd.c,v 1.12 2012/05/20 20:04:25 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -137,6 +137,13 @@ FILE* pullcf()
     else {
         return cmdinput[--cmdtop];
     }
+}
+
+/* Dump cmdblk contents to stdout */
+
+void dump_cmdblk()
+{
+    fprintf(stdout,"cmd: %s\n",cblk.cmd);
 }
 
 /* Return char pointer to first space or tab character before
@@ -503,6 +510,7 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
             }   
         }
     }
+    /* dump_cmdblk(); */
     signal(SIGINT,SIG_DFL);
     return status;
 }

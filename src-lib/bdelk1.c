@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.14 2012/10/14 19:31:24 mark Exp $
+ * $Id: bdelk1.c,v 1.15 2012/10/18 09:25:51 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -37,7 +37,7 @@
 int bdelk1(char *key)
 {
     BTint cblk,link1,link2,llink,rlink,val,blk;
-    int result,pos,type;
+    int result,pos,type,status;
     char tkey[ZKYLEN];
 
     /* TBD: Why was this check commented out? */
@@ -47,7 +47,7 @@ int bdelk1(char *key)
     }
     
     /* handle duplicate keys for current key context deletion */       
-    if (key == NULL && btdeldup() == 0) goto fin;
+    if (key == NULL && btdeldup() != ZNULL) goto fin;
 
     pos = btact->cntxt->lf.lfpos;
     blk = btact->cntxt->lf.lfblk;
@@ -58,13 +58,7 @@ int bdelk1(char *key)
             goto fin;
         }
     }
-    /* if key has dups, must deal with it */
-    if (btact->cntxt->lf.draddr != ZNULL) {
-        btdeldup();
-        goto fin;
-    }
-    
-    /* TBD */
+
     if (llink != ZNULL) {
         /* key not in leaf block, get rightmost leaf key to replace
          * deleted key */
@@ -105,9 +99,10 @@ int bdelk1(char *key)
     }
     /* due to the potential mangling of the block structure when
      * deleting a key, need to re-establish context for next/prev key, if
-     * exclusive access */
-    if (!btact->shared) {
-        bfndky(btact,key,&val);
+     * exclusive access (only when no previous error exists)*/
+    if (!btact->shared && btgerr() == 0) {
+        status = bfndky(btact,tkey,&val);
+        if (status == 0 || status == QNOKEY) bterr("",0,NULL);
     }
     
 fin:
