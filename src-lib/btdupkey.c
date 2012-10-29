@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.13 2012/10/18 09:25:51 mark Exp $
+ * $Id: btdupkey.c,v 1.14 2012/10/23 19:19:44 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -33,6 +33,9 @@
 #include "btree_int.h"
 #include <string.h>
 
+/* #undef DEBUG */
+/* #define DEBUG 1 */
+
 static KEYENT keyent;
 
 KEYENT* getkeyent(BTint blk, int pos)
@@ -63,7 +66,7 @@ int putkeyent(BTint blk, int pos)
         bterr("PUTKEYENT",QRDBLK,itostr(blk)); 
         return QRDBLK;
     }
-    btact->cntrl->writes++;
+    ((btact->cntrl)+idx)->writes++;
     return 0;
 }
     
@@ -113,29 +116,37 @@ int btdupkey(char *key, BTint val)
     }
     
     /* set dup entry invariants */
+    strcpy(dkey.key,key);
     dkey.deleted = FALSE;
     dkey.flink = ZNULL;
     
     /* if first duplicate, need to handle original key */
     if (keyent->dup == ZNULL) {
         /* construct duplicate key entry for original key */
-        strcpy(dkey.key,keyent->key);
         dkey.val = keyent->val;
         dkey.blink = ZNULL;
-        bsetbs(cblk,TRUE);
         draddr = binsdt(ZDUP,(char *) &dkey,sizeof(struct bt_dkey));
-        if (bgtinf(cblk,ZBTYPE) != ZROOT) bsetbs(cblk,FALSE);
         if (draddr == ZNULL) {
             return btgerr();
         }
         keyent->val = draddr;
         keyent->dup = draddr;
+#if DEBUG >= 1
+        fprintf(stderr,"BTDUPKEY(1): keyent->key: %s, val: " ZINTFMT
+                ", dup: " ZINTFMT "\n",keyent->key,keyent->val,keyent->dup);
+#endif
     }
     /* add new duplicate key */
-    strcpy(dkey.key,key);
     dkey.val = val;
     dkey.blink = keyent->dup;
     draddr = binsdt(ZDUP,(char *) &dkey,sizeof(struct bt_dkey));
+#if DEBUG >= 1
+    fprintf(stderr,"BTDUPKEY(2): draddr: " ZINTFMT ", dkey->key: %s, val: "
+            ZINTFMT ", del: %d, blink: "
+            ZINTFMT ", flink: " ZINTFMT "\n",
+            draddr, dkey.key, dkey.val, dkey.deleted,
+            dkey.blink, dkey.flink);
+#endif
     if (draddr == ZNULL) {
         return btgerr();
     }
@@ -147,12 +158,19 @@ int btdupkey(char *key, BTint val)
         /* set new dup list tail pointer */
         keyent->dup = draddr;
     }
+#if DEBUG >= 1
+    fprintf(stderr,"BTDUPKEY(3): draddr: " ZINTFMT ", dkeyp->key: %s, val: "
+            ZINTFMT ", del: %d, blink: "
+            ZINTFMT ", flink: " ZINTFMT "\n",
+            draddr, dkeyp->key, dkeyp->val, dkeyp->deleted,
+            dkeyp->blink, dkeyp->flink);
+#endif
     putkeyent(cblk,n);
     return btgerr();;
 }
 
 /* return val from next/prev undeleted dup key
-   return value: 0 = value returned; >0 error code; ZNULL no more dup
+   return value: 0 = value returned; >0 error code; ZNULL no more dups
    keys
 */
 int btduppos(int direction, BTint *val)
@@ -198,6 +216,7 @@ int btduppos(int direction, BTint *val)
             if (newaddr == ZNULL) {
                 /* at beginning/end of chain; must move to next key */
                 btact->cntxt->lf.lfexct = TRUE;
+                btact->cntxt->lf.draddr=ZNULL;
                 return ZNULL;
             }
             dkey = getdkey(newaddr);
@@ -206,7 +225,7 @@ int btduppos(int direction, BTint *val)
             }
 #if DEBUG >= 1
             fprintf(stderr,"BTDUPPOS: draddr: " ZINTFMT ", dkey->key: %s, val: "
-                    ZINTFMT "del: %d, blink: "
+                    ZINTFMT ", del: %d, blink: "
                     ZINTFMT ", flink: " ZINTFMT "\n",
                     newaddr, dkey->key, dkey->val, dkey->deleted,
                     dkey->blink, dkey->flink);
@@ -353,3 +372,38 @@ int btdispdups(BTint blk)
     }
     return btgerr();
 }
+
+int btcntdups(BTint draddr)
+{
+    int count = 0;
+    DKEY* dkey;
+
+    while (draddr != ZNULL) {
+        dkey = getdkey(draddr);
+        count++;
+        draddr = dkey->flink;
+    }
+    return count;
+}
+
+int btcntkeys(BTint blk)
+{
+    int tcnt = 0, kcnt, nkeys, i;
+    KEYENT* keyent;
+    
+    nkeys = bgtinf(blk,ZNKEYS);
+    for (i=0; i< nkeys; i++) {
+        keyent = getkeyent(blk,i);
+        if (keyent == NULL) return ZNULL;
+        if (keyent->dup != ZNULL) {
+            kcnt = btcntdups(keyent->val);
+        }
+        else {
+            kcnt = 1;
+        }
+        tcnt += kcnt;
+    }
+    return tcnt;
+}
+
+    

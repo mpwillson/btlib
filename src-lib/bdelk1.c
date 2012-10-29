@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.15 2012/10/18 09:25:51 mark Exp $
+ * $Id: bdelk1.c,v 1.16 2012/10/23 19:19:44 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -46,8 +46,10 @@ int bdelk1(char *key)
         goto fin;
     }
     
-    /* handle duplicate keys for current key context deletion */       
-    if (key == NULL && btdeldup() != ZNULL) goto fin;
+    /* handle duplicate keys */       
+    if (btdeldup() != ZNULL) {
+        goto fin;
+    }
 
     pos = btact->cntxt->lf.lfpos;
     blk = btact->cntxt->lf.lfblk;
@@ -58,7 +60,7 @@ int bdelk1(char *key)
             goto fin;
         }
     }
-
+    
     if (llink != ZNULL) {
         /* key not in leaf block, get rightmost leaf key to replace
          * deleted key */

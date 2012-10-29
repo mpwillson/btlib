@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.38 2011-06-13 19:34:46 mark Exp $
+ * $Id: bt.c,v 1.39 2011/06/23 13:17:04 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -894,10 +894,15 @@ int wr_thresh(CMDBLK* c)
 
 int decode_addr(CMDBLK* c)
 {
-    int status;
+    int status = 0;
     BTint val;
-    
-    status = bfndky(btp,c->arg,&val);
+
+    if (strcmp(c->qualifier,"i") == 0) {
+        val = atoi(c->arg);
+    }
+    else {
+        status = bfndky(btp,c->arg,&val);
+    }
     if (status == 0) {
         BTint dblk;
         int offset;
@@ -972,7 +977,7 @@ CMDENTRY bt_cmds[] = {
   { "comment","#",btcmd_comment,"string",0,"Following text will be ignored."},
   { "create","c",create_file,"file [s]",0,"Create index file. s qualifier "
     "indicates shared mode." },
-  { "decode-address","da",decode_addr,"key",1,"Print decoded data segment "
+  { "decode-address","da",decode_addr,"key",0,"Print decoded data segment "
     "address for key." },
   { "define","d",define_key,"key [val]",0,
     "Define key with associated value." },

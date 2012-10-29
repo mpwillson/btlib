@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.21 2012/10/14 19:31:24 mark Exp $
+ * $Id: bdbug.c,v 1.22 2012/10/18 09:25:50 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -83,11 +83,13 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                 "  Last key:   %20s\n"
                 "  Last blk:   " Z20DFMT "\n"
                 "  Last pos:   %20d\n"
+                "  Exact:      %20d\n"
                 "  Dup addr:   " Z20DFMT "\n"
                 "  LRU head:   %20d\n"
                 "  LRU tail:   %20d\n",
                 btact->idxfid,btact->shared,btact->cntxt->lf.lfkey,
                 btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos,
+                btact->cntxt->lf.lfexct,
                 btact->cntxt->lf.draddr,
                 btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
         fprintf(stdout,"%10s%20s%10s%10s%10s\n","Mblk","Blk","Busy","Writes",
@@ -158,12 +160,13 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
                     bxdump(d->data,ZBLKSZ-(ZINFSZ*ZBPW));
                     break;
                 default:
-                    fprintf(stdout,"  %32s %20s%20s%20s\n","Key","Val","Llink","Rlink"); 
+                    fprintf(stdout,"  %32s %20s%20s%20s%20s\n","Key","Val",
+                            "Dup","Llink","Rlink"); 
                     for (j=0;j<((btact->memrec)+idx)->infblk[ZNKEYS];j++)
-                        fprintf(stdout,"  %32s%c" Z20DFMT Z20DFMT Z20DFMT "\n",
+                        fprintf(stdout,"  %32s" Z20DFMT Z20DFMT Z20DFMT Z20DFMT "\n",
                                 ((btact->memrec)+idx)->keyblk[j].key,
-                                (((btact->memrec)+idx)->keyblk[j].dup==ZNULL?' ':'*'),
                                 ((btact->memrec)+idx)->keyblk[j].val,
+                                ((btact->memrec)+idx)->keyblk[j].dup,
                                 ((btact->memrec)+idx)->lnkblk[j],
                                 ((btact->memrec)+idx)->lnkblk[j+1]);
             }

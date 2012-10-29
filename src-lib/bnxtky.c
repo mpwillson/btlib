@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.18 2012/10/09 19:39:28 mark Exp $
+ * $Id: bnxtky.c,v 1.19 2012/10/18 09:25:51 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -35,6 +35,9 @@
 #include "bt.h"
 #include "btree_int.h"
 #include "btree.h"
+
+/* #undef DEBUG */
+/* #define DEBUG 1 */
 
 int bnxtky(BTA* b,char *key,BTint *val)
 {

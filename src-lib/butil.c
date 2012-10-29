@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.8 2010-11-21 20:51:52 mark Exp $
+ * $Id: butil.c,v 1.9 2010/12/04 20:14:57 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
@@ -91,6 +91,8 @@ BTint btkeys(BTA* b,int stats)
                     if (depth > leaf_depth) leaf_depth = depth;
                 }
             }
+            nkeys = btcntkeys(blkno);
+            if (nkeys == ZNULL) return FALSE;
             tnkeys += nkeys;
         }
     } while (blkno != btact->cntxt->super.scroot);
