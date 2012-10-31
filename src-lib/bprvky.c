@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.8 2012/10/09 19:39:28 mark Exp $
+ * $Id: bprvky.c,v 1.9 2012/10/18 09:25:51 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -93,19 +93,24 @@ int bprvky(BTA* b,char *key,BTint *val)
             btact->cntxt->lf.lfpos = bpull()-1;
             btact->cntxt->lf.lfblk = bpull();
             btact->cntxt->lf.lfexct = FALSE; 
+            /* invalidate existing dup chain */
+            btact->cntxt->lf.draddr = ZNULL; 
             continue;
         }
 
         if (btact->cntxt->lf.lfpos == nkeys) {
             btact->cntxt->lf.lfpos--;
             btact->cntxt->lf.lfexct = TRUE;    
+            /* invalidate existing dup chain */
+            btact->cntxt->lf.draddr = ZNULL; 
         }
         else {
             if (btact->cntxt->lf.lfexct) {
-                
                 idx = bleaf(1); 
                 if (idx < 0) continue;
                 btact->cntxt->lf.lfpos--;
+                /* invalidate existing dup chain */
+                btact->cntxt->lf.draddr = ZNULL; 
             }
             else if (((btact->memrec)+idx)->lnkblk[btact->cntxt->lf.lfpos]
                      == ZNULL) {
@@ -113,6 +118,8 @@ int bprvky(BTA* b,char *key,BTint *val)
                  * positioning doesn't work properly. */
                 btact->cntxt->lf.lfpos--;
                 btact->cntxt->lf.lfexct = TRUE;                
+                /* invalidate existing dup chain */
+                btact->cntxt->lf.draddr = ZNULL; 
             }
             else {
                 btact->cntxt->lf.lfexct = TRUE;
@@ -126,7 +133,8 @@ int bprvky(BTA* b,char *key,BTint *val)
 #endif  
         if (btact->cntxt->lf.lfpos >= 0) {
             found = TRUE;
-            strcpy(key,((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].key);
+            strcpy(key,
+                   ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].key);
             /* remember found key (need for shared mode) */
             strcpy(btact->cntxt->lf.lfkey,key);
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;

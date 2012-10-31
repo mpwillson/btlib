@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.19 2012/10/18 09:25:51 mark Exp $
+ * $Id: bnxtky.c,v 1.20 2012/10/29 11:07:54 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -101,6 +101,8 @@ int bnxtky(BTA* b,char *key,BTint *val)
         }
         else {
             btact->cntxt->lf.lfpos++;
+            /* invalidate existing dup chain */
+            btact->cntxt->lf.draddr = ZNULL; 
             idx = bleaf(0);
             if (idx < 0) continue;
         }

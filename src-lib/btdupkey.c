@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.14 2012/10/23 19:19:44 mark Exp $
+ * $Id: btdupkey.c,v 1.15 2012/10/29 11:07:54 mark Exp $
  *
  *
  * btdupkey:  inserts duplicate key into index
@@ -216,7 +216,7 @@ int btduppos(int direction, BTint *val)
             if (newaddr == ZNULL) {
                 /* at beginning/end of chain; must move to next key */
                 btact->cntxt->lf.lfexct = TRUE;
-                btact->cntxt->lf.draddr=ZNULL;
+                btact->cntxt->lf.draddr = ZNULL;
                 return ZNULL;
             }
             dkey = getdkey(newaddr);
@@ -406,4 +406,20 @@ int btcntkeys(BTint blk)
     return tcnt;
 }
 
-    
+/* update value of duplicate key.
+ * return 0 if updated, ZNULL if nothing done, error code otherwise.
+ */
+int btdupupd(BTint val)
+{
+    DKEY* dkey;
+    BTint draddr = btact->cntxt->lf.draddr;
+
+    if (draddr != ZNULL) {
+        dkey = getdkey(draddr);
+        if (dkey == NULL) return btgerr();
+        dkey->val = val;
+        putdkey(draddr,dkey);
+    }
+    return draddr;
+}
+

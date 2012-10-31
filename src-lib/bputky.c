@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.15 2012-09-29 15:06:41 mark Exp $
+ * $Id: bputky.c,v 1.16 2012/10/18 09:25:51 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -79,9 +79,10 @@ int bputky(BTint blk,char *key,BTint val,BTint link1,BTint link2)
             }
             else {
                 for (i=((btact->memrec)+idx)->infblk[ZNKEYS];i>0;i--) {
-                    /* ensure duplicate key is always inserted at front of
-                       set so key promotion works */
-                    if (strcmp(key,((btact->memrec)+idx)->keyblk[i-1].key) <= 0) {
+                    /* make space for new key to maintain block in
+                     * strcmp order */
+                    if (strcmp(key,
+                               ((btact->memrec)+idx)->keyblk[i-1].key) <= 0) {
                         /* move info to make room */
                         ((btact->memrec)+idx)->keyblk[i] =
                             ((btact->memrec)+idx)->keyblk[i-1];
