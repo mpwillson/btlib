@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.18 2012-04-09 16:03:57 mark Exp $
+ *  $Id: btr.c,v 1.19 2012/09/29 15:06:41 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -48,6 +48,12 @@
  *      will contain the root block it belongs to.  This will allow us to
  *      partition keys by their roots, although if we cannot read the
  *      superroot correctly, the original root names will be lost.
+ *
+ *      Version 5 hadnles duplicate keys in a better way, through the
+ *      introduction of duplicate key blocks (essentially data blocks
+ *      maintaining a list of duplicate keys).  The MEMREC4 data
+ *      structure is defined in btr.h to allow earlier versions of 
+ *      btree library index files to be migrated and/or recovered.
  * 
  *  BUGS
  *      btr delves into the innards of a btree index file and should
@@ -86,16 +92,20 @@
 #include "btree_int.h"
 #include "btr.h"
 
-#define VERSION "$Id: btr.c,v 1.18 2012-04-09 16:03:57 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.19 2012/09/29 15:06:41 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
+#define DLOOP -1
 #define IOERROR -2
 #define BAD_DRADDR -3
 #define DR_READ_ERROR -4
 
 /* version of btlib for which full recovery is possible, that is each
- * block records the root of the tree */
+ * block records the root of the tree.
+ * Versions later than this, coincidently, have a new index block
+ * structure for better handling of duplicate keys
+ */
 #define FULL_RECOVERY_VERSION 4
 
 /* GLOBALS --------------------------------------------------------------*/
@@ -104,6 +114,7 @@ char *prog;
 char *data_record;
 int data_record_size = ZBLKSZ;
 int limited_recovery = FALSE;
+BTint src_file_ver = ZVERS;
 
 /* Recovery statistics */
 struct {
@@ -112,6 +123,7 @@ struct {
     BTint records;
     BTint seg_addr_loops;
     BTint key_blocks_processed;
+    BTint dup_blocks_processed;
     BTint bad_draddrs;
     BTint dr_read_errors;
     BTint bad_blocks;
@@ -169,7 +181,6 @@ void kalloc(char **buf,int bufsiz)
 BTA *btropn(char *fid,int vlevel,int full_recovery)
 {
     int idx,ioerr,status;
-    BTint ver;
     
     bterr("",0,NULL);
 
@@ -217,12 +228,13 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
         btact->cntxt->super.sfreep = bgtinf(ZSUPER,ZNXBLK);
         btact->cntxt->super.sblkmx = bgtinf(ZSUPER,ZNBLKS);
     }
-    ver = bgtinf(ZSUPER,ZBTVER);
-    if (!full_recovery && (ver < FULL_RECOVERY_VERSION || ver == LFSHDR)) {
+    src_file_ver = bgtinf(ZSUPER,ZBTVER);
+    if (!full_recovery && (src_file_ver < FULL_RECOVERY_VERSION ||
+                           src_file_ver == LFSHDR)) {
         limited_recovery = TRUE;
         fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
                 "Running in limited recovery mode.\n",
-                prog,bgtinf(ZSUPER,ZBTVER));    
+                prog,src_file_ver);    
     }
     /* change to default root */
     status = btchgr(btact,"$$default");
@@ -261,7 +273,8 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
 {
     int j;
     BTKEYS* keys;
-
+    MEMREC4* m4;
+    
     if (k == NULL) {
         keys = malloc(sizeof(BTKEYS));
         if (keys == NULL) {
@@ -273,8 +286,18 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
     else {
         keys = k;
     }
-    for (j=0;j<nkeys;j++) {
-        keys->keyblk[j] = ((btact->memrec)+idx)->keyblk[j];
+    if (src_file_ver > FULL_RECOVERY_VERSION) {
+        for (j=0;j<nkeys;j++) {
+            keys->keyblk[j] = ((btact->memrec)+idx)->keyblk[j];
+        }
+    }
+    else {
+        m4 = (MEMREC4*) (btact->memrec);
+        for (j=0;j<nkeys;j++) {
+            strcpy(keys->keyblk[j].key,(m4+idx)->keyblk[j]);
+            keys->keyblk[j].val = (m4+idx)->valblk[j];
+            keys->keyblk[j].dup = ZNULL;
+        }
     }
     keys->nkeys = nkeys;
     return keys;
@@ -345,16 +368,18 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
             fprintf(stderr,"Invalid data address for key %s: 0x" ZXFMT "\n",
                     key,draddr);
         }
-        return BAD_DRADDR;
+        status = BAD_DRADDR;
+        goto fin;
     }
     
     /* Call brecsz with BTA*, which will cause it to record all
-     * draddrs and error on a duplicate */
+     * draddrs, and error on a duplicate */
     rsize = brecsz(draddr,da);
     status = btgerr();
     if (status != 0) {
         print_bterror();
-        return DR_READ_ERROR;
+        status = DR_READ_ERROR;
+        goto fin;
     }
     
     if (rsize > data_record_size) {
@@ -381,8 +406,69 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         if (vlevel >= 3)
             fprintf(stderr,"\n");
     }
+  fin:
+    /* attempt to ignore (but count) errors on input
+       side */
+    if (status == QDLOOP) {
+        /* mostly likely problem on input side; let's
+           just copy the key */                        
+        stats.seg_addr_loops++;
+        status = DLOOP;
+    }
+    if (status == BAD_DRADDR) stats.bad_draddrs++;
+    if (status == DR_READ_ERROR) stats.dr_read_errors++;
+    if (status < 0) {
+        /* copy_data_record can't access the data
+         * record; insert key only, if so. */
+        status = binsky(out,key,0);
+    }
+    if (status == 0) {
+        stats.keys++;
+    }
     return status;
 }
+
+int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
+                 char* current_root, BTint root, int vlevel)
+{
+    BTint draddr, mx;
+    DKEY* dkey;
+    int nkeys = 0;
+    
+    if (bgtinf(blk,ZBTYPE) != ZDUP) {
+        return btgerr();
+    }
+
+    draddr = mkdraddr(blk,0);
+    mx = mkdraddr(blk,bgtinf(blk,ZNKEYS));
+
+    while (draddr < mx) {
+        dkey = getdkey(draddr);
+        if (dkey == NULL) break;
+        if (!dkey->deleted) {
+            if (mode == DATA) {
+                /* ignore return status */
+                copy_data_record(in,out,da,dkey->key,
+                                 dkey->val,vlevel);
+            }
+            else {
+                if (binsky(out,dkey->key,dkey->val) != 0) break;
+            }
+            /* reset btact to input file (btr digs into bt innards)*/
+            btact = in;
+            stats.keys++;
+            nkeys++;
+        }
+        draddr += sizeof(DKEY)+ZDOVRH;
+    }
+    if (vlevel >= 2) {
+        fprintf(stderr,"Processing block: " Z20DFMT
+                ", keys: %8d [%s," ZINTFMT "]\n",blk,nkeys,
+                current_root,root);
+    }
+    return btgerr();
+}
+    
 
 int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                int allow_dups)
@@ -452,34 +538,17 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
            /* insert into new btree file */
             for (j=0;j<nkeys;j++) {
                 if (mode == KEYS) {
-                    stats.keys++;
-                    status = binsky(out,keys->keyblk[j].key,
-                                    keys->keyblk[j].val);
+                    /* ignore dup key; dups will be inserted by ZDUP
+                       block handling */
+                    if (keys->keyblk[j].dup == ZNULL) {
+                        stats.keys++;
+                        status = binsky(out,keys->keyblk[j].key,
+                                        keys->keyblk[j].val);
+                    }
                 }
                 else if (mode == DATA) {
                     status = copy_data_record(in,out,da,keys->keyblk[j].key,
                                               keys->keyblk[j].val,vlevel);
-
-                    /* attempt to ignore (but count) errors on input
-                       side */
-                    if (status == QDLOOP) {
-                        /* mostly likely problem on input side; let's
-                           just copy the key */                        
-                        stats.seg_addr_loops++;
-                        status = -1;
-                    }
-                    if (status == BAD_DRADDR) stats.bad_draddrs++;
-                    if (status == DR_READ_ERROR) stats.dr_read_errors++;
-                    if (status < 0) {
-                        /* copy_data_record can't access the data
-                         * record; insert key only, if so.
-                         */
-                        status = binsky(out,keys->keyblk[j].key,
-                                        keys->keyblk[j].val);
-                    }
-                    else if (status == 0) {
-                        stats.keys++;
-                    }
                 }
                 else {
                     fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
@@ -490,6 +559,12 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     return status;
                 }
             }
+        }
+        else if (block_type == ZDUP) {
+            /* handle dup key blocks */
+            status = handle_dups(in,out,da,blkno,mode,current_root,root,vlevel);
+            if (status != 0) return status;
+            stats.dup_blocks_processed++;
         }
         else {
             if (block_type != ZFREE && block_type != ZDATA) {
@@ -618,6 +693,7 @@ int main(int argc, char *argv[])
         }   
         status = copy_index(copy_mode,in,out,da,vlevel,ioerror_max,
                             allow_dups);
+        if (status != EOF) printf("btr: copy_index status: %d\n",status);
         btcls(in);
         btcls(out);
         if (da != NULL) btcls(da);
@@ -625,6 +701,8 @@ int main(int argc, char *argv[])
         printf("  %-26s " Z20DFMT "\n","Key Blocks Processed:",
                stats.key_blocks_processed);
         printf("  %-26s " Z20DFMT "\n","Keys Processed:",stats.keys);
+        printf("  %-26s " Z20DFMT "\n","Dup Blocks Processed:",
+               stats.dup_blocks_processed);
         printf("  %-26s " Z20DFMT "\n","Data Records Processed:",stats.records);
         printf("  %-26s " Z20DFMT "\n","Data Record Read Errors:",
                stats.dr_read_errors);
