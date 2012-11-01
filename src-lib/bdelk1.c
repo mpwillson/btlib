@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.16 2012/10/23 19:19:44 mark Exp $
+ * $Id: bdelk1.c,v 1.17 2012/10/29 11:07:54 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -104,7 +104,7 @@ int bdelk1(char *key)
      * exclusive access (only when no previous error exists)*/
     if (!btact->shared && btgerr() == 0) {
         status = bfndky(btact,tkey,&val);
-        if (status == 0 || status == QNOKEY) bterr("",0,NULL);
+        if (status == QNOKEY) bterr("",0,NULL);
     }
     
 fin:

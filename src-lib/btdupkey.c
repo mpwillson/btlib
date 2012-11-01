@@ -1,15 +1,10 @@
 /*
- * $Id: btdupkey.c,v 1.15 2012/10/29 11:07:54 mark Exp $
+ * $Id: btdupkey.c,v 1.16 2012/10/31 18:39:09 mark Exp $
  *
  *
- * btdupkey:  inserts duplicate key into index
- *
- * Parameters:
- *    key    key to insert
- *    val    value of key 
- *
- * btdupkey returns non-ZERO if error occurred
- *
+ * btdupkey:  provides routines to handle duplicate key insertions,
+ *            traversal and deletions. None form part of the BTLIB API.
+ * 
  * Copyright (C) 2012 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -38,6 +33,8 @@
 
 static KEYENT keyent;
 
+/* Copy keyentry from MEMREC block to local keyent variable */
+
 KEYENT* getkeyent(BTint blk, int pos)
 {
 
@@ -54,6 +51,8 @@ KEYENT* getkeyent(BTint blk, int pos)
     }
 }
 
+/* Copy local keyent into MEMREC block; update # of writes */
+
 int putkeyent(BTint blk, int pos)
 {
     int ioerr,idx;
@@ -69,7 +68,9 @@ int putkeyent(BTint blk, int pos)
     ((btact->cntrl)+idx)->writes++;
     return 0;
 }
-    
+
+/* Return pointer to dup key entry at draddr */
+
 DKEY* getdkey(BTint draddr)
 {
     static DKEY dkey;
@@ -91,6 +92,8 @@ DKEY* getdkey(BTint draddr)
     }
     return NULL;
 }
+
+/* Update dkey entry at draddr */
 
 int putdkey(BTint draddr, DKEY* dkey)
 {
@@ -209,6 +212,12 @@ int btduppos(int direction, BTint *val)
         /* find next/prev non-deleted duplicate key */
         dkey = getdkey(btact->cntxt->lf.draddr);
         if (dkey == NULL) {
+            /* if shared, then assume invalid dup address is because
+             * the block has been freed/re-used. */
+            if (btact->shared && btgerr() == QNOTDUP) {
+                bterr("",0,NULL);
+                return ZNULL;
+            }
             return btgerr();
         }
         do {
@@ -239,6 +248,8 @@ int btduppos(int direction, BTint *val)
     return 0;
 }
 
+/* Delete dkey entry; mark as deleted and update data block */
+
 int deldkey(BTint draddr, DKEY* dkey)
 {
     BTint blk;
@@ -254,73 +265,46 @@ int deldkey(BTint draddr, DKEY* dkey)
     return 0;
 }
 
-
-DKEY* dedup(KEYENT* keyent, BTint draddr)
-{
-    DKEY* dkey;
-    
-    if ((dkey = getdkey(draddr)) != NULL) {
-        keyent->val = dkey->val;
-        keyent->dup = ZNULL;
-        deldkey(draddr,dkey);
-    }
-    return dkey;
-}
-
-/* Delete duplicate key, if it exists.
- * Return 0 for successful duplicate key deletion, ZNULL for nothing
- * done, error code otherwise.
+/* Delete duplicate key, if it exists.  Return 0 for successful
+ * duplicate key deletion, ZNULL for (apparently) nothing done, error
+ * code otherwise.
  */
 
 int btdeldup ()
 {
     DKEY* dkey;
     KEYENT* keyent;
-    BTint flink = ZNULL, blink = ZNULL, draddr, cblk = btact->cntxt->lf.lfblk;
+    BTint flink = ZNULL, blink = ZNULL, draddr = btact->cntxt->lf.draddr,
+        cblk = btact->cntxt->lf.lfblk;
     int status = ZNULL, pos = btact->cntxt->lf.lfpos;
     
     /* either bfndky or btduppos will set context dup draddr if we
      * are at a duplicate key */
     
     if (btact->cntxt->lf.draddr != ZNULL) {
-        draddr = btact->cntxt->lf.draddr;
-        dkey = getdkey(btact->cntxt->lf.draddr);
+        status = 0;
+        dkey = getdkey(draddr);
         if (dkey == NULL) return btgerr();
         keyent = getkeyent(cblk,pos);
         if (keyent == NULL) return btgerr();
         if (dkey->blink == ZNULL && dkey->flink == ZNULL) {
-            /* should never happen */
-            bterr("BTDELDUP",QONEDUP,NULL);
-            return QONEDUP;
+            /* last dup key entry. return status of ZNULL to indicate
+             * index key to dup chain can be deleted. */
+            btact->cntxt->lf.draddr = ZNULL;
+            status = ZNULL;  
         }
         else if (dkey->blink == ZNULL) {
             /* deleting first in chain */
             keyent->val = dkey->flink;
             flink = dkey->flink;
-            if (flink == keyent->dup) {
-                /* after this deletion, only one dup remains - get rid
-                   of it too */
-                if (dedup(keyent,flink) == NULL) return btgerr();
-                flink = ZNULL;
-                dkey = getdkey(draddr);
-                btact->cntxt->lf.draddr = ZNULL;
-            }
         }
         else if (dkey->flink == ZNULL) {
             /* deleting last in chain */
             keyent->dup = dkey->blink;
             blink = dkey->blink;
-            if (blink == keyent->val) {
-                /* after this deletion, only one dup remains - get rid
-                   of it too */
-                if (dedup(keyent,blink) == NULL) return btgerr();
-                blink = ZNULL;
-                dkey = getdkey(draddr);
-                btact->cntxt->lf.draddr = ZNULL;
-            }
         }
         else {
-            /* in middle of list */
+            /* in middle of chain */
             flink = dkey->flink;
             blink = dkey->blink;
         }
@@ -342,7 +326,6 @@ int btdeldup ()
         /* Mark inexact match, as we are pointing at a deleted key */
         btact->cntxt->lf.lfexct = FALSE;
         putkeyent(cblk,pos);
-        status = 0;
     }
     return status;
 }
@@ -373,6 +356,8 @@ int btdispdups(BTint blk)
     return btgerr();
 }
 
+/* Return # of keys in a dkey chain */
+
 int btcntdups(BTint draddr)
 {
     int count = 0;
@@ -385,6 +370,8 @@ int btcntdups(BTint draddr)
     }
     return count;
 }
+
+/* Return # of keys in an index block, including duplicates */
 
 int btcntkeys(BTint blk)
 {

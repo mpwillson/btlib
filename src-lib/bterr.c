@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.29 2012/04/14 19:17:55 mark Exp $
+ * $Id: bterr.c,v 1.30 2012/10/23 19:19:44 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -108,7 +108,7 @@ char *msgblk[] = {
     " Location search exceeds key count at block: %s",
     " Index file likely not LFS (64bit) enabled; doesn't match library.",
     " Index file likely LFS (64bit) enabled; doesn't match library.",
-    " Duplicate key link does not reference a duplicate block: %s.",
+    " Duplicate key address does not reference a duplicate block: %s.",
     " Duplicate key entry has wrong size.",
     " Bad direction parameter.",
     " Duplicate chain corrupt - only one key exists."
