@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.19 2012/09/29 15:06:41 mark Exp $
+ *  $Id: btr.c,v 1.20 2012/10/31 18:39:34 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -92,7 +92,11 @@
 #include "btree_int.h"
 #include "btr.h"
 
-#define VERSION "$Id: btr.c,v 1.19 2012/09/29 15:06:41 mark Exp $"
+/* #undef DEBUG */
+/* #define DEBUG 1 */
+
+
+#define VERSION "$Id: btr.c,v 1.20 2012/10/31 18:39:34 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -347,12 +351,13 @@ char* name_of_root(BTint blkno)
 int valid_draddr(BTint draddr)
 {
     BTint dblk;
-    int offset;
+    int offset,type;
 
     cnvdraddr(draddr,&dblk,&offset);
+    type = bgtinf(dblk,ZBTYPE);
     return (dblk > ZSUPER &&
             dblk < btact->cntxt->super.sblkmx &&
-            bgtinf(dblk,ZBTYPE) == ZDATA &&
+            (type == ZDATA || type == ZDUP) &&
             offset >= 0 &&
             offset < ZBLKSZ);
 }
@@ -377,6 +382,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     rsize = brecsz(draddr,da);
     status = btgerr();
     if (status != 0) {
+        printf("key: %s, draddr 0x%x\n",key,draddr);
         print_bterror();
         status = DR_READ_ERROR;
         goto fin;
@@ -444,6 +450,13 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
 
     while (draddr < mx) {
         dkey = getdkey(draddr);
+#if DEBUG >= 1
+            fprintf(stderr,"handle_dups: draddr: " ZINTFMT ", dkey->key: %s, val: "
+                    ZINTFMT ", del: %d, blink: "
+                    ZINTFMT ", flink: " ZINTFMT "\n",
+                    draddr, dkey->key, dkey->val, dkey->deleted,
+                    dkey->blink, dkey->flink);
+#endif
         if (dkey == NULL) break;
         if (!dkey->deleted) {
             if (mode == DATA) {
@@ -537,22 +550,22 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             }
            /* insert into new btree file */
             for (j=0;j<nkeys;j++) {
-                if (mode == KEYS) {
-                    /* ignore dup key; dups will be inserted by ZDUP
-                       block handling */
-                    if (keys->keyblk[j].dup == ZNULL) {
+                /* ignore dup key; dups will be inserted by ZDUP
+                 * block handling */
+                if (keys->keyblk[j].dup == ZNULL) {
+                    if (mode == KEYS) {
                         stats.keys++;
                         status = binsky(out,keys->keyblk[j].key,
                                         keys->keyblk[j].val);
                     }
-                }
-                else if (mode == DATA) {
-                    status = copy_data_record(in,out,da,keys->keyblk[j].key,
-                                              keys->keyblk[j].val,vlevel);
-                }
-                else {
-                    fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
-                    return 0;
+                    else if (mode == DATA) {
+                        status = copy_data_record(in,out,da,keys->keyblk[j].key,
+                                                  keys->keyblk[j].val,vlevel);
+                    }
+                    else {
+                        fprintf(stderr,"%s: unknown copy mode: %d\n",prog,mode);
+                        return 0;
+                    }
                 }
                 if (status != 0) {
                     print_bterror();

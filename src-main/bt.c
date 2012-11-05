@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.40 2012/10/29 11:07:54 mark Exp $
+ * $Id: bt.c,v 1.41 2012/10/31 18:39:34 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -804,15 +804,18 @@ int list_data(CMDBLK* c)
     char buf[DATABUFSZ];
     char key[ZKYLEN];
     int status = 0,
-        size;
+        size, nkeys = 0;
     
     while (status == 0) {
         status = btseln(btp,key,buf,DATABUFSZ,&size);
         if (status == 0) {
+            nkeys++;
             buf[(size==DATABUFSZ?size-1:size)] = '\0';
             printf("Key: '%s' - Data: '%s'\n",key,buf);
         }
     }
+    if ((status == 0 || status == QNOKEY) && strcmp(c->arg,"c") == 0)
+        printf("%d keys listed\n",nkeys);
     return (status==QNOKEY?0:status);
 }
 
@@ -821,15 +824,19 @@ int list_data_prev(CMDBLK* c)
     char buf[DATABUFSZ];
     char key[ZKYLEN];
     int status = 0,
-        size;
+        size, nkeys = 0;
     
     while (status == 0) {
         status = btselp(btp,key,buf,DATABUFSZ,&size);
         if (status == 0) {
+            nkeys++;
+            
             buf[(size==DATABUFSZ?size-1:size)] = '\0';
             printf("Key: '%s' - Data: '%s'\n",key,buf);
         }
     }
+    if ((status == 0 || status == QNOKEY) && strcmp(c->arg,"c") == 0)
+        printf("%d keys listed\n",nkeys);
     return (status==QNOKEY?0:status);
 }
 
