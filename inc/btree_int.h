@@ -1,5 +1,5 @@
 /*
- * $Id: btree_int.h,v 1.14 2012/10/18 09:25:50 mark Exp $
+ * $Id: btree_int.h,v 1.15 2012/10/31 18:38:42 mark Exp $
  *
  * Btree internal function definitions
  *   
@@ -37,26 +37,26 @@ extern int bnxtbk(BTint *);
 extern BTint bpull(void);
 extern int bpush(BTint);
 extern void bstkin(void);
-extern int bputky(BTint,char *,BTint,BTint,BTint);
+extern int bputky(BTint,KEYENT*,BTint,BTint);
 extern void bqadd(int);
 extern int bqhead(void);
 extern int bqmove(int);
 /* extern void bqrem(int);*/
 extern int brdblk(BTint,int *);
-extern int brepky(BTint,int,char *,BTint,BTint,BTint);
+extern int brepky(BTint,int,KEYENT*,BTint,BTint);
 extern int bsetbk(BTint,BTint,BTint,BTint,BTint,BTint,BTint);
 extern void bsetbs(BTint,int);
 extern int bstinf(BTint,int,BTint);
 extern int bsptbk(BTint,BTint *);
-extern int bsrhbk(BTint,char *,int *,BTint *,BTint *,BTint *,int *);
+extern KEYENT* bsrhbk(BTint,char *,int *,BTint *,BTint *,BTint *,int *);
 extern int bwrblk(BTint);
 
 extern void balblk(void);
-extern void balbk1(BTint,BTint,int,char *,BTint);
+extern void balbk1(BTint,BTint,int,KEYENT*);
 extern int bdelk1(char *);
 extern void bdemte(BTint *);
 extern void bjnblk(BTint *);
-extern void bjoin(BTint,BTint,char *,BTint);
+extern void bjoin(BTint,BTint,KEYENT*);
 extern void bmkfre(BTint);
 extern void bremky(BTint,int);
 
@@ -106,3 +106,4 @@ extern int btdispdups(BTint);
 extern int btupddup(BTint);
 extern int btcntkeys(BTint);
 extern DKEY* getdkey(BTint);
+extern int btdupupd(BTint);
