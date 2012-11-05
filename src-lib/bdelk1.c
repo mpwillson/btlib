@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.17 2012/10/29 11:07:54 mark Exp $
+ * $Id: bdelk1.c,v 1.18 2012/11/01 19:06:21 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -39,6 +39,7 @@ int bdelk1(char *key)
     BTint cblk,link1,link2,llink,rlink,val,blk;
     int result,pos,type,status;
     char tkey[ZKYLEN];
+    KEYENT * kep;
 
     /* TBD: Why was this check commented out? */
     if (!btact->cntxt->lf.lfexct) {
@@ -70,13 +71,13 @@ int bdelk1(char *key)
         printf("BDELK1: After bleaf() lfblk: " ZINTFMT ", lfpos: %d\n",
                btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
 #endif
-        bsrhbk(btact->cntxt->lf.lfblk,tkey,&(btact->cntxt->lf.lfpos),
-               &val,&link1,&link2,&result);
+        kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&(btact->cntxt->lf.lfpos),
+                     &val,&link1,&link2,&result);
         if (result != 0) {
             bterr("BDELK1",QDELRP,itostr(btact->cntxt->lf.lfblk));
             goto fin;
         }
-        brepky(blk,pos,tkey,val,llink,rlink);
+        brepky(blk,pos,kep,llink,rlink);
         llink = ZNULL;
     }
     bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
@@ -101,7 +102,7 @@ int bdelk1(char *key)
     }
     /* due to the potential mangling of the block structure when
      * deleting a key, need to re-establish context for next/prev key, if
-     * exclusive access (only when no previous error exists)*/
+     * exclusive access (only when no previous error exists) */
     if (!btact->shared && btgerr() == 0) {
         status = bfndky(btact,tkey,&val);
         if (status == QNOKEY) bterr("",0,NULL);

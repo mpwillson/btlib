@@ -1,5 +1,5 @@
 /*
- * $Id: bjnblk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bjnblk.c,v 1.7 2010/05/26 12:39:16 mark Exp $
  *
  * bjnblk: joins leaf blocks if possible
  *
@@ -36,6 +36,7 @@ void bjnblk(BTint *cblk)
     BTint val,llink,rlink;
     int nkeys,cnkeys,result;
     char tkey[ZKYLEN];
+    KEYENT* kep;
 
     *cblk = btact->cntxt->lf.lfblk;
     btact->cntxt->lf.lfpos = bpull();
@@ -44,30 +45,30 @@ void bjnblk(BTint *cblk)
     cnkeys = bgtinf(*cblk,ZNKEYS);
     /* is join with right sister possible? */
     if (btact->cntxt->lf.lfpos < nkeys) {
-        bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
-               &llink,&rlink,&result);
+        kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
+                     &llink,&rlink,&result);
         if (result != 0) {
             bterr("BJNBLK",QJNSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(rlink,ZNKEYS);
         if (cnkeys+nkeys < ZMXKEY-ZTHRES) {
-            bjoin(*cblk,rlink,tkey,val);
+            bjoin(*cblk,rlink,kep);
             goto fin;
         }
     }
     /* is join with left sister possible? */
     if (btact->cntxt->lf.lfpos > 0) {
         btact->cntxt->lf.lfpos--;
-        bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
-               &llink,&rlink,&result);
+        kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
+                     &llink,&rlink,&result);
         if (result != 0) {
             bterr("BJNBLK",QJNSE,NULL);
             goto fin;
         }
         nkeys = bgtinf(llink,ZNKEYS);
         if (cnkeys+nkeys < ZMXKEY-ZTHRES) {
-            bjoin(llink,*cblk,tkey,val);
+            bjoin(llink,*cblk,kep);
             *cblk = llink;
             goto fin;
         }

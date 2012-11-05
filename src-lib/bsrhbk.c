@@ -1,11 +1,11 @@
 /*
- * $Id: bsrhbk.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: bsrhbk.c,v 1.9 2012/09/29 15:06:41 mark Exp $
  *
  *
   bsrhbk: searches block for key
 
-  int bsrhbk(int blk,char *key,int *loc,int *val,int *link1,int *link2,
-           int *result)
+  KEYENT* bsrhbk(int blk,char *key,int *loc,int *val,int *link1,int *link2,
+                 int *result)
 
        blk    - block to search
        key    - key (possibly returned)
@@ -14,13 +14,13 @@
        link1  - left link (returned)
        link2  - right link (returned)
        
-    if loc non-ZERO, returns key, val and links at loc
+    if loc not negative, returns key, val and links at loc
     result is set to 0
     if key non-blank, searches block for key, returns loc
     val and links
-    if key is found, result is 0
-    if key is larger than any in block, result is 1
-    if key smaller than any in the block, result is -1
+    if key is found, result is 0; return keyent pointer
+    if key is larger than any in block, result is 1; returns NULL
+    if key smaller than any in the block, result is -1; returns NULL
             
 *
  * Copyright (C) 2003, 2004 Mark Willson.
@@ -48,17 +48,21 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
-           int *result)
+
+KEYENT keyent;
+
+KEYENT* bsrhbk(BTint blk, char *key, int *loc, BTint *val, BTint *link1,
+               BTint *link2, int *result)
 {
     int quit,idx,lo,hi,md,ioerr,nkeys;
-
+    KEYENT* keyentp = NULL;
+    
     ioerr = brdblk(blk,&idx);
     if (idx < 0) {
         bterr("BSRHBK",QRDBLK,itostr(blk));
         goto fin;
     }
-    nkeys = (long) ((btact->memrec)+idx)->infblk[ZNKEYS];
+    nkeys = ((btact->memrec)+idx)->infblk[ZNKEYS];
 #if DEBUG > 0
     printf("BSRHBK: blk: " ZINTFMT ", nkeys: %d\n",blk,nkeys);
     printf("BSRHBK: loc: %d, val: " ZINTFMT ", link1: " ZINTFMT ", link2: "
@@ -115,11 +119,13 @@ int bsrhbk(BTint blk,char *key,int *loc,BTint *val,BTint *link1,BTint *link2,
         *val = ((btact->memrec)+idx)->keyblk[*loc].val;
         *link1 = ((btact->memrec)+idx)->lnkblk[*loc];
         *link2 = ((btact->memrec)+idx)->lnkblk[*loc+1];
+        keyent = ((btact->memrec)+idx)->keyblk[*loc];
+        keyentp = &keyent;
 #if DEBUG >=2
         fprintf(stderr,"BSRHBK: val: " ZINTFMT ", link1: " ZINTFMT ", link2: "
                 ZINTFMT "\n",*val,*link1,*link2);
 #endif      
     }
 fin:
-    return(0);
+    return keyentp;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: btpos.c,v 1.3 2010-12-29 10:31:51 mark Exp $
+ * $Id: btpos.c,v 1.4 2012/10/18 09:25:51 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.
@@ -76,6 +76,7 @@ int btpos(BTA *b,int pos)
     else if (pos == ZEND) {
         int loc;
         btact->cntxt->lf.lfpos = bgtinf(btact->cntxt->super.scroot,ZNKEYS);
+        if (btact->cntxt->lf.lfpos == 0) return 0;
         bleaf(1);
         /* set lfkey for shared mode */
         loc = btact->cntxt->lf.lfpos-1;

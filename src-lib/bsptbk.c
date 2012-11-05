@@ -1,5 +1,5 @@
 /*
- * $Id: bsptbk.c,v 1.9 2011-03-17 19:06:23 mark Exp $
+ * $Id: bsptbk.c,v 1.10 2012/09/29 15:06:41 mark Exp $
  *
  *
   bsptbk: splits block into two
@@ -41,7 +41,8 @@ int bsptbk(BTint blk,BTint *newblk)
     int sp,sp2,type;
     int result = 0;
     char tkey[ZKYLEN];
-
+    KEYENT* kep;
+    
     *newblk = ZNULL;
     strcpy(tkey," ");
     type = bgtinf(blk,ZBTYPE);
@@ -63,13 +64,13 @@ int bsptbk(BTint blk,BTint *newblk)
         bsetbk(blk1,ZINUSE,0,blk,sp,btact->cntxt->super.scroot,ZNULL);
         bsetbk(blk2,ZINUSE,0,blk,sp2,btact->cntxt->super.scroot,ZNULL);
         /* find middle key */
-        bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
+        kep = bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
         if (result != 0) {
             bterr("BSPTBK",QSPKEY,NULL);
             goto fin;
         }
         /* insert at first position in root */
-        brepky(blk,0,tkey,val,blk1,blk2);
+        brepky(blk,0,kep,blk1,blk2);
         bstinf(blk,ZNKEYS,1);
         *newblk = blk1;
 #if DEBUG >= 2
@@ -90,7 +91,7 @@ int bsptbk(BTint blk,BTint *newblk)
         /* set info for new block */
         bsetbk(*newblk,ZINUSE,0,pblk,sp2,btact->cntxt->super.scroot,ZNULL);
         /* find middle key */
-        bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
+        kep = bsrhbk(blk,tkey,&sp,&val,&link1,&link2,&result);
 #if DEBUG >= 2
         fprintf(stderr,"Promoted key: %s into parent block %d\n",tkey,pblk);
 #endif      
@@ -101,7 +102,7 @@ int bsptbk(BTint blk,BTint *newblk)
         /* truncate old block */
         bstinf(blk,ZNKEYS,sp);
         /* insert middle key into parent block */
-        bputky(pblk,tkey,val,blk,*newblk);
+        bputky(pblk,kep,blk,*newblk);
         bsetbs(blk,0);
     }
     btact->cntxt->stat.xsplit++;

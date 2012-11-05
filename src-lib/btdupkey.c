@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.16 2012/10/31 18:39:09 mark Exp $
+ * $Id: btdupkey.c,v 1.17 2012/11/01 19:06:21 mark Exp $
  *
  *
  * btdupkey:  provides routines to handle duplicate key insertions,
@@ -289,7 +289,7 @@ int btdeldup ()
         if (keyent == NULL) return btgerr();
         if (dkey->blink == ZNULL && dkey->flink == ZNULL) {
             /* last dup key entry. return status of ZNULL to indicate
-             * index key to dup chain can be deleted. */
+             * index key to dup chain is to be deleted. */
             btact->cntxt->lf.draddr = ZNULL;
             status = ZNULL;  
         }

@@ -1,5 +1,5 @@
 /*
- * $Id: bdemte.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: bdemte.c,v 1.9 2010/11/21 15:04:28 mark Exp $
  *
  * bdemte: if non-leaf block is empty, demote parent key
  *
@@ -38,7 +38,8 @@ void bdemte(BTint *cblk)
     int nkeys,type,result;
     int rblke;
     char tkey[ZKYLEN];
-
+    KEYENT* kep;
+    
     nkeys = bgtinf(btact->cntxt->lf.lfblk,ZNKEYS);
     if (nkeys == 0) {
         type = bgtinf(btact->cntxt->lf.lfblk,ZBTYPE);
@@ -56,8 +57,8 @@ void bdemte(BTint *cblk)
                 /* first block empty, so can't put on right */
                 rblke = FALSE;
             }
-            bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
-                   &link1,&link2,&result);
+            kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,
+                         &val, &link1,&link2,&result);
             if (result != 0) {
                 bterr("BDEMTE",QDEMSE,NULL);
                 goto fin;
@@ -101,7 +102,7 @@ void bdemte(BTint *cblk)
                 llink = ZNULL;  /* 0 replaced by ZNULL for C */
                 rlink = *cblk;
             }
-            bputky(link1,tkey,val,llink,rlink);
+            bputky(link1,kep,llink,rlink);
             bmkfre(link2);
             /* set new potentially dangling block */
             *cblk = link1;

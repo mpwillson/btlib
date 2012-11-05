@@ -1,5 +1,5 @@
 /*
- * $Id: balbk1.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: balbk1.c,v 1.9 2010/12/04 20:14:57 mark Exp $
  *
  * balbk1: balances keys between blocks 
  *
@@ -40,17 +40,18 @@
 /* #undef DEBUG  */
 /* #define DEBUG 1 */
 
-void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
+void balbk1(BTint lblk,BTint rblk,int diff,KEYENT* p_kep)
 {
 
     BTint tblk,fblk,tval,link1,link2;
     int i,dir,keypos,result,limit,ppos;
     char tkey[ZKYLEN];
+    KEYENT* kep;
 
 #if DEBUG >= 1
     printf("BALBK1: Balancing keys between lblk: " ZINTFMT ", rblk: " ZINTFMT
            "\n",lblk,rblk);
-    printf("        with parent: %s\n",key);
+    printf("        with parent: %s\n",p_kep->key);
 #endif
     if (diff < 0) {
         dir = 1;
@@ -67,21 +68,21 @@ void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
         limit = keypos-abs(diff/2);
     }
     /* copy parent key into to block, will be overwritten later */
-    bputky(tblk,key,val,ZNULL,ZNULL);
+    bputky(tblk,p_kep,ZNULL,ZNULL);
     /* move keys from fblk to tblk */
     for (i=keypos;i!=limit;i+=dir) {
-        bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
+        kep = bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
         if (result != 0) {
             bterr("BALBK1",QBALSE,NULL);
             goto fin;
         }
         bremky(fblk,keypos);
         if (dir < 0) keypos--;
-        bputky(tblk,tkey,tval,ZNULL,ZNULL);
+        bputky(tblk,kep,ZNULL,ZNULL);
     }
     /* move last key from fblk into parent */
     i = keypos;
-    bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
+    kep = bsrhbk(fblk,tkey,&keypos,&tval,&link1,&link2,&result);
     if (result != 0) {
         bterr("BALBK1",QBALSE,NULL);
         goto fin;
@@ -89,7 +90,7 @@ void balbk1(BTint lblk,BTint rblk,int diff,char *key,BTint val)
     /* replace parent key; lfpos can be == nkeys as set by bleaf(1) */
     ppos = (btact->cntxt->lf.lfpos==bgtinf(btact->cntxt->lf.lfblk,ZNKEYS))?
         btact->cntxt->lf.lfpos-1:btact->cntxt->lf.lfpos;
-    brepky(btact->cntxt->lf.lfblk,ppos,tkey,tval,lblk,rblk);
+    brepky(btact->cntxt->lf.lfblk,ppos,kep,lblk,rblk);
     bremky(fblk,keypos);
     btact->cntxt->stat.xbal++;
 fin:

@@ -1,5 +1,5 @@
 /*
- * $Id: balblk.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: balblk.c,v 1.7 2010/05/26 12:39:16 mark Exp $
  *
  * balblk: attempts to balance blocks
  *
@@ -32,7 +32,8 @@ void balblk()
     BTint val,llink,rlink,cblk;
     int nkeys,cnkeys,result,diff;
     char tkey[ZKYLEN];
-
+    KEYENT* kep;
+    
     cblk = btact->cntxt->lf.lfblk;
     /* get parent block */
     btact->cntxt->lf.lfpos = bpull();
@@ -41,8 +42,8 @@ void balblk()
     cnkeys = bgtinf(cblk,ZNKEYS);
     if (btact->cntxt->lf.lfpos < nkeys) {
         /* check right sister block */
-        bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
-               &llink,&rlink,&result);
+        kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,&val,
+                     &llink,&rlink,&result);
         if (result != 0) {
             bterr("BALBLK",QBALSE,NULL);
             goto fin;
@@ -50,15 +51,15 @@ void balblk()
         nkeys = bgtinf(rlink,ZNKEYS);
         diff = cnkeys-nkeys;
         if (abs(diff) > (int)(ZMXKEY/2)) {
-            balbk1(cblk,rlink,diff,tkey,val);
+            balbk1(cblk,rlink,diff,kep);
             goto fin;
         }
     }
     if (btact->cntxt->lf.lfpos > 0) {
         /* check left sister block */
         btact->cntxt->lf.lfpos--;
-        bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,
-               &val,&llink,&rlink,&result);
+        kep = bsrhbk(btact->cntxt->lf.lfblk,tkey,&btact->cntxt->lf.lfpos,
+                     &val,&llink,&rlink,&result);
         if (result != 0) {
             bterr("BALBLK",QBALSE,NULL);
             goto fin;
@@ -66,7 +67,7 @@ void balblk()
         nkeys = bgtinf(llink,ZNKEYS);
         diff = nkeys-cnkeys;
         if (abs(diff) > (int)(ZMXKEY/2)) {
-            balbk1(llink,cblk,diff,tkey,val);
+            balbk1(llink,cblk,diff,kep);
             goto fin;
         }
         btact->cntxt->lf.lfpos++;

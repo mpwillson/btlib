@@ -1,5 +1,5 @@
 /*
- * $Id: bjoin.c,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: bjoin.c,v 1.7 2010/05/28 10:34:38 mark Exp $
  *
  * bjoin: bjoins keys in rblk to lblk (using tkey)
  *
@@ -36,7 +36,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void bjoin(BTint lblk,BTint rblk,char *tkey,BTint val)
+void bjoin(BTint lblk,BTint rblk,KEYENT* kep)
 {
     int lnkeys,rnkeys;
 
@@ -46,7 +46,7 @@ void bjoin(BTint lblk,BTint rblk,char *tkey,BTint val)
 #endif
     bremky(btact->cntxt->lf.lfblk,btact->cntxt->lf.lfpos);
     bsetbs(lblk,1);
-    bputky(lblk,tkey,val,ZNULL,ZNULL); 
+    bputky(lblk,kep,ZNULL,ZNULL); 
     lnkeys = bgtinf(lblk,ZNKEYS);
     rnkeys = bgtinf(rblk,ZNKEYS);
     bcpybk(lblk,rblk,lnkeys,0,rnkeys); 
