@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.26 2012-04-09 16:06:36 mark Exp $
+# $Id: Makefile,v 1.27 2012/09/29 15:06:41 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 DEBUG=-g
@@ -56,7 +56,7 @@ endif
 CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR} \
 	${LFSFLAG} ${RDLINEFLAG}
 
-LIBS=-L${LIB_DIR} -l${LIB_NAME} ${RDLINELIB}
+LIBS=-L${LIB_DIR} -l${LIB_NAME} ${RDLINELIB} -lcurses
 
 # location of release tarfile (see release target)
 RELTMP=/tmp
