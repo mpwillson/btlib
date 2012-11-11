@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.21 2012/11/05 10:38:44 mark Exp $
+ *  $Id: btr.c,v 1.22 2012/11/11 16:09:35 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -49,11 +49,11 @@
  *      partition keys by their roots, although if we cannot read the
  *      superroot correctly, the original root names will be lost.
  *
- *      Version 5 hadnles duplicate keys in a better way, through the
- *      introduction of duplicate key blocks (essentially data blocks
- *      maintaining a list of duplicate keys).  The MEMREC4 data
- *      structure is defined in btr.h to allow earlier versions of 
- *      btree library index files to be migrated and/or recovered.
+ *      Version 5 handles duplicate keys through the introduction of
+ *      duplicate key blocks (essentially data blocks maintaining a
+ *      list of duplicate keys).  The MEMREC4 data structure is
+ *      defined in btr.h to allow earlier versions of btree library
+ *      index files to be migrated and/or recovered.
  * 
  *  BUGS
  *      btr delves into the innards of a btree index file and should
@@ -64,7 +64,7 @@
  *  BTR             1.0 20110401 mpw
  *    Created.
  *    
- * Copyright (C) 2011 Mark Willson.
+ * Copyright (C) 2011,2012 Mark Willson.
  *
  * This file is part of the B Tree library.
  *
@@ -96,7 +96,7 @@
 /* #define DEBUG 1 */
 
 
-#define VERSION "$Id: btr.c,v 1.21 2012/11/05 10:38:44 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.22 2012/11/11 16:09:35 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -187,6 +187,10 @@ void kalloc(char **buf,int bufsiz)
     }
 }
 
+/* ==================================================================
+ * Following functions are btr versions of btlib routines, modifed
+ * to handle v4 and earlier index files and block structure
+ * ==================================================================*/
 
 /* Open btree index file in recovery mode (i.e. limited checking) */
 BTA *btropn(char *fid,int vlevel,int full_recovery)
@@ -385,6 +389,10 @@ int btrrecsz(BTint draddr, BTA* dr_index)
     return(recsz);
 }
 
+/* ========================================================================
+ * End of btlib modified routines
+ * ========================================================================*/
+
 int load_block(BTA* in, BTint blkno, int vlevel)
 {
     int status, idx;
@@ -504,8 +512,8 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     btact = in;
     if (!valid_draddr(draddr)) {
         if (vlevel >=3) {
-            fprintf(stderr,"btr: invalid data address for key %s: 0x" ZXFMT "\n",
-                    key,draddr);
+            fprintf(stderr,"btr: invalid data address for key %s: 0x" ZXFMT
+                    "\n",key,draddr);
         }
         status = BAD_DRADDR;
         goto fin;
@@ -589,12 +597,12 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
     while (draddr < mx) {
         dkey = getdkey(draddr);
 #if DEBUG >= 1
-            fprintf(stderr,"handle_dups: draddr: " ZINTFMT ", dkey->key: %s, val: "
-                    ZINTFMT ", del: %d, blink: "
-                    ZINTFMT ", flink: " ZINTFMT "\n",
-                    draddr, dkey->key, dkey->val, dkey->deleted,
-                    dkey->blink, dkey->flink);
-#endif
+        fprintf(stderr,"handle_dups: draddr: " ZINTFMT ", dkey->key: %s, val: "
+                ZINTFMT ", del: %d, blink: "
+                ZINTFMT ", flink: " ZINTFMT "\n",
+                draddr, dkey->key, dkey->val, dkey->deleted,
+                dkey->blink, dkey->flink);
+#endif  
         if (dkey == NULL) break;
         if (!dkey->deleted) {
             if (mode == DATA) {
