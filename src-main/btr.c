@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.20 2012/10/31 18:39:34 mark Exp $
+ *  $Id: btr.c,v 1.21 2012/11/05 10:38:44 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -96,7 +96,7 @@
 /* #define DEBUG 1 */
 
 
-#define VERSION "$Id: btr.c,v 1.20 2012/10/31 18:39:34 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.21 2012/11/05 10:38:44 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -133,10 +133,17 @@ struct {
     BTint bad_blocks;
 } stats;
 
+/* v4 keyblk generally holds more keys */
+#if ZMXKEY > ZMXKEY4
+#define ZRNKEYS ZMXKEY
+#else
+#define ZRNKEYS ZMXKEY4
+#endif
+
 /* Hold keys and values read from block */
 struct bt_block_keys {
     int nkeys;
-    KEYENT keyblk[ZMXKEY];
+    KEYENT keyblk[ZRNKEYS];
 };
 
 typedef struct bt_block_keys BTKEYS;
@@ -184,7 +191,7 @@ void kalloc(char **buf,int bufsiz)
 /* Open btree index file in recovery mode (i.e. limited checking) */
 BTA *btropn(char *fid,int vlevel,int full_recovery)
 {
-    int idx,ioerr,status;
+    int idx,ioerr;
     
     bterr("",0,NULL);
 
@@ -240,15 +247,142 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
                 "Running in limited recovery mode.\n",
                 prog,src_file_ver);    
     }
-    /* change to default root */
-    status = btchgr(btact,"$$default");
-    if (status != 0) {
-        fprintf(stderr,"%s: no $$default root found.\n",prog);
-    }
-    return(btact);
+    return btact;
 fin:
     bacfre(btact);
-    return(NULL);
+    return NULL;
+}
+
+/*------------------------------------------------------------------------
+ * Return size and next segment address of data record segment
+ * indicated by draddr
+ *----------------------------------------------------------------------*/
+
+int btrseginfo(BTint draddr, int *size, BTint *nextseg) 
+{
+    BTint blk;
+    int offset;
+    int status,  idx;
+    DATBLK4 *d;
+
+    cnvdraddr(draddr,&blk,&offset);
+    
+    status = brdblk(blk,&idx);
+    if (status != 0) {
+        return(status);
+    }
+
+    d = (DATBLK4 *) (btact->memrec)+idx;
+    *size = rdsz(d->data+offset);
+    *nextseg = rdint(d->data+offset+ZDRSZ);
+    return(0);
+}
+
+int btrseldt(BTint draddr, char *data, int dsize) 
+{
+    BTint dblk;
+    int status, idx, type,
+        segsz = 0, cpsz = -1;
+    int offset = 0;
+    int totsz = 0;
+    int sprem = dsize;
+    
+    DATBLK4 *d;
+
+    while (sprem > 0 && draddr != 0) {
+        /* unpick data pointer */
+        cnvdraddr(draddr,&dblk,&offset);
+        type = bgtinf(dblk,ZBTYPE);
+        if (type != ZDATA && type != ZDUP) {
+            bterr("BTRSELDT",QNOTDA,itostr(dblk));
+            totsz = -1;
+            goto fin;
+        }
+        status = brdblk(dblk,&idx);
+        d = (DATBLK4 *) (btact->memrec)+idx;
+#if DEBUG > 0
+        fprintf(stderr,"BTRSELDT: Using draddr 0x" ZXFMT " (" ZINTFMT
+                ",%d), found 0x" ZXFMT "\n",
+                draddr,dblk,offset,*(d->data+offset+ZDOVRH));
+#endif
+
+        segsz = rdsz(d->data+offset);
+        draddr = rdint(d->data+offset+ZDRSZ);
+#if DEBUG > 0
+        fprintf(stderr,"BTRSELDT: Seg size: %d, next draddr: 0x" ZXFMT "\n",
+                segsz,draddr);
+#endif
+        cpsz = (segsz>sprem)?sprem:segsz;
+#if DEBUG > 0
+        fprintf(stderr,"BTRSELDT: copying %d bytes\n",cpsz);
+#endif      
+        memcpy(data,d->data+offset+ZDOVRH,cpsz);
+        data += cpsz;
+        sprem -= cpsz;
+        totsz += cpsz;
+    }
+    
+fin:
+    return(totsz);
+}
+
+/*-----------------------------------------------------------
+ * return number of bytes occupied by data record pointed to by draddr
+ *----------------------------------------------------------- */
+
+int btrrecsz(BTint draddr, BTA* dr_index)
+{
+    BTint blk,newdraddr;
+    BTA* b;
+    int offset, segsz, recsz, status;
+    
+    recsz = 0;
+    while (draddr != 0) {
+        if (dr_index != NULL) {
+            /* recovery mode; check for circular draddr references */
+            char dr_str[80];
+            b = btact;              /* save active index handle */
+            sprintf(dr_str,ZXFMT,draddr);
+            status = binsky(dr_index,dr_str,0);
+            btact = b;              
+            if (status != 0) {
+                if (status == QDUP) {
+                    bterr("",0,NULL);
+                    bterr("BTRRECSZ",QDLOOP,dr_str);
+                }
+                goto fin;
+            }
+        }
+
+        cnvdraddr(draddr,&blk,&offset);
+#if DEBUG > 0
+        fprintf(stderr,"BTRRECSZ: Processing draddr: 0x" ZXFMT ", blk: " ZINTFMT
+                ", offset: %d\n",draddr,blk,offset);
+#endif
+        /* ensure we are pointing at a data block */
+        if (bgtinf(blk,ZBTYPE) != ZDATA) {
+            bterr("BRECSZ",QNOTDA,itostr(blk));
+            return(0);
+        }
+        btrseginfo(draddr,&segsz,&newdraddr);
+        
+#if DEBUG > 0       
+        fprintf(stderr,"BTRRECSZ: Seg size: %d, next seg: 0x" ZXFMT "\n",
+                segsz,newdraddr);
+#endif      
+        if (newdraddr == draddr) {
+            /* next segment address should never refer to current
+               segment */
+            char dr_str[80];
+            sprintf(dr_str,ZXFMT,draddr);
+            bterr("BTRRECSZ",QDLOOP,dr_str);
+            return(0);
+        }
+        draddr = newdraddr;
+        recsz += segsz;
+    }
+  fin:
+    return(recsz);
 }
 
 int load_block(BTA* in, BTint blkno, int vlevel)
@@ -296,10 +430,10 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
         }
     }
     else {
-        m4 = (MEMREC4*) (btact->memrec);
+        m4 = (MEMREC4*) (btact->memrec)+idx;
         for (j=0;j<nkeys;j++) {
-            strcpy(keys->keyblk[j].key,(m4+idx)->keyblk[j]);
-            keys->keyblk[j].val = (m4+idx)->valblk[j];
+            strcpy(keys->keyblk[j].key,m4->keyblk[j]);
+            keys->keyblk[j].val = m4->valblk[j];
             keys->keyblk[j].dup = ZNULL;
         }
     }
@@ -370,7 +504,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     btact = in;
     if (!valid_draddr(draddr)) {
         if (vlevel >=3) {
-            fprintf(stderr,"Invalid data address for key %s: 0x" ZXFMT "\n",
+            fprintf(stderr,"btr: invalid data address for key %s: 0x" ZXFMT "\n",
                     key,draddr);
         }
         status = BAD_DRADDR;
@@ -379,7 +513,9 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     
     /* Call brecsz with BTA*, which will cause it to record all
      * draddrs, and error on a duplicate */
-    rsize = brecsz(draddr,da);
+    rsize = (src_file_ver > FULL_RECOVERY_VERSION)?
+        brecsz(draddr,da):
+        btrrecsz(draddr,da);
     status = btgerr();
     if (status != 0) {
         printf("key: %s, draddr 0x%x\n",key,draddr);
@@ -397,7 +533,9 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         fprintf(stderr,"Reading data record for key: %s; draddr: 0x" ZXFMT " ",
                 key,draddr);
     }
-    rsize = bseldt(draddr,data_record,rsize);
+    rsize = (src_file_ver > FULL_RECOVERY_VERSION)?
+        bseldt(draddr,data_record,rsize):
+        btrseldt(draddr,data_record,rsize);
     status = btgerr();
     if (status == 0) {
         if (vlevel >= 3) {
@@ -466,10 +604,10 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
             }
             else {
                 if (binsky(out,dkey->key,dkey->val) != 0) break;
+                stats.keys++;
             }
             /* reset btact to input file (btr digs into bt innards)*/
             btact = in;
-            stats.keys++;
             nkeys++;
         }
         draddr += sizeof(DKEY)+ZDOVRH;
@@ -491,7 +629,10 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
     BTKEYS* keys = NULL;
     char current_root[ZKYLEN+1];
     char root_name[ZKYLEN+1];
-
+    char* btype[] = {
+        "ZSUPER","ZROOT","ZINUSE","ZFREE","ZDATA","ZDUP"
+    };  
+    
     strcpy(current_root,"$$default");
     strcpy(root_name,"*UNKNOWN*");
     status = load_superroot_names(in,vlevel);
@@ -502,12 +643,17 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
         if (idx < 0 || stats.nioerrs > ioerr_max) {
             return idx;
         }
-
-        block_type = bgtinf(blkno,ZBTYPE);
+        if (vlevel >= 2) {
+            block_type = bgtinf(blkno,ZBTYPE);
+            nkeys = bgtinf(blkno,ZNKEYS);
+            fprintf(stderr,"Processing block: " Z20DFMT
+                    ", ZNKEYS: %8d [%s," ZINTFMT ",%s]\n",blkno,nkeys,
+                    current_root,root,btype[block_type]);
+            }   
         if (block_type == ZROOT || block_type == ZINUSE) {
             nkeys = bgtinf(blkno,ZNKEYS);
             /* TDB: perform various checks on block info */
-            if (nkeys < 0 || nkeys > ZMXKEY) {
+            if (nkeys < 0 || nkeys > ZRNKEYS) {
                 if (vlevel >= 2) {
                     fprintf(stderr,"btr: block: " ZINTFMT
                             ", bad ZNKEYS value: %d\n",
@@ -542,11 +688,6 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     }
                     strcpy(current_root,root_name);
                 }   
-            }
-            if (vlevel >= 2) {
-                fprintf(stderr,"Processing block: " Z20DFMT
-                        ", keys: %8d [%s," ZINTFMT "]\n",blkno,nkeys,
-                        current_root,root);
             }
            /* insert into new btree file */
             for (j=0;j<nkeys;j++) {
