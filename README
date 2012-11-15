@@ -44,8 +44,9 @@ INTRODUCTION
     The BT library has been tested on GNU/Linux (Debian Squeeze), FreeBSD
     9.1, Mac OS X 10.7.5 and Cygwin.
 
-UPDATING The BT Recovery program (btr) enables the migration of btree
-    index files to 5.0.0 created from earier versions.
+UPDATING
+    The BT Recovery program (btr) enables the migration of btree
+    index files created in earlier versions.
 
     If migrating from a pre-3.0 release of the BT library, be aware
     that the function btcerr always zero-pads the srname and msg
