@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.9 2010/12/04 20:14:57 mark Exp $
+ * $Id: butil.c,v 1.10 2012/10/29 11:07:54 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *
@@ -24,12 +24,15 @@
 
 #include "btree_int.h"
 
-static char buf[80];
+#define BUFSZ 80
+
+static char buf[BUFSZ];
 
 /* Return BTint as string */
 char* itostr(BTint v)
 {
-    sprintf(buf,ZINTFMT,v);
+    snprintf(buf,BUFSZ,ZINTFMT,v);
+    buf[BUFSZ-1] = '\0';
     return buf;
 }
 

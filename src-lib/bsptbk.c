@@ -1,5 +1,5 @@
 /*
- * $Id: bsptbk.c,v 1.10 2012/09/29 15:06:41 mark Exp $
+ * $Id: bsptbk.c,v 1.11 2012/11/05 10:34:58 mark Exp $
  *
  *
   bsptbk: splits block into two
@@ -44,7 +44,7 @@ int bsptbk(BTint blk,BTint *newblk)
     KEYENT* kep;
     
     *newblk = ZNULL;
-    strcpy(tkey," ");
+    tkey[0] = '\0';
     type = bgtinf(blk,ZBTYPE);
 #if DEBUG > 0
     printf("BSPTBK: splitting block " ZINTFMT " of type %d\n",blk,type);

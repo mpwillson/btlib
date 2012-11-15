@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.15 2012/10/08 18:12:48 mark Exp $
+ * $Id: bfndky.c,v 1.16 2012/10/09 19:39:28 mark Exp $
  *
  * bfndky: finds key in index
  *
@@ -71,7 +71,8 @@ int bfndky(BTA *b,char *key,BTint *val)
     duplicates_allowed = bgtinf(cblk,ZMISC);
     bstkin();
     bclrlf();
-    strcpy(btact->cntxt->lf.lfkey,lkey);
+    strncpy(btact->cntxt->lf.lfkey,lkey,ZKYLEN);
+    btact->cntxt->lf.lfkey[ZKYLEN-1] = '\0';
 
     while (cblk != ZNULL) {
 #if DEBUG >= 2

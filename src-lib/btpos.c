@@ -1,5 +1,5 @@
 /*
- * $Id: btpos.c,v 1.4 2012/10/18 09:25:51 mark Exp $
+ * $Id: btpos.c,v 1.5 2012/11/05 10:34:58 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.
@@ -68,8 +68,7 @@ int btpos(BTA *b,int pos)
     bpush(ZNULL);
     btact->cntxt->lf.lfblk = btact->cntxt->super.scroot;
     if (pos == ZSTART) {
-        strcpy(btact->cntxt->lf.lfkey,""); /* set lfkey for shared
-                                              mode */
+        btact->cntxt->lf.lfkey[0] = '\0'; /* set lfkey for shared                                              mode */
         btact->cntxt->lf.lfpos = 0;
         bleaf(0);
     }
@@ -87,7 +86,8 @@ int btpos(BTA *b,int pos)
         }
         else {
             key[strlen(key)-1]++;   /* make lfkey greater than last key */
-            strcpy(btact->cntxt->lf.lfkey,key);
+            strncpy(btact->cntxt->lf.lfkey,key,ZKYLEN);
+            btact->cntxt->lf.lfkey[ZKYLEN-1] = '\0';
         }
     }
  

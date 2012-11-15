@@ -1,5 +1,5 @@
 /*
- * $Id: btcmd.c,v 1.12 2012/05/20 20:04:25 mark Exp $
+ * $Id: btcmd.c,v 1.13 2012/10/23 19:19:44 mark Exp $
  * 
  * =====================================================================
  * Simple parser for BT test harness
@@ -179,8 +179,8 @@ void display_help(CMDENTRY cmds[],char* cmd)
         char s[MAXBUFSZ+1];
         /* ignore commands with no description (probably hidden) */
         if (strlen(cmds[i].description) == 0) continue;
-        if (STREMP(cmd) || (strcmp(cmds[i].cmd,cmd) == 0) ||
-            (strcmp(cmds[i].abbrev,cmd) == 0)) {
+        if (STREMP(cmd) || (strncmp(cmds[i].cmd,cmd,MAXBUFSZ) == 0) ||
+            (strncmp(cmds[i].abbrev,cmd,MAXBUFSZ) == 0)) {
             snprintf(s,MAXBUFSZ,"%s,%s",cmds[i].cmd,cmds[i].abbrev);
             strncpy(desc,cmds[i].description,MAXDESCSZ);
             ed = desc+strlen(desc);
@@ -197,7 +197,9 @@ void display_help(CMDENTRY cmds[],char* cmd)
         }
     }
     if (!STREMP(cmd)) {
-        strcpy(cblk.cmd,cmd);  /* copy cmd to correct loc in cblk */
+        strncpy(cblk.cmd,cmd,MAXBUFSZ);  /* copy cmd to correct loc in
+                                          * cblk */
+        cblk.cmd[MAXBUFSZ-1] = '\0';
         (cmds[i].function)(&cblk);
     }
 }
@@ -271,10 +273,10 @@ int btcmd_help(CMDBLK* c)
 
 int btcmd_echo(CMDBLK* c)
 {
-    if (strcmp(c->arg,"on") == 0) {
+    if (strncmp(c->arg,"on",2) == 0) {
         echo = TRUE;
     }
-    else if (strcmp(c->arg,"off") == 0) {
+    else if (strncmp(c->arg,"off",3) == 0) {
         echo = FALSE;
     }
     else {
@@ -285,10 +287,10 @@ int btcmd_echo(CMDBLK* c)
 
 int btcmd_error(CMDBLK* c)
 {
-    if (strcmp(c->arg,"on") == 0) {
+    if (strncmp(c->arg,"on",2) == 0) {
         stop_on_error = TRUE;
     }
-    else if (strcmp(c->arg,"off") == 0) {
+    else if (strncmp(c->arg,"off",3) == 0) {
         stop_on_error = FALSE;
     }
     else {
@@ -407,10 +409,11 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
             cblk.all = cp+1;
             return;
         }
-        else if (strcmp(cmd,cmds[i].cmd) == 0 ||
-                 strcmp(cmd,cmds[i].abbrev) == 0) {
+        else if (strncmp(cmd,cmds[i].cmd,MAXBUFSZ) == 0 ||
+                 strncmp(cmd,cmds[i].abbrev,MAXBUFSZ) == 0) {
             cblk.function = cmds[i].function;
-            strcpy(cblk.cmd,cmds[i].cmd);
+            strncpy(cblk.cmd,cmds[i].cmd,MAXBUFSZ);
+            cblk.cmd[MAXBUFSZ-1] = '\0';
             /* does # args match that required? */
             if (cmds[i].nargs != 0 &&
                 cmds[i].nargs != cblk.nargs) {
@@ -459,8 +462,9 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
             else    
                 rlbuf = readline(NULL);
             if (rlbuf != NULL) {
-                if (strcmp(rlbuf,"") == 0) continue;
+                if (rlbuf[0] == 0) continue;
                 strncpy(cmdbuf,rlbuf,MAXBUFSZ);
+                cmdbuf[MAXBUFSZ-1] = '\0';
             }
 #else
             if (issue_prompt) printf("%s",prompt_string);

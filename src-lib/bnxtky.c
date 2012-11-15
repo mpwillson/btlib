@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.20 2012/10/29 11:07:54 mark Exp $
+ * $Id: bnxtky.c,v 1.21 2012/10/31 18:39:09 mark Exp $
  *
  * bnxtky:  returns next key from index
  *
@@ -62,7 +62,8 @@ int bnxtky(BTA* b,char *key,BTint *val)
         goto fin;
     }
     else if (found == 0) {
-        strcpy(key,btact->cntxt->lf.lfkey);
+        strncpy(key,btact->cntxt->lf.lfkey,ZKYLEN);
+        key[ZKYLEN-1] = '\0';
         goto fin;
     }
             
@@ -109,10 +110,13 @@ int bnxtky(BTA* b,char *key,BTint *val)
         
         if (btact->cntxt->lf.lfpos < nkeys) {
             found = TRUE;
-            strcpy(key,
-                   ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].key);
+            strncpy(key,
+                    ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].key,
+                    ZKYLEN);
+            key[ZKYLEN-1] = '\0';
             /* remember found key (need for shared mode) */
-            strcpy(btact->cntxt->lf.lfkey,key);
+            strncpy(btact->cntxt->lf.lfkey,key,ZKYLEN);
+            btact->cntxt->lf.lfkey[ZKYLEN-1] = '\0';
             *val = ((btact->memrec)+idx)->keyblk[btact->cntxt->lf.lfpos].val;
             btduppos(ZNEXT,val);
         }

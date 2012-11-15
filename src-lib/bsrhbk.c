@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.9 2012/09/29 15:06:41 mark Exp $
+ * $Id: bsrhbk.c,v 1.10 2012/11/05 10:34:58 mark Exp $
  *
  *
   bsrhbk: searches block for key
@@ -16,7 +16,7 @@
        
     if loc not negative, returns key, val and links at loc
     result is set to 0
-    if key non-blank, searches block for key, returns loc
+    Else, searches block for key, returns loc
     val and links
     if key is found, result is 0; return keyent pointer
     if key is larger than any in block, result is 1; returns NULL
@@ -76,7 +76,8 @@ KEYENT* bsrhbk(BTint blk, char *key, int *loc, BTint *val, BTint *link1,
         }
         else {
             *result = 0;
-            strcpy(key,((btact->memrec)+idx)->keyblk[*loc].key);
+            strncpy(key,((btact->memrec)+idx)->keyblk[*loc].key,ZKYLEN);
+            key[ZKYLEN-1] = '\0';
         }
     }
     else {

@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.22 2012/11/11 16:09:35 mark Exp $
+ *  $Id: btr.c,v 1.23 2012/11/11 20:24:31 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -96,7 +96,7 @@
 /* #define DEBUG 1 */
 
 
-#define VERSION "$Id: btr.c,v 1.22 2012/11/11 16:09:35 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.23 2012/11/11 20:24:31 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -126,11 +126,15 @@ struct {
     BTint keys;
     BTint records;
     BTint seg_addr_loops;
-    BTint key_blocks_processed;
-    BTint dup_blocks_processed;
+    BTint key_blocks;
+    BTint dup_blocks;
+    BTint data_blocks;
+    BTint free_blocks;
+    BTint total_blocks;
     BTint bad_draddrs;
     BTint dr_read_errors;
     BTint bad_blocks;
+    BTint bad_index_blocks;
 } stats;
 
 /* v4 keyblk generally holds more keys */
@@ -208,7 +212,8 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
         bterr("BTROPN",QOPNIO,fid);
         return NULL;
     }
-    strcpy(btact->idxfid,fid);
+    strncpy(btact->idxfid,fid,FIDSZ);
+    btact->idxfid[FIDSZ-1] = '\0';
     if (bacini(btact) != 0) {
         fclose(btact->idxunt);
         goto fin;
@@ -247,7 +252,7 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
     if (!full_recovery && (src_file_ver < FULL_RECOVERY_VERSION ||
                            src_file_ver == LFSHDR)) {
         limited_recovery = TRUE;
-        fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
+        fprintf(stderr,"%s: index file is version: " ZINTFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,src_file_ver);    
     }
@@ -333,6 +338,7 @@ fin:
 /*-----------------------------------------------------------
  * return number of bytes occupied by data record pointed to by draddr
  *----------------------------------------------------------- */
+#define BUFSZ 80
 
 int btrrecsz(BTint draddr, BTA* dr_index)
 {
@@ -344,9 +350,10 @@ int btrrecsz(BTint draddr, BTA* dr_index)
     while (draddr != 0) {
         if (dr_index != NULL) {
             /* recovery mode; check for circular draddr references */
-            char dr_str[80];
+            char dr_str[BUFSZ];
             b = btact;              /* save active index handle */
-            sprintf(dr_str,ZXFMT,draddr);
+            snprintf(dr_str,BUFSZ,ZXFMT,draddr);
+            dr_str[BUFSZ-1] = '\0';
             status = binsky(dr_index,dr_str,0);
             btact = b;              
             if (status != 0) {
@@ -360,7 +367,7 @@ int btrrecsz(BTint draddr, BTA* dr_index)
 
         cnvdraddr(draddr,&blk,&offset);
 #if DEBUG > 0
-        fprintf(stderr,"BTRRECSZ: Processing draddr: 0x" ZXFMT ", blk: " ZINTFMT
+        fprintf(stderr,"BTRRECSZ: Processing draddr: " ZINTFMT ", blk: " ZINTFMT
                 ", offset: %d\n",draddr,blk,offset);
 #endif
         /* ensure we are pointing at a data block */
@@ -371,14 +378,15 @@ int btrrecsz(BTint draddr, BTA* dr_index)
         btrseginfo(draddr,&segsz,&newdraddr);
         
 #if DEBUG > 0       
-        fprintf(stderr,"BTRRECSZ: Seg size: %d, next seg: 0x" ZXFMT "\n",
+        fprintf(stderr,"BTRRECSZ: Seg size: %d, next seg: " ZINTFMT "\n",
                 segsz,newdraddr);
 #endif      
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
                segment */
-            char dr_str[80];
-            sprintf(dr_str,ZXFMT,draddr);
+            char dr_str[BUFSZ];
+            snprintf(dr_str,ZKYLEN,ZXFMT,draddr);
+            dr_str[ZKYLEN-1] = '\0';
             bterr("BTRRECSZ",QDLOOP,dr_str);
             return(0);
         }
@@ -440,7 +448,8 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
     else {
         m4 = (MEMREC4*) (btact->memrec)+idx;
         for (j=0;j<nkeys;j++) {
-            strcpy(keys->keyblk[j].key,m4->keyblk[j]);
+            strncpy(keys->keyblk[j].key,m4->keyblk[j],ZKYLEN);
+            keys->keyblk[j].key[ZKYLEN-1] = '\0';
             keys->keyblk[j].val = m4->valblk[j];
             keys->keyblk[j].dup = ZNULL;
         }
@@ -465,7 +474,7 @@ int load_superroot_names(BTA* in,int vlevel)
     nkeys = bgtinf(ZSUPER,ZNKEYS);
     superroot_keys = get_keys(idx,nkeys,NULL);
     if (vlevel >= 1 && nkeys > 0) {
-        printf("\nAttempting to recover the following root names:\n");
+        printf("\nAttempting to recover the following roots:\n");
         printf("%-32s %s\n","RootName","BlockNum");
         for (i=0; i<nkeys; i++) {
             printf("%-32s " ZINTFMT "\n",superroot_keys->keyblk[i].key,
@@ -479,14 +488,15 @@ int load_superroot_names(BTA* in,int vlevel)
 char* name_of_root(BTint blkno)
 {
     int j;
-    static char root_name[ZMXKEY+1];
+    static char root_name[ZKYLEN];
     
     for (j=0;j<superroot_keys->nkeys;j++) {
         if (superroot_keys->keyblk[j].val == blkno) {
             return superroot_keys->keyblk[j].key;
         }
     }
-    sprintf(root_name,"root_" ZINTFMT,blkno);
+    snprintf(root_name,ZKYLEN,"root_" ZINTFMT,blkno);
+    root_name[ZKYLEN-1] = '\0';
     return root_name;
 }
 
@@ -512,7 +522,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     btact = in;
     if (!valid_draddr(draddr)) {
         if (vlevel >=3) {
-            fprintf(stderr,"btr: invalid data address for key %s: 0x" ZXFMT
+            fprintf(stderr,"btr: invalid data address for key %s: 0x" ZINTFMT
                     "\n",key,draddr);
         }
         status = BAD_DRADDR;
@@ -526,7 +536,6 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         btrrecsz(draddr,da);
     status = btgerr();
     if (status != 0) {
-        printf("key: %s, draddr 0x%x\n",key,draddr);
         print_bterror();
         status = DR_READ_ERROR;
         goto fin;
@@ -538,8 +547,8 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         kalloc(&data_record,data_record_size);
     }
     if (vlevel >= 3) {
-        fprintf(stderr,"Reading data record for key: %s; draddr: 0x" ZXFMT " ",
-                key,draddr);
+        fprintf(stderr,"Reading data record for key: %s; draddr: " ZINTFMT
+                " ", key, draddr);
     }
     rsize = (src_file_ver > FULL_RECOVERY_VERSION)?
         bseldt(draddr,data_record,rsize):
@@ -572,7 +581,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
     if (status < 0) {
         /* copy_data_record can't access the data
          * record; insert key only, if so. */
-        status = binsky(out,key,0);
+        status = binsky(out,key,draddr);
     }
     if (status == 0) {
         stats.keys++;
@@ -620,11 +629,6 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
         }
         draddr += sizeof(DKEY)+ZDOVRH;
     }
-    if (vlevel >= 2) {
-        fprintf(stderr,"Processing block: " Z20DFMT
-                ", keys: %8d [%s," ZINTFMT "]\n",blk,nkeys,
-                current_root,root);
-    }
     return btgerr();
 }
     
@@ -641,8 +645,8 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
         "ZSUPER","ZROOT","ZINUSE","ZFREE","ZDATA","ZDUP"
     };  
     
-    strcpy(current_root,"$$default");
-    strcpy(root_name,"*UNKNOWN*");
+    strncpy(current_root,"$$default",ZKYLEN);
+    strncpy(root_name,"*UNKNOWN*",ZKYLEN);
     status = load_superroot_names(in,vlevel);
     if (!limited_recovery && status < 0) return status;
     
@@ -651,15 +655,22 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
         if (idx < 0 || stats.nioerrs > ioerr_max) {
             return idx;
         }
+        stats.total_blocks++;
+        nkeys = bgtinf(blkno,ZNKEYS);
+        block_type = bgtinf(blkno,ZBTYPE);
+        if (!limited_recovery) {
+            root = bgtinf(blkno,ZNBLKS);
+            if (root <= 0 ) root = 1;
+        }
+        else {
+            root = ZNULL;
+        }
         if (vlevel >= 2) {
-            block_type = bgtinf(blkno,ZBTYPE);
-            nkeys = bgtinf(blkno,ZNKEYS);
             fprintf(stderr,"Processing block: " Z20DFMT
-                    ", ZNKEYS: %8d [%s," ZINTFMT ",%s]\n",blkno,nkeys,
+                    ", ZNKEYS: %8d [%s," ZINTFMT ",%6s]\n",blkno,nkeys,
                     current_root,root,btype[block_type]);
-            }   
+        }   
         if (block_type == ZROOT || block_type == ZINUSE) {
-            nkeys = bgtinf(blkno,ZNKEYS);
             /* TDB: perform various checks on block info */
             if (nkeys < 0 || nkeys > ZRNKEYS) {
                 if (vlevel >= 2) {
@@ -667,15 +678,16 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                             ", bad ZNKEYS value: %d\n",
                             blkno,nkeys);
                 }
+                stats.bad_index_blocks++;
                 continue;
             }
-            stats.key_blocks_processed++;
+            stats.key_blocks++;
              /* copy keys from block; re-use keyblk */
             keys = get_keys(idx,nkeys,keys);
             if (!limited_recovery) {
                 /* check for multi-root index */
-                root = bgtinf(blkno,ZNBLKS);
-                strcpy(root_name,name_of_root(root));
+                strncpy(root_name,name_of_root(root),ZKYLEN);
+                root_name[ZKYLEN-1] = '\0';
                 if (strcmp(root_name,current_root) != 0) {
                     /* attempt to switch to root; create if it
                      * doesn't exist */
@@ -694,7 +706,8 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                             return status;
                         }
                     }
-                    strcpy(current_root,root_name);
+                    strncpy(current_root,root_name,ZKYLEN);
+                    current_root[ZKYLEN-1] = '\0';
                 }   
             }
            /* insert into new btree file */
@@ -726,16 +739,20 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             /* handle dup key blocks */
             status = handle_dups(in,out,da,blkno,mode,current_root,root,vlevel);
             if (status != 0) return status;
-            stats.dup_blocks_processed++;
+            stats.dup_blocks++;
+        }
+        else if (block_type == ZFREE) {
+            stats.free_blocks++;
+        }
+        else if (block_type == ZDATA) {
+            stats.data_blocks++;
         }
         else {
-            if (block_type != ZFREE && block_type != ZDATA) {
-                if (vlevel >= 3) {
-                    fprintf(stderr,"%s: ignoring block " ZINTFMT
-                            " of unknown type 0x%x\n",prog,blkno,block_type);
-                }
-                stats.bad_blocks++;
-            }
+            if (vlevel >= 3) {
+                fprintf(stderr,"%s: ignoring block " ZINTFMT
+                        " of unknown type 0x%x\n",prog,blkno,block_type);
+                }   
+            stats.bad_blocks++;
         }
     }
     return status;
@@ -855,24 +872,34 @@ int main(int argc, char *argv[])
         }   
         status = copy_index(copy_mode,in,out,da,vlevel,ioerror_max,
                             allow_dups);
-        if (status != EOF) printf("btr: copy_index status: %d\n",status);
+        if (vlevel >= 3 && status != EOF) {
+            printf("btr: copy_index return status: %d\n",status);
+        }
         btcls(in);
         btcls(out);
         if (da != NULL) btcls(da);
         puts("\nBTRecovery Statistics:");
+        printf("  %-26s " Z20DFMT "\n","Total Blocks Processed:",
+               stats.total_blocks);
         printf("  %-26s " Z20DFMT "\n","Key Blocks Processed:",
-               stats.key_blocks_processed);
+               stats.key_blocks);
         printf("  %-26s " Z20DFMT "\n","Keys Processed:",stats.keys);
+        printf("  %-26s " Z20DFMT "\n","Data Blocks Encountered:",
+               stats.data_blocks);
         printf("  %-26s " Z20DFMT "\n","Dup Blocks Processed:",
-               stats.dup_blocks_processed);
+               stats.dup_blocks);
+        printf("  %-26s " Z20DFMT "\n","Free Blocks Encountered:",
+               stats.free_blocks);
         printf("  %-26s " Z20DFMT "\n","Data Records Processed:",stats.records);
         printf("  %-26s " Z20DFMT "\n","Data Record Read Errors:",
                stats.dr_read_errors);
         printf("  %-26s " Z20DFMT "\n","Record Address Loops:",
                stats.seg_addr_loops);
         printf("  %-26s " Z20DFMT "\n","Bad Blocks (invalid type):",
-               stats.bad_blocks);
-        if (vlevel > 0) {
+               stats.bad_blocks); 
+        printf("  %-26s " Z20DFMT "\n","Bad Index Blocks:",
+               stats.bad_index_blocks);
+       if (vlevel > 0) {
             fprintf(stdout,"  %-26s %20d\n","I/O errors encountered:",
                     stats.nioerrs);
         }

@@ -1,5 +1,5 @@
 /*
- * $Id: bclrlf.c,v 1.9 2012-09-29 15:06:41 mark Exp $
+ * $Id: bclrlf.c,v 1.10 2012/10/08 18:12:48 mark Exp $
  *
  * bclrlf: initialises last key found info
  *
@@ -34,6 +34,6 @@ void bclrlf(void)
     btact->cntxt->lf.lfpos = ZNULL;
     btact->cntxt->lf.lfexct = FALSE;
     btact->cntxt->lf.draddr = ZNULL;
-    strcpy(btact->cntxt->lf.lfkey,"");
+    btact->cntxt->lf.lfkey[0] = '\0';
     return;
 }

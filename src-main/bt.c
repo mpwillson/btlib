@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.41 2012/10/31 18:39:34 mark Exp $
+ * $Id: bt.c,v 1.42 2012/11/05 10:38:44 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -68,14 +68,15 @@ int suppress_error_msg = FALSE;
 char *strsave(char *s)
 {
     char *p;
-
-    p = (char *) malloc(strlen(s)+1);
+    int slen = strlen(s)+1;
+    
+    p = (char *) malloc(slen);
     if (p == NULL) {
         fprintf(stderr,"no memory for string\n");
-        return (NULL);
+        return NULL;
     }
-    strcpy(p,s);    
-    return (p);
+    strncpy(p,s,slen);    
+    return p;
 }
 
 /* remember active index file */
@@ -940,12 +941,12 @@ int chk_order(CMDBLK* c)
     BTint val;
     char key[ZKYLEN], last_key[ZKYLEN];
 
-    if (strcmp(c->qualifier,"s") == 0 || strcmp(c->arg,"s") == 0) {   
+    if (strncmp(c->qualifier,"s",1) == 0 || strncmp(c->arg,"s",1) == 0) {   
         btpos(btp,ZSTART);
     }
     
 
-    strcpy(last_key,"");
+    last_key[0] = '\0';
     while (status == 0) {
         status = bnxtky(btp,key,&val);
         if (status == 0) {
@@ -955,10 +956,11 @@ int chk_order(CMDBLK* c)
                 suppress_error_msg = TRUE;
                 status = 1;
             }
-            strcpy(last_key,key);
+            strncpy(last_key,key,ZKYLEN);
+            last_key[ZKYLEN-1] = '\0';
         }
     }
-    if (strcmp(c->arg,"c") == 0 || strcmp(c->qualifier,"c") == 0) {
+    if (strncmp(c->arg,"c",1) == 0 || strncmp(c->qualifier,"c",1) == 0) {
         printf("%d keys checked\n",count);
     }
     

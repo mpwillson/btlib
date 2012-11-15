@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.22 2012/10/18 09:25:50 mark Exp $
+ * $Id: bdbug.c,v 1.23 2012/10/29 11:07:54 mark Exp $
  *
  * bdbug: write out internal info
  *
@@ -75,7 +75,7 @@ int bdbug(BTA * b,char *cmd,BTint blkno)
             btact->cntxt->super.sfreep,
             btact->cntxt->super.scroot,
             btact->cntxt->super.scclas,
-            ZPAD,ZBLKSZ,sizeof(MEMREC),ZMXKEY);
+                ZPAD,ZBLKSZ,(unsigned int) sizeof(MEMREC),ZMXKEY);
     }
     else if (strcmp(cmd,"control") == 0) {
         fprintf(stdout,"  Index file: %20s\n"

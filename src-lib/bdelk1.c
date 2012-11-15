@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.18 2012/11/01 19:06:21 mark Exp $
+ * $Id: bdelk1.c,v 1.19 2012/11/05 10:34:58 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -87,18 +87,19 @@ int bdelk1(char *key)
 #endif
 
     type = bgtinf(btact->cntxt->lf.lfblk,ZBTYPE);
-    if (type == ZROOT) goto fin;
-    /* deleted key is in leaf block (one way or the other); try to
-     * join adjacent blocks, so one can be freed */
-    bjnblk(&cblk);
-    if (cblk == ZNULL) {
-        /* couldn't join, see if balancing required */
-        balblk();
-    }
-    /* if blocks joined, check parent.  If empty, must demote its
-     * parent key */
-    while (cblk != ZNULL) {
-        bdemte(&cblk);
+    if (type != ZROOT) {
+        /* deleted key is in leaf block (one way or the other); try to
+         * join adjacent blocks, so one can be freed */
+        bjnblk(&cblk);
+        if (cblk == ZNULL) {
+            /* couldn't join, see if balancing required */
+            balblk();
+        }
+        /* if blocks joined, check parent.  If empty, must demote its
+         * parent key */
+        while (cblk != ZNULL) {
+            bdemte(&cblk);
+        }
     }
     /* due to the potential mangling of the block structure when
      * deleting a key, need to re-establish context for next/prev key, if
@@ -109,5 +110,5 @@ int bdelk1(char *key)
     }
     
 fin:
-    return (btgerr());
+    return btgerr();
 }

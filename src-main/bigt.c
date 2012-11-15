@@ -1,5 +1,5 @@
 /*
- * $Id: bigt.c,v 1.3 2010-06-03 15:32:10 mark Exp $
+ * $Id: bigt.c,v 1.4 2010/06/03 20:05:27 mark Exp $
  * 
  * NAME
  *      bigt - a stress test for the B Tree library, to ensure the 
@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
     signal(SIGINT,break_handler);
     if (setjmp(env) == 0) {
         for (i=0;i<nrecs;i++) {
-            sprintf(key,ZINTFMT,i);
+            snprintf(key,ZKYLEN,ZINTFMT,i);
+            key[ZKYLEN-1] = '\0';
             status = btins(bt,key,data,datasize);
             if (status != 0) {
                 printf("While attempting to insert key: %s;\n",key);

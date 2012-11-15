@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.31 2012/10/14 19:31:24 mark Exp $
+ * $Id: btdata.c,v 1.32 2012/10/23 19:19:44 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -818,6 +818,8 @@ int insdat(BTint blk,char *data, int dsize, BTint prevseg)
  * ----------------------------------------------------------
  */
 
+#define BUFSZ 80
+
 int brecsz(BTint draddr, BTA* dr_index)
 {
     BTint blk,newdraddr;
@@ -828,9 +830,10 @@ int brecsz(BTint draddr, BTA* dr_index)
     while (draddr != 0) {
         if (dr_index != NULL) {
             /* recovery mode; check for circular draddr references */
-            char dr_str[80];
+            char dr_str[BUFSZ];
             b = btact;              /* save active index handle */
-            sprintf(dr_str,ZXFMT,draddr);
+            snprintf(dr_str,BUFSZ,ZXFMT,draddr);
+            dr_str[BUFSZ-1] = '\0';
             status = binsky(dr_index,dr_str,0);
             btact = b;              
             if (status != 0) {
@@ -861,8 +864,9 @@ int brecsz(BTint draddr, BTA* dr_index)
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
                segment */
-            char dr_str[80];
-            sprintf(dr_str,ZXFMT,draddr);
+            char dr_str[BUFSZ];
+            snprintf(dr_str,BUFSZ,ZXFMT,draddr);
+            dr_str[BUFSZ-1] = '\0';
             bterr("BRECSZ",QDLOOP,dr_str);
             return(0);
         }

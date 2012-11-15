@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.30 2012/10/23 19:19:44 mark Exp $
+ * $Id: bterr.c,v 1.31 2012/11/01 19:06:21 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message
@@ -84,7 +84,7 @@ char *msgblk[] = {
     " No more index files may be opened (limit reached)",
     " Invalid index file context pointer",
     " File is busy",
-    " Function prohibited in shared access mode",
+    " Function prohibited in shared access mode [OBSOLETE]",
     " No block available for data storage",
     " Data block usage gone bad: %s",
     " Data address pointer references a non-data block: %s",
@@ -111,7 +111,6 @@ char *msgblk[] = {
     " Duplicate key address does not reference a duplicate block: %s.",
     " Duplicate key entry has wrong size.",
     " Bad direction parameter.",
-    " Duplicate chain corrupt - only one key exists."
     " No message exists for this error code"
 };
 

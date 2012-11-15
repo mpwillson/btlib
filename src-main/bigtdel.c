@@ -1,5 +1,5 @@
 /*
- * $Id: bigtdel.c,v 1.2 2010-06-02 14:29:43 mark Exp $
+ * $Id: bigtdel.c,v 1.3 2010/06/03 20:05:27 mark Exp $
  * 
  * NAME
  *      bigtdel - a stress test for the B Tree library, to ensure the 
@@ -112,7 +112,8 @@ int main(int argc, char *argv[])
     signal(SIGINT,break_handler);
     if (setjmp(env) == 0) {
         for (i=0;i<nrecs;i++) {
-            sprintf(key,ZINTFMT,i);
+            snprintf(key,ZKYLEN,ZINTFMT,i);
+            key[ZKYLEN-1] = '\0';
             status = btdel(bt,key);
             /* exit on any error */
             if (status != 0) {

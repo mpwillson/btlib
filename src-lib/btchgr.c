@@ -1,5 +1,5 @@
 /*
- * $Id: btchgr.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btchgr.c,v 1.8 2011/06/24 11:02:21 mark Exp $
  *
  *
  * btchgr: change B tree root
@@ -72,7 +72,8 @@ int btchgr(BTA *b,char *root)
             goto fin;
         }
         b->cntxt->super.scroot = blk;
-        strcpy(b->cntxt->super.scclas,root);
+        strncpy(b->cntxt->super.scclas,root,ZKYLEN);
+        b->cntxt->super.scclas[ZKYLEN-1] = '\0';
         bsetbs(b->cntxt->super.scroot,TRUE);
     }
     else {

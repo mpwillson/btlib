@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.12 2011-05-21 16:27:36 mark Exp $
+ * $Id: btcrt.c,v 1.13 2012/09/29 15:06:41 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -64,7 +64,8 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     }
 
     btact->shared = shared;
-    strcpy(btact->idxfid,fid);
+    strncpy(btact->idxfid,fid,FIDSZ);
+    btact->idxfid[FIDSZ-1] = '\0';
 
     /* initialise bt context areas */
     if (bacini(btact) != 0) 

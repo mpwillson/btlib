@@ -1,5 +1,5 @@
 /*
- * $Id: btdupkey.c,v 1.17 2012/11/01 19:06:21 mark Exp $
+ * $Id: btdupkey.c,v 1.18 2012/11/05 10:34:58 mark Exp $
  *
  *
  * btdupkey:  provides routines to handle duplicate key insertions,
@@ -119,7 +119,8 @@ int btdupkey(char *key, BTint val)
     }
     
     /* set dup entry invariants */
-    strcpy(dkey.key,key);
+    strncpy(dkey.key,key,ZKYLEN);
+    dkey.key[ZKYLEN-1] = '\0';
     dkey.deleted = FALSE;
     dkey.flink = ZNULL;
     
@@ -348,7 +349,7 @@ int btdispdups(BTint blk)
     while (draddr < mx) {
         dkey = getdkey(draddr);
         if (dkey == NULL) break;
-        fprintf(stdout,"" Z20DFMT "%32s" Z20DFMT Z20DFMT  Z20DFMT Z20DFMT "\n",
+        fprintf(stdout,"" Z20DFMT "%32s" Z20DFMT "%20d" Z20DFMT Z20DFMT "\n",
                 draddr, dkey->key, dkey->val, dkey->deleted, dkey->blink,
                 dkey->flink);
         draddr += sizeof(DKEY)+ZDOVRH;
