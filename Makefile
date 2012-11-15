@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.29 2012/11/11 16:07:36 mark Exp $
+# $Id: Makefile,v 1.30 2012/11/15 12:18:12 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 DEBUG=-g
@@ -85,7 +85,7 @@ all:	depend bt kcp bigt bigtdel btr
 
 ${LIB_FILE}:	${LIB_FILE}(${OBJ})
 
-bt:	${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
+bt:	${SRC_MAIN}/bt.c ${INC_DIR}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c \
 	${LIBS} 
 
