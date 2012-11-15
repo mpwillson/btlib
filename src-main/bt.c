@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.42 2012/11/05 10:38:44 mark Exp $
+ * $Id: bt.c,v 1.43 2012/11/15 12:19:46 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -987,8 +987,8 @@ CMDENTRY bt_cmds[] = {
   { "create","c",create_file,"file [s]",0,"Create index file. s qualifier "
     "indicates shared mode." },
   { "decode-address","da",decode_addr,"key [i]",0,"Print decoded data segment "
-    "address for key. i qualifier causes key to be treated as a data segment  "
-    "address." },
+    "address for key. i qualifier indicates key is a segment address and "
+    "should be decoded immediately."},
   { "define","d",define_key,"key [val]",0,
     "Define key with associated value." },
   { "define-data","dd",define_data,"key {s|*b}",2,
