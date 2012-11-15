@@ -22,7 +22,7 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 
-# $Id: Makefile,v 1.28 2012/11/05 10:33:54 mark Exp $
+# $Id: Makefile,v 1.29 2012/11/11 16:07:36 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 DEBUG=-g
@@ -56,7 +56,11 @@ endif
 CFLAGS=-pedantic-errors -Wall -Wno-long-long ${DEBUG} -I${INC_DIR} \
 	${LFSFLAG} ${RDLINEFLAG}
 
-LIBS=-L${LIB_DIR} -l${LIB_NAME} ${RDLINELIB} -lcurses
+LIBS=-L${LIB_DIR} -l${LIB_NAME} ${RDLINELIB}
+
+ifeq (${shell uname -s},"OpenBSD")
+LIBS += -lcurses
+endif
 
 # location of release tarfile (see release target)
 RELTMP=/tmp

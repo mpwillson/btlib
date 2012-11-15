@@ -1,3 +1,25 @@
+012-11-13  Mark Willson  <mark@aqua>
+
+	* btdata.c: ZDUP recognised as a legitimate data block. Minimum
+	segment size stored in infblk[5] in a ZDUP/ZDATA block. Used to
+	ensure duplicate key entries are never split, making btr's
+	recovery job easier.
+
+2012-11-12  Mark Willson  <mark@aqua>
+
+	* Makefile: Added -lcurses to library list (required for OpenBSD).
+	Added btr.h as dependency for btr.c.
+
+	* btr.c: Added processing for duplicate key blocks.  Additional
+	statistics displayed.
+
+	* btdupkeys.c: New module for revised duplicate key handling -
+	restrictions on duplicate key support and shared mode index
+	navigation removed. Index file version bumped to x05; index file
+	structure has changed and new block type (ZDUP) introduced.  Many
+	changes to existing bt functions to support the new duplicate key
+	implementation.
+
 2012-04-11    <mark@GB-L-108394>
 
 	* bterr.c: Make error message for QNOTDA error code less cryptic.
@@ -12,7 +34,7 @@
 
 2011-06-22  Mark Willson  <mark@amber.hydrus.org.uk>
 
-	* samples; Added directory with some BT Library API examples.
+	* samples: Added directory with some BT Library API examples.
 
 2011-06-13  Mark Willson  <mark@amber.hydrus.org.uk>
 

@@ -1,6 +1,6 @@
 BT Library README File
 
-24th June, 2011
+26th November, 2012
 
 CONTENTS
     INTRODUCTION
@@ -37,12 +37,16 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    This version (4.0.0) adds a BTree file recovery facility.
+    This version (5.0.0) is principally a re-write of duplicate key
+    support, which removes the restrictions on index file navigation
+    in shared mode.
 
     The BT library has been tested on GNU/Linux (Debian Squeeze), FreeBSD
-    8.2, Mac OS X 10.6.5 and Cygwin.
+    9.1, Mac OS X 10.7.5 and Cygwin.
 
-UPDATING 
+UPDATING The BT Recovery program (btr) enables the migration of btree
+    index files to 5.0.0 created from earier versions.
+
     If migrating from a pre-3.0 release of the BT library, be aware
     that the function btcerr always zero-pads the srname and msg
     buffers to BT size constants ZRNAMESZ and ZMSGSZ
@@ -54,7 +58,7 @@ COMPILING
     First, grab the tar file from http://www.hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-4.0.0.tar.gz -C ~/dev
+        tar xzf bt-5.0.0.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -133,7 +137,7 @@ ERROR REPORTING
     email mark@hydrus.org.uk with relevant details.
 
 LICENCE
-    Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011  Mark Willson
+    Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011. 2012  Mark Willson
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -163,7 +167,4 @@ RELEASE HISTORY
     21st December,  2010        3.1.1   Fix broken test scripts
      3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
     24th June       2011        4.0.0   Added recovery capabilities
-
-ACKNOWLDGEMENTS 
-    Many thanks to Pedro Serotto for nudging me to work on Large File
-    Support in 3.0.0 and for testing the release betas.
+    26th November   2012        5.0.0   Duplicate key handling re-written
