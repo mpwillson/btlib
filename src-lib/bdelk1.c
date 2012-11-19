@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.19 2012/11/05 10:34:58 mark Exp $
+ * $Id: bdelk1.c,v 1.20 2012/11/15 12:19:37 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)
@@ -105,7 +105,7 @@ int bdelk1(char *key)
      * deleting a key, need to re-establish context for next/prev key, if
      * exclusive access (only when no previous error exists) */
     if (!btact->shared && btgerr() == 0) {
-        status = bfndky(btact,tkey,&val);
+        status = bfndky(btact,btact->cntxt->lf.lfkey,&val);
         if (status == QNOKEY) bterr("",0,NULL);
     }
     
