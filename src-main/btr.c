@@ -1,18 +1,18 @@
 /*
- *  $Id: btr.c,v 1.23 2012/11/11 20:24:31 mark Exp $
+ *  $Id: btr.c,v 1.24 2012/11/15 12:19:46 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
  *  
  *  SYNOPSIS
- *      btr {-k|-d} [-n cnt] [-v] [-a] [-f] [-r] [--] old_file new_file
+ *      btr [-adfkrv] [-n cnt] [--] old_file new_file
  *  
  *  DESCRIPTION
  *      btr will attempt the copy the contents of the btree inex file
  *      old_file into new_file, mediated by the following command
  *      arguments:
  *
- *      -k        copy keys only
+ *      -k        copy keys only (default)
  *      -d        copy keys and data
  *      -n cnt    accept up to cnt io errors before failing
  *      -a        allow duplicates in the new btree index file
@@ -96,7 +96,7 @@
 /* #define DEBUG 1 */
 
 
-#define VERSION "$Id: btr.c,v 1.23 2012/11/11 20:24:31 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.24 2012/11/15 12:19:46 mark Exp $"
 #define KEYS    1
 #define DATA    2
 
@@ -119,7 +119,8 @@ char *data_record;
 int data_record_size = ZBLKSZ;
 int limited_recovery = FALSE;
 BTint src_file_ver = ZVERS;
-
+char usage_str[] = "btr [-adfkrv] [-n cnt] [--] old_file new_file";
+    
 /* Recovery statistics */
 struct {
     int   nioerrs;
@@ -252,7 +253,7 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
     if (!full_recovery && (src_file_ver < FULL_RECOVERY_VERSION ||
                            src_file_ver == LFSHDR)) {
         limited_recovery = TRUE;
-        fprintf(stderr,"%s: index file is version: " ZINTFMT ". "
+        fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,src_file_ver);    
     }
@@ -778,13 +779,6 @@ int main(int argc, char *argv[])
     s = strrchr(argv[0],'/');
     prog = (s==NULL)?argv[0]:(s+1);
 
-    if (argc < 3) {
-        fprintf(stderr,"%s: usage: %s [-k|-d] [-n cnt] [-v] [-a] [-f] "
-                "[-r] [--] old_file new_file\n",
-                prog,prog);
-        return EXIT_FAILURE;
-    }
-
     while (more_args && --argc > 0 && (*++argv)[0] == '-') {
         for (s=argv[0]+1; *s != '\0'; s++) {
             switch (*s) {
@@ -813,12 +807,19 @@ int main(int argc, char *argv[])
                     ++argv;
                     break;
                  default:
-                     fprintf(stderr,"%s: unknown switch: '%c'\n",prog,*s);
+                     fprintf(stderr,"%s: unknown switch: '-%c'\n"
+                             "%s: usage: %s\n",prog,*s,prog,usage_str);
                      exit(EXIT_FAILURE);     
             }
         }
     }
 
+    if (argc < 2) {
+        fprintf(stderr,"%s: too few arguments.\n",prog);
+        fprintf(stderr,"%s: usage: %s\n",prog,usage_str);
+        exit(EXIT_FAILURE);
+    }
+    
     if (vlevel > 0) {
         fprintf(stderr,"BTree Recovery: %s\n",VERSION);
     }
