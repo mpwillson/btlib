@@ -1,3 +1,7 @@
+2012-11-22    <GBMAWIL@GB-L-104529>
+
+	* btr.c: Handle invalid source file version in LFS mode. 
+
 2012-11-21    <mark@GB-L-104529>
 
 	* btr.c: Fix seg fault with too few arguments.  Add usage string.
