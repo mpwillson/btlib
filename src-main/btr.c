@@ -99,7 +99,6 @@
 #define VERSION "$Id: btr.c,v 1.24 2012/11/15 12:19:46 mark Exp $"
 #define KEYS    1
 #define DATA    2
-
 #define DLOOP -1
 #define IOERROR -2
 #define BAD_DRADDR -3
@@ -253,6 +252,11 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
     if (!full_recovery && (src_file_ver < FULL_RECOVERY_VERSION ||
                            src_file_ver == LFSHDR)) {
         limited_recovery = TRUE;
+        if (src_file_ver == LFSHDR) {
+            fprintf(stderr,"%s: LFS source file version unreadable; "
+                    "setting to 0.\n",prog);
+            src_file_ver= 0;
+        }
         fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
                 "Running in limited recovery mode.\n",
                 prog,src_file_ver);    
@@ -773,7 +777,6 @@ int main(int argc, char *argv[])
     int status;
     int full_recovery = FALSE;
     char *infile;
-    
     
     current_root[0] = '\0';
     s = strrchr(argv[0],'/');
