@@ -1,5 +1,5 @@
 /*
- * $Id: bprvky.c,v 1.10 2012/10/31 18:39:09 mark Exp $
+ * $Id: bprvky.c,v 1.11 2012-11-15 12:19:37 mark Exp $
  *
  * bprvky:  returns previous key from index
  *
@@ -45,7 +45,7 @@ int bprvky(BTA* b,char *key,BTint *val)
     int found;
     
     bterr("",0,NULL);
-    if ((status=bvalap("BNXTKY",b)) != 0) return(status);
+    if ((status=bvalap("BPRVKY",b)) != 0) return(status);
 
     btact = b;          /* set global context pointer */
 

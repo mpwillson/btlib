@@ -1,3 +1,7 @@
+2014-10-10  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* bprvky.c: Correct function name in bterr call.
+
 2012-11-22    <GBMAWIL@GB-L-104529>
 
 	* btr.c: Handle invalid source file version in LFS mode. 
