@@ -1,5 +1,5 @@
 /*
- *  $Id: btr.c,v 1.24 2012/11/15 12:19:46 mark Exp $
+ *  $Id: btr.c,v 1.26 2012-11-24 16:35:44 mark Exp $
  *  
  *  NAME
  *      btr - attempts to recover corrupt btree index file
@@ -96,7 +96,7 @@
 /* #define DEBUG 1 */
 
 
-#define VERSION "$Id: btr.c,v 1.24 2012/11/15 12:19:46 mark Exp $"
+#define VERSION "$Id: btr.c,v 1.26 2012-11-24 16:35:44 mark Exp $"
 #define KEYS    1
 #define DATA    2
 #define DLOOP -1
@@ -295,7 +295,7 @@ int btrseginfo(BTint draddr, int *size, BTint *nextseg)
 int btrseldt(BTint draddr, char *data, int dsize) 
 {
     BTint dblk;
-    int status, idx, type,
+    int idx, type,
         segsz = 0, cpsz = -1;
     int offset = 0;
     int totsz = 0;
@@ -312,7 +312,8 @@ int btrseldt(BTint draddr, char *data, int dsize)
             totsz = -1;
             goto fin;
         }
-        status = brdblk(dblk,&idx);
+        (void) brdblk(dblk,&idx); /* ignore status; error would have been
+                                     triggered by call to bgtinf */
         d = (DATBLK4 *) (btact->memrec)+idx;
 #if DEBUG > 0
         fprintf(stderr,"BTRSELDT: Using draddr 0x" ZXFMT " (" ZINTFMT
@@ -768,7 +769,7 @@ int main(int argc, char *argv[])
     int exit_status;
     int more_args = TRUE;
     BTA *in, *out, *da = NULL;
-    char current_root[ZKYLEN],*s;
+    char *s;
     int copy_mode = KEYS;
     int ioerror_max = 0;
     int vlevel = 0;
@@ -778,7 +779,6 @@ int main(int argc, char *argv[])
     int full_recovery = FALSE;
     char *infile;
     
-    current_root[0] = '\0';
     s = strrchr(argv[0],'/');
     prog = (s==NULL)?argv[0]:(s+1);
 
