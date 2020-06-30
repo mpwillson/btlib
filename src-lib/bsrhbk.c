@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.10 2012/11/05 10:34:58 mark Exp $
+ * $Id: bsrhbk.c,v 1.11 2012-11-15 12:19:37 mark Exp $
  *
  *
   bsrhbk: searches block for key

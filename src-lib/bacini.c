@@ -1,5 +1,5 @@
 /*
- * $Id: bacini.c,v 1.6 2004/10/02 16:10:08 mark Exp $
+ * $Id: bacini.c,v 1.7 2008-05-08 14:34:53 mark Exp $
  *
  *  bacini: Initialise BTA structure, malloc'ing space as required
  *

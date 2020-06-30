@@ -1,5 +1,5 @@
 /*
- * $Id: bsuper.c,v 1.12 2011-06-24 11:02:21 mark Exp $
+ * $Id: bsuper.c,v 1.13 2012-09-29 15:06:41 mark Exp $
  *
  *
  * brdsup  - reads super root

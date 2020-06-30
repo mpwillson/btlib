@@ -1,5 +1,5 @@
 /*
- * $Id: btpos.c,v 1.5 2012/11/05 10:34:58 mark Exp $
+ * $Id: btpos.c,v 1.6 2012-11-15 12:19:37 mark Exp $
  *
  * btpos: Positions index to beginning or end of whole file or
  *        duplicate key section.

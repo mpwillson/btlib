@@ -1,5 +1,5 @@
 /*
- * $Id: btcls.c,v 1.8 2010-06-02 10:29:10 mark Exp $
+ * $Id: btcls.c,v 1.9 2010-12-31 14:20:52 mark Exp $
  *
  *
  * btcls: close B tree index file

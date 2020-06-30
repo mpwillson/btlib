@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtbk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bnxtbk.c,v 1.8 2010-05-29 14:49:04 mark Exp $
  *
  *
  * bnxtbk:  determines next block in index file

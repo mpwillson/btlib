@@ -1,5 +1,5 @@
 /*
- * $Id: bleaf.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bleaf.c,v 1.8 2010-11-02 21:46:50 mark Exp $
  *
  *
  * bleaf: position to left or right-most leaf block from current position

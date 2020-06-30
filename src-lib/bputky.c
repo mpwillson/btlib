@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.17 2012/10/31 18:39:09 mark Exp $
+ * $Id: bputky.c,v 1.18 2012-11-05 10:34:58 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *

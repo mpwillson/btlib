@@ -21,8 +21,11 @@
 #	Make dependency file handling cleaner: ${DEP} is dependent on ${SRC}
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
-
-# $Id: Makefile,v 1.32 2012/11/19 15:20:48 mark Exp $
+# BTMAKE    200629  mpw
+#   GNU make has changed (somehow), requiring changing the way the
+#   btlib.a archive is updated.  depend target no longer required.
+#
+# $Id: Makefile,v 1.33 2012/11/26 08:50:59 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 # DEBUG=-g
@@ -78,12 +81,16 @@ HDR := ${wildcard ${INC_DIR}/*.h}
 
 .INTERMEDIATE: ${OBJ}
 
-all:	depend bt kcp bigt bigtdel btr
+all:	bt kcp bigt bigtdel btr
 
-# include dependencies (no message if it doesn't exist)
--include 	${DEP}
+${SRC}:	 ${INC_DIR}/bc.h ${INC_DIR}/bt.h ${INC_DIR}/btree_int.h \
+		${INC_DIR}/btree.h
+	touch $@
 
-${LIB_FILE}:	${LIB_FILE}(${OBJ})
+${LIB_FILE}: ${SRC} 
+	${CC} -c ${CFLAGS} $?
+	${AR} ${ARFLAGS} $@ *.o
+	rm -f *.o
 
 bt:	${SRC_MAIN}/bt.c ${INC_DIR}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c \
@@ -96,17 +103,11 @@ btr:  ${SRC_MAIN}/btr.c ${LIB_FILE} ${INC_DIR}/btr.h
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/btr.c ${LIBS}
 
 clean:
-	rm -f bt bt.exe bigt bigt.exe bigtdel bigtdel.exe ${LIB_FILE} kcp kcp.exe \
-	btr btr.exe ${OBJ} ${TESTCASES}/corrupt
+	rm -f bt bigt bigtdel ${LIB_FILE} kcp \
+	btr ${OBJ} ${TESTCASES}/corrupt
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
 	@etags $^
-
-depend: ${DEP}
-#	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
-
-${DEP}: ${SRC}
-	./depend.sh ${SRC_DIR} ${CFLAGS}  ${SRC} > ${DEP}
 
 test_run:
 	cd ${TESTCASES};sh test_control.sh

@@ -1,5 +1,5 @@
 /*
- * $Id: bremky.c,v 1.8 2011-06-13 19:34:46 mark Exp $
+ * $Id: bremky.c,v 1.9 2012-09-29 15:06:41 mark Exp $
  *
  * bremky: deletes key (and rlink) at pos from blk
  *

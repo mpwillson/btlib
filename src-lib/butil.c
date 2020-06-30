@@ -1,5 +1,5 @@
 /*
- * $Id: butil.c,v 1.10 2012/10/29 11:07:54 mark Exp $
+ * $Id: butil.c,v 1.11 2012-11-15 12:19:37 mark Exp $
  *
  *  butil:  utility routines for the B Tree library
  *

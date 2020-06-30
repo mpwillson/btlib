@@ -1,5 +1,5 @@
 /*
- * $Id: bgtinf.c,v 1.9 2011-05-01 19:49:30 mark Exp $
+ * $Id: bgtinf.c,v 1.10 2011-06-24 10:13:55 mark Exp $
  *
  * bgtinf: get information about block
  *

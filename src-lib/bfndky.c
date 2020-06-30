@@ -1,5 +1,5 @@
 /*
- * $Id: bfndky.c,v 1.16 2012/10/09 19:39:28 mark Exp $
+ * $Id: bfndky.c,v 1.17 2012-11-15 12:19:37 mark Exp $
  *
  * bfndky: finds key in index
  *

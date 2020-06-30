@@ -1,5 +1,5 @@
 /*
- * $Id: bjoin.c,v 1.7 2010/05/28 10:34:38 mark Exp $
+ * $Id: bjoin.c,v 1.8 2012-11-05 10:34:58 mark Exp $
  *
  * bjoin: bjoins keys in rblk to lblk (using tkey)
  *

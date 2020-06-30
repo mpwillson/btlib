@@ -1,5 +1,5 @@
 /*
- * $Id: bdelky.c,v 1.9 2010-12-31 14:20:52 mark Exp $
+ * $Id: bdelky.c,v 1.10 2012-10-18 09:25:51 mark Exp $
  *
  * bdelky:  deletes key in index
  *

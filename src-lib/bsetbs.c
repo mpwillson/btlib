@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbs.c,v 1.6 2004/10/02 16:10:09 mark Exp $
+ * $Id: bsetbs.c,v 1.7 2010-05-26 12:39:16 mark Exp $
  *
  *
   bsetbs: alter busy state of in-memory block

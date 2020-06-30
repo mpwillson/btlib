@@ -1,5 +1,5 @@
 /*
- * $Id: bsemap.c,v 1.7 2006-04-09 16:08:19 mark Exp $
+ * $Id: bsemap.c,v 1.8 2008-05-08 14:34:53 mark Exp $
  *
  * block   - locks active BT file
  * bunlock - unlocks active BT file

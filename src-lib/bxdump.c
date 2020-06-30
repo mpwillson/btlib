@@ -1,5 +1,5 @@
 /*
- * $Id: bxdump.c,v 1.5 2004/10/02 16:10:09 mark Exp $
+ * $Id: bxdump.c,v 1.6 2008-05-21 11:51:28 mark Exp $
  *
  *
  * bxdump - dumps binary data in hex format (with character translation)

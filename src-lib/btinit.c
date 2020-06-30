@@ -1,5 +1,5 @@
 /*
- * $Id: btinit.c,v 1.8 2010-05-28 10:34:38 mark Exp $
+ * $Id: btinit.c,v 1.9 2011-06-13 19:34:46 mark Exp $
  *
  * btinit: initialise B tree tables 
  *

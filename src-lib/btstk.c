@@ -1,5 +1,5 @@
 /*
- * $Id: btstk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btstk.c,v 1.8 2010-11-21 15:04:28 mark Exp $
  *
  *
  * bpull: pull integer value off stack

@@ -1,5 +1,5 @@
 /*
- * $Id: btopn.c,v 1.12 2010/06/02 10:29:10 mark Exp $
+ * $Id: btopn.c,v 1.13 2012-11-15 12:19:37 mark Exp $
  *
  * btopn: opens existing B tree index
  *

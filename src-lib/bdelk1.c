@@ -1,5 +1,5 @@
 /*
- * $Id: bdelk1.c,v 1.20 2012/11/15 12:19:37 mark Exp $
+ * $Id: bdelk1.c,v 1.21 2012-11-19 15:21:28 mark Exp $
  *
  *
  * bdelk1:  deletes key in index (does the real work)

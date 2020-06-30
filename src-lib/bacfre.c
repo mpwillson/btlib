@@ -1,5 +1,5 @@
 /*
- * $Id: bacfre.c,v 1.5 2004/10/02 16:10:08 mark Exp $
+ * $Id: bacfre.c,v 1.6 2010-05-26 12:39:16 mark Exp $
  *
  *    bacfre: Frees malloc'd memory acquired by bacini for index context
  *

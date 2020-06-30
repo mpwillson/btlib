@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbk.c,v 1.9 2011-05-01 19:49:30 mark Exp $
+ * $Id: bsetbk.c,v 1.10 2012-09-29 15:06:41 mark Exp $
  *
  *
   bsetbk:  sets info array in block

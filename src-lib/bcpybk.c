@@ -1,5 +1,5 @@
 /*
- * $Id: bcpybk.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bcpybk.c,v 1.8 2012-09-29 15:06:41 mark Exp $
  *
  * bcpybk: copies contents of one block to another
  *

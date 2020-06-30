@@ -1,5 +1,5 @@
 /*
- * $Id: bdemte.c,v 1.9 2010/11/21 15:04:28 mark Exp $
+ * $Id: bdemte.c,v 1.10 2012-11-05 10:34:58 mark Exp $
  *
  * bdemte: if non-leaf block is empty, demote parent key
  *

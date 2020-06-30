@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtky.c,v 1.21 2012/10/31 18:39:09 mark Exp $
+ * $Id: bnxtky.c,v 1.22 2012-11-15 12:19:37 mark Exp $
  *
  * bnxtky:  returns next key from index
  *

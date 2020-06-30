@@ -1,5 +1,5 @@
 /*
- * $Id: btthresh.c,v 1.2 2011-06-22 20:07:51 mark Exp $
+ * $Id: btthresh.c,v 1.3 2011-06-23 13:17:04 mark Exp $
  *
  * bthresh: sets write through threshold for disk blocks
  *

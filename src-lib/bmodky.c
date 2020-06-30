@@ -1,5 +1,5 @@
 /*
- * $Id: bmodky.c,v 1.9 2012/09/29 15:06:41 mark Exp $
+ * $Id: bmodky.c,v 1.10 2012-10-31 18:39:09 mark Exp $
  *
  * bmodky: replaces value of key at location loc in block
  *

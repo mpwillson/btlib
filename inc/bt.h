@@ -1,5 +1,5 @@
 /*
- * $Id: bt.h,v 1.13 2012-09-29 15:06:41 mark Exp $
+ * $Id: bt.h,v 1.14 2012-10-07 19:49:30 mark Exp $
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *

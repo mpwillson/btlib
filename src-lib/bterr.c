@@ -1,5 +1,5 @@
 /*
- * $Id: bterr.c,v 1.31 2012/11/01 19:06:21 mark Exp $
+ * $Id: bterr.c,v 1.32 2012-11-15 12:19:37 mark Exp $
  *
  * btcerr: returns last error code, io error code and appropriate
  *         message

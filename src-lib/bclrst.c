@@ -1,5 +1,5 @@
 /*
- * $Id: bclrst.c,v 1.6 2010-05-26 12:39:16 mark Exp $
+ * $Id: bclrst.c,v 1.7 2010-05-28 11:45:28 mark Exp $
  *
  * bclrst: initialises B tree statistic counters
  *

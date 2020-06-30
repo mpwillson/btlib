@@ -1,5 +1,5 @@
 /*
- * $Id: balbk1.c,v 1.9 2010/12/04 20:14:57 mark Exp $
+ * $Id: balbk1.c,v 1.10 2012-11-05 10:34:58 mark Exp $
  *
  * balbk1: balances keys between blocks 
  *

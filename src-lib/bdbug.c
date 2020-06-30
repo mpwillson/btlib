@@ -1,5 +1,5 @@
 /*
- * $Id: bdbug.c,v 1.23 2012/10/29 11:07:54 mark Exp $
+ * $Id: bdbug.c,v 1.24 2012-11-15 12:19:37 mark Exp $
  *
  * bdbug: write out internal info
  *

@@ -1,5 +1,5 @@
 /*
- * $Id: bjnblk.c,v 1.7 2010/05/26 12:39:16 mark Exp $
+ * $Id: bjnblk.c,v 1.8 2012-11-05 10:34:58 mark Exp $
  *
  * bjnblk: joins leaf blocks if possible
  *

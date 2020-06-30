@@ -1,5 +1,5 @@
 /*
- * $Id: bupdky.c,v 1.9 2010/12/31 14:20:52 mark Exp $
+ * $Id: bupdky.c,v 1.10 2012-10-31 18:39:09 mark Exp $
  *
  * bupdky:  updates value of  key
  *

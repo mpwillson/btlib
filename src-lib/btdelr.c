@@ -1,5 +1,5 @@
 /*
- * $Id: btdelr.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: btdelr.c,v 1.8 2010-07-01 09:43:51 mark Exp $
  *
  * btdelr: delete root name from super root, and all the blocks
  *          belonging to the root.
