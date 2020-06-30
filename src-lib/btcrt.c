@@ -1,5 +1,5 @@
 /*
- * $Id: btcrt.c,v 1.13 2012/09/29 15:06:41 mark Exp $
+ * $Id: btcrt.c,v 1.14 2012-11-15 12:19:37 mark Exp $
  *
  *
  * btcrt:  create B tree index file
@@ -94,10 +94,10 @@ BTA *btcrt(char *fid, int nkeys,int shared)
         btact->cntxt->super.sfreep,2,
            btact->cntxt->super.sblkmx,ZNULL);
     
-    strcpy(((btact->memrec)+idx)->keyblk[1].key,"$$super");
+    strncpy(((btact->memrec)+idx)->keyblk[1].key,"$$super",ZKYLEN);
     ((btact->memrec)+idx)->keyblk[1].val = ZSUPER;
     ((btact->memrec)+idx)->keyblk[1].dup = ZNULL;
-    strcpy(((btact->memrec)+idx)->keyblk[0].key,"$$default");
+    strncpy(((btact->memrec)+idx)->keyblk[0].key,"$$default",ZKYLEN);
     ((btact->memrec)+idx)->keyblk[0].val = DEFAULT_ROOT;
     ((btact->memrec)+idx)->keyblk[0].dup = ZNULL;
     for (i=0;i<=2;i++) ((btact->memrec)+idx)->lnkblk[i] = ZNULL;
@@ -113,7 +113,7 @@ BTA *btcrt(char *fid, int nkeys,int shared)
     idx = bgtslt();
     ((btact->cntrl)+idx)->inmem = 1;
     btact->cntxt->super.scroot = 1;
-    strcpy(btact->cntxt->super.scclas,"$$default");
+    strncpy(btact->cntxt->super.scclas,"$$default",ZKYLEN);
     bsetbk(1,ZROOT,0,ZNULL,0,DEFAULT_ROOT,ZNULL);
     ioerr = bwrblk(DEFAULT_ROOT);
     if (ioerr != 0) {
