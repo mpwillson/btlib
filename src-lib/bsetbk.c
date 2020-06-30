@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbk.c,v 1.10 2012-09-29 15:06:41 mark Exp $
+ * $Id: bsetbk.c,v 1.11 2020/06/30 11:52:03 mark Exp $
  *
  *
   bsetbk:  sets info array in block
@@ -44,7 +44,7 @@ int bsetbk(BTint blk,BTint type,BTint misc,BTint nxblk,BTint nkeys,
     int ioerr,idx;
     
     ioerr = brdblk(blk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || ioerr != 0) {
         bterr("BSETBK",QRDBLK,itostr(blk));
     }
     else {

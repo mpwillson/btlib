@@ -1,6 +1,6 @@
 BT Library README File
 
-26th November, 2012
+30th June, 2020
 
 CONTENTS
     INTRODUCTION
@@ -36,12 +36,8 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    This version (5.0.0) is principally a re-write of duplicate key
-    support, which removes the restrictions on index file navigation
-    in shared mode.
-
-    The BT library has been tested on GNU/Linux (Debian Squeeze), FreeBSD
-    9.1, Mac OS X 10.7.5 and Cygwin.
+    The BT library has been tested on GNU/Linux (Debian Buster) and FreeBSD
+    12.1.
 
 UPDATING
     The BT Recovery program (btr) enables the migration of btree
@@ -55,10 +51,10 @@ UPDATING
     smasher.
 
 COMPILING
-    First, grab the tar file from http://www.hydrus.org.uk and untar
+    First, grab the tar file from https://hydrus.org.uk and untar
     into a convenient directory, e.g.
 
-        tar xzf bt-5.0.0.tar.gz -C ~/dev
+        tar xzf bt-5.0.1.tar.gz -C ~/dev
 
     Since the tar file includes this README file, you've probably done
     this already.
@@ -119,17 +115,12 @@ INSTALLING
 
 NOTES
     Documentation on the BT API is available in docbook format and
-    HTML, also downloadable from http://www.hydrus.org.uk.
+    HTML, also downloadable from https://hydrus.org.uk.
 
     BT is dependent on very little, but it does require the gcc
     compiler and GNU make.
 
 BUGS 
-    Shared file handling does not operate properly on Cygwin.  The
-    timeout alarm never fires, so a process waiting for shared access
-    to a index held exclusive by another process will wait until the
-    exclusive lock is released.
-
     On all platforms, shared file handling is clunky.
 
 ERROR REPORTING
@@ -168,3 +159,5 @@ RELEASE HISTORY
      3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
     24th June       2011        4.0.0   Added recovery capabilities
     26th November   2012        5.0.0   Duplicate key handling re-written
+    30th June,      2020        5.0.1   Bug fixes; accomodate toolchain mods
+    

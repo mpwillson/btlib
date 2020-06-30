@@ -1,5 +1,5 @@
 /*
- * $Id: bsetbs.c,v 1.7 2010-05-26 12:39:16 mark Exp $
+ * $Id: bsetbs.c,v 1.8 2020/06/30 11:52:03 mark Exp $
  *
  *
   bsetbs: alter busy state of in-memory block
@@ -39,7 +39,7 @@ void bsetbs(BTint blk,int busy)
     int idx,status;
 
     status = brdblk(blk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || status != 0) {
         bterr("BSETBS",QRDBLK,itostr(blk));
     }
     else {

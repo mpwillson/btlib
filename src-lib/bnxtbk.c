@@ -1,5 +1,5 @@
 /*
- * $Id: bnxtbk.c,v 1.8 2010-05-29 14:49:04 mark Exp $
+ * $Id: bnxtbk.c,v 1.9 2020/06/30 11:52:02 mark Exp $
  *
  *
  * bnxtbk:  determines next block in index file
@@ -54,7 +54,7 @@ int bnxtbk(BTint *blk)
 
     while (btact->cntxt->lf.lfblk >= 0) {
         ioerr = brdblk(btact->cntxt->lf.lfblk,&idx);
-        if (idx < 0) {
+        if (idx < 0 || ioerr != 0) {
             bterr("BNXTBK",QRDBLK,itostr(btact->cntxt->lf.lfblk));
             break;
         }

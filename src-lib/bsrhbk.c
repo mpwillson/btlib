@@ -1,5 +1,5 @@
 /*
- * $Id: bsrhbk.c,v 1.11 2012-11-15 12:19:37 mark Exp $
+ * $Id: bsrhbk.c,v 1.12 2020/06/30 11:52:03 mark Exp $
  *
  *
   bsrhbk: searches block for key
@@ -58,7 +58,7 @@ KEYENT* bsrhbk(BTint blk, char *key, int *loc, BTint *val, BTint *link1,
     KEYENT* keyentp = NULL;
     
     ioerr = brdblk(blk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || ioerr != 0) {
         bterr("BSRHBK",QRDBLK,itostr(blk));
         goto fin;
     }

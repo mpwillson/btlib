@@ -1,5 +1,5 @@
 /*
- * $Id: bputky.c,v 1.18 2012-11-05 10:34:58 mark Exp $
+ * $Id: bputky.c,v 1.19 2020/06/30 11:52:02 mark Exp $
  *
  * bputky: inserts key, value and links into block
  *
@@ -51,7 +51,7 @@ int bputky(BTint blk,KEYENT* kep,BTint link1,BTint link2)
             blk,kep->key,kep->val,link1,link2);
 #endif
     ioerr = brdblk(blk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || ioerr != 0) {
         bterr("BPUTKY",QRDBLK,itostr(blk));
     }
     else {

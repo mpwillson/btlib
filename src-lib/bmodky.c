@@ -1,5 +1,5 @@
 /*
- * $Id: bmodky.c,v 1.10 2012-10-31 18:39:09 mark Exp $
+ * $Id: bmodky.c,v 1.11 2020/06/30 11:52:02 mark Exp $
  *
  * bmodky: replaces value of key at location loc in block
  *
@@ -45,7 +45,7 @@ int bmodky(BTint blk,int loc,BTint val)
     }
     else if (btdupupd(val) == ZNULL) {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0) {
+        if (idx < 0 || ioerr != 0) {
             bterr("BMODKY",QRDBLK,itostr(blk));
         }
         else {

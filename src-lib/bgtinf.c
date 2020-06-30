@@ -1,5 +1,5 @@
 /*
- * $Id: bgtinf.c,v 1.10 2011-06-24 10:13:55 mark Exp $
+ * $Id: bgtinf.c,v 1.11 2020/06/30 11:52:02 mark Exp $
  *
  * bgtinf: get information about block
  *
@@ -51,7 +51,7 @@ BTint bgtinf(BTint blk,int type)
         bterr("BGTINF",QINFER,NULL);
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0) {
+        if (idx < 0 || ioerr !=0) {
             bterr("BGTINF",QRDBLK,itostr((long) blk));
         }
         else {

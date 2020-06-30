@@ -1,5 +1,5 @@
 /*
- * $Id: bcpybk.c,v 1.8 2012-09-29 15:06:41 mark Exp $
+ * $Id: bcpybk.c,v 1.9 2020/06/30 11:52:01 mark Exp $
  *
  * bcpybk: copies contents of one block to another
  *
@@ -46,7 +46,7 @@ int bcpybk(BTint tblk,BTint fblk,int ts,int fs,int n)
 
     /* get to-block in memory */
     ioerr = brdblk(tblk,&tidx);
-    if (tidx < 0) {
+    if (tidx < 0 || ioerr != 0) {
         bterr("BCPYBK",QCPBLK,NULL);
         goto fin;
     }

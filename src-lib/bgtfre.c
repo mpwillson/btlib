@@ -1,5 +1,5 @@
 /*
- * $Id: bgtfre.c,v 1.10 2010-05-27 19:56:44 mark Exp $
+ * $Id: bgtfre.c,v 1.11 2020/06/30 11:52:02 mark Exp $
  *
  * bgtfre: gets free block
  *
@@ -70,7 +70,7 @@ BTint bgtfre()
         /* get one off the free list */
         blk = btact->cntxt->super.sfreep;
         ioerr = brdblk(blk,&idx);
-        if (idx < 0) {
+        if (idx < 0 || ioerr !=0) {
             bterr("BGTFRE",QRDBLK,itostr(blk));
         }
         else {

@@ -1,3 +1,20 @@
+2020-06-30  Mark Willson  <mark@amber.hydrus.org.uk>
+
+	* btr.c: Ignore status when reading block, as any error is handled
+	by preceeding call to btgtinf.
+
+	* btdata.c: Remove redundant lock handling in btselp.
+
+	* btcrt.c: Use strncpy to stop complaints on OpenBSD.
+
+	* brepky.c, bputky.c, bsetbk.c, bgtinf.c, bgtfre.c, bnxtbk.c,
+	bsetbs.c, bcpybk.c, bfndky.c, bmodky.c, bstinf.c, bsrhbk.c,
+	bremky.c, btdata.c, bleaf.c: Changes to stop warnings from GCC 8.
+
+	* Makefile: Changed handling of btlib.a creation and its source
+	file dependencies.  Removed .dep (dependencies file).
+
+
 2014-10-10  Mark Willson  <mark@amber.hydrus.org.uk>
 
 	* bprvky.c: Correct function name in bterr call.

@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.33 2012-11-15 12:19:37 mark Exp $
+ * $Id: btdata.c,v 1.34 2020/06/30 11:15:27 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -93,7 +93,7 @@
 /* Common setup for btupd, btdel and btrecs */
 int setup(char *fname,char *key,BTint *draddr)
 {
-    int status = 0, result,offset;
+    int result,offset;
     BTint link1,link2,dblk;
     char lkey[ZKYLEN];
     
@@ -126,8 +126,8 @@ int setup(char *fname,char *key,BTint *draddr)
                     goto fin;
                 }
             }
-            /* find key in btree */
-            status = bfndky(btact,key,draddr);
+            /* find key in btree; don't care about result */
+            (void) bfndky(btact,key,draddr);
             cnvdraddr(*draddr,&dblk,&offset);
             if (bgtinf(dblk,ZBTYPE) != ZDATA) {
                 bterr(fname,QNOTDA,NULL);
@@ -477,7 +477,7 @@ int btrecs(BTA *b, char *key, int *rsize)
 int bseldt(BTint draddr, char *data, int dsize) 
 {
     BTint dblk;
-    int status, idx, type,
+    int idx, type,
         segsz = 0, cpsz = -1;
     int offset = 0;
     int totsz = 0;
@@ -494,7 +494,7 @@ int bseldt(BTint draddr, char *data, int dsize)
             totsz = -1;
             goto fin;
         }
-        status = brdblk(dblk,&idx);
+        (void) brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 #if DEBUG > 0
         fprintf(stderr,"BSELDT: Using draddr 0x" ZXFMT " (" ZINTFMT
@@ -556,7 +556,7 @@ int bdeldt(BTint draddr)
 int bupddt(BTint draddr, char *data, int dsize) 
 {
     BTint dblk;
-    int status, idx, segsz, cpsz = ZNULL;
+    int idx, segsz, cpsz = ZNULL;
     int offset;
     int freesz;
     int remsz = dsize;
@@ -578,7 +578,7 @@ int bupddt(BTint draddr, char *data, int dsize)
         }
         getseginfo(draddr,&segsz,&draddr);
 
-        status = brdblk(dblk,&idx);
+        (void) brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
 
         cpsz = ((segsz>remsz)?remsz:segsz);
@@ -615,7 +615,7 @@ int bupddt(BTint draddr, char *data, int dsize)
             draddr = 0;
         }
         /* insert returned data address into original last segment */
-        status = brdblk(dblk,&idx);
+        (void) brdblk(dblk,&idx);
         d = (DATBLK *) (btact->memrec)+idx;
         wrint(draddr,d->data+offset+ZDRSZ);
         ((btact->cntrl)+idx)->writes++;
@@ -766,11 +766,11 @@ int deldat(BTint blk,int offset)
 int insdat(BTint blk,char *data, int dsize, BTint prevseg)
 {
     int offset;
-    int status, idx, freesz;
+    int idx, freesz;
     DATBLK *d;
 
     offset = bgtinf(blk,ZNKEYS);
-    status = brdblk(blk,&idx);
+    (void) brdblk(blk,&idx);
     d = (DATBLK *) (btact->memrec)+idx;
     wrsz(dsize,d->data+offset);
     wrint(prevseg,d->data+offset+ZDRSZ);

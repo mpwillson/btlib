@@ -1,5 +1,5 @@
 /*
- * $Id: brepky.c,v 1.10 2012-11-05 10:34:58 mark Exp $
+ * $Id: brepky.c,v 1.11 2020/06/30 11:52:03 mark Exp $
  *
  * brepky: replaces key at location loc in block
  *
@@ -46,7 +46,7 @@ int brepky(BTint blk,int loc,KEYENT* kep,BTint link1,BTint link2)
     }
     else {
         ioerr = brdblk(blk,&idx);
-        if (idx < 0) {
+        if (idx < 0 || ioerr != 0) {
             bterr("BREPKY",QRDBLK,itostr(blk));
         }
         else {

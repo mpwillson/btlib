@@ -1,5 +1,5 @@
 /*
- * $Id: bleaf.c,v 1.8 2010-11-02 21:46:50 mark Exp $
+ * $Id: bleaf.c,v 1.9 2020/06/30 11:52:02 mark Exp $
  *
  *
  * bleaf: position to left or right-most leaf block from current position
@@ -36,7 +36,7 @@ int bleaf(int dir)
     int idx,ioerr;
 
     ioerr = brdblk(btact->cntxt->lf.lfblk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || ioerr != 0) {
         bterr("BLEAF",QRDBLK,itostr(btact->cntxt->lf.lfblk));
     }
     else {

@@ -1,5 +1,5 @@
 /*
- * $Id: bremky.c,v 1.9 2012-09-29 15:06:41 mark Exp $
+ * $Id: bremky.c,v 1.10 2020/06/30 11:52:03 mark Exp $
  *
  * bremky: deletes key (and rlink) at pos from blk
  *
@@ -37,7 +37,7 @@ void bremky(BTint blk,int pos)
     int idx,i,ioerr;
 
     ioerr = brdblk(blk,&idx);
-    if (idx < 0) {
+    if (idx < 0 || ioerr != 0) {
         bterr("BREMKY",QRDBLK,itostr(blk));
         goto fin;
     }
