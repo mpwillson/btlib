@@ -1,5 +1,5 @@
 /*
- * $Id: btdata.c,v 1.32 2012/10/23 19:19:44 mark Exp $
+ * $Id: btdata.c,v 1.33 2012-11-15 12:19:37 mark Exp $
  *
  *  NAME
  *      btdata.c - handles data storage and retrieval from index files
@@ -370,21 +370,9 @@ int btseln(BTA *b,char *key, char *data, int dsize,int *rsize)
         goto fin;
     }
 
-    if (btact->shared) {
-        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
-            /* root supports duplicate keys; must be locked */
-            if (btact->lckcnt == 0) {
-                bterr("BTSELN",QNOTOP,NULL);
-                goto fin;
-            }
-            block(); /* balance bulock at routine exit */
-        }
-        else {
-            if (!block()) {
-                bterr("BTSELN",QBUSY,NULL);
-                goto fin;
-            }
-        }
+    if (!block()) {
+        bterr("BTSELN",QBUSY,NULL);
+        goto fin;
     }
 
     /* position to next key in btree */
@@ -420,21 +408,9 @@ int btselp(BTA *b,char *key, char *data, int dsize,int *rsize)
         goto fin;
     }
 
-    if (btact->shared) {
-        if (bgtinf(btact->cntxt->super.scroot,ZMISC)) {
-            /* root supports duplicate keys; must be locked */
-            if (btact->lckcnt == 0) {
-                bterr("BTSELN",QNOTOP,NULL);
-                goto fin;
-            }
-            block(); /* balance bulock at routine exit */
-        }
-        else {
-            if (!block()) {
-                bterr("BTSELN",QBUSY,NULL);
-                goto fin;
-            }
-        }
+    if (!block()) {
+        bterr("BTSELN",QBUSY,NULL);
+        goto fin;
     }
 
     /* position to preceeding key in btree */
@@ -445,7 +421,7 @@ int btselp(BTA *b,char *key, char *data, int dsize,int *rsize)
     *rsize = bseldt(draddr,data,dsize);
 
 fin:
-    if (btact->shared) bulock();
+    bulock();
     return(btgerr());
 }
 
