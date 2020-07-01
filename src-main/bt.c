@@ -1,5 +1,5 @@
 /*
- * $Id: bt.c,v 1.43 2012/11/15 12:19:46 mark Exp $
+ * $Id: bt.c,v 1.44 2012-11-15 17:36:37 mark Exp $
  * 
  * =====================================================================
  * test harness for B Tree routines
@@ -668,7 +668,7 @@ int use_file(CMDBLK* c)
 
 int define_data(CMDBLK* c)
 {
-    int status;
+    int status = 0;
     struct bt_blist *blk;
     
     /* check for use of data buffer */
