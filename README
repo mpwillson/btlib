@@ -1,6 +1,6 @@
 BT Library README File
 
-30th June, 2020
+1st July, 2020
 
 CONTENTS
     INTRODUCTION
@@ -159,5 +159,5 @@ RELEASE HISTORY
      3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
     24th June       2011        4.0.0   Added recovery capabilities
     26th November   2012        5.0.0   Duplicate key handling re-written
-    30th June,      2020        5.0.1   Bug fixes; accomodate toolchain mods
+    1st July,       2020        5.0.1   Bug fixes; accomodate toolchain mods
     
