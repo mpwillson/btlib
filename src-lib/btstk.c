@@ -1,5 +1,5 @@
 /*
- * $Id: btstk.c,v 1.8 2010-11-21 15:04:28 mark Exp $
+ * $Id: btstk.c,v 1.9 2020/06/30 11:52:04 mark Exp $
  *
  *
  * bpull: pull integer value off stack
@@ -42,7 +42,7 @@
 
 BTint bpull()
 {
-    BTint val;
+    BTint val = 0;
 
     if (btact->cntxt->stk.stkptr < 0) 
         bterr("BPULL",QSTKUF,NULL);
