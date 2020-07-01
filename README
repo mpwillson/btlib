@@ -36,8 +36,8 @@ INTRODUCTION
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    The BT library has been tested on GNU/Linux (Debian Buster) and FreeBSD
-    12.1.
+    The BT library has been tested on GNU/Linux (Debian Buster),
+    OpenBSD 6.7 and FreeBSD 12.1.
 
 UPDATING
     The BT Recovery program (btr) enables the migration of btree
@@ -157,7 +157,7 @@ RELEASE HISTORY
     10th December,  2010        3.1.0   Support duplicate keys; previous key
     21st December,  2010        3.1.1   Fix broken test scripts
      3rd January,   2011        3.1.2   Shared mode/duplicate key fixes
-    24th June       2011        4.0.0   Added recovery capabilities
-    26th November   2012        5.0.0   Duplicate key handling re-written
+    24th June,      2011        4.0.0   Added recovery capabilities
+    26th November,  2012        5.0.0   Duplicate key handling re-written
     1st July,       2020        5.0.1   Bug fixes; accomodate toolchain mods
     
