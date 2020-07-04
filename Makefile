@@ -22,10 +22,10 @@
 # BTMAKE    100525
 #   Added support for large files (> 2GB), by setting LFS=1
 # BTMAKE    200629  mpw
-#   GNU make has changed (somehow), requiring changing the way the
-#   btlib.a archive is updated.  depend target no longer required.
+#   ar deterministic mode broke btlib dependencies, requiring a change in the
+#   way the btlib.a archive is updated.  depend target no longer required.
 #
-# $Id: Makefile,v 1.33 2012/11/26 08:50:59 mark Exp $
+# $Id: Makefile,v 1.34 2020/06/30 11:50:51 mark Exp $
 
 # Uncomment the following line for a debug version of the library
 # DEBUG=-g
@@ -42,8 +42,6 @@ LIB_NAME=bt
 LIB_FILE=${LIB_DIR}/lib${LIB_NAME}.a
 # Testcases in TESTCASES
 TESTCASES=./Testcases
-# Computed dependencies in DEP
-DEP=.dep
 
 ifeq (${LFS},1)
 LFSFLAG=-D_FILE_OFFSET_BITS=64
@@ -77,7 +75,7 @@ OBJ := ${patsubst %.c,%.o,${SRC}}
 
 HDR := ${wildcard ${INC_DIR}/*.h}
 
-.PHONY: all depend clean test_init test_run release
+.PHONY: all clean test_init test_run release
 
 .INTERMEDIATE: ${OBJ}
 
