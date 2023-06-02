@@ -128,11 +128,12 @@ corrupt:  ${TESTCASES}/corrupt.c
 
 release:
 ifndef REL
-	${error Target release must be defined e.g. REL=release-2-0-2}
+	${error Target release must be defined e.g. REL=5.0.1}
 endif
-	reldir=`echo $$REL|sed -e 's/release-//;s/-/./g;s/^/bt-/'` ;\
-	mkdir -p ${RELTMP}/$$reldir ; \
-	cvs export -d ${RELTMP}/$$reldir -r $$REL bt ; \
-	cd ${RELTMP} ; \
-	tar czf $$reldir.tar.gz $$reldir ; \
-	rm -rf $$reldir
+	git archive --format=tar --prefix=btlib-${REL}/ v${REL} | \
+            gzip >btlib-${REL}.tar.gz; \
+        if [ $$? = 0 ]; then \
+            echo btlib-${REL}.tar.gz created; \
+        else \
+            rm -f btlib-${REL}.tar.gz; \
+        fi
