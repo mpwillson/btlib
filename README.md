@@ -1,8 +1,8 @@
-BT Library README File
+# BT Library README File
 
 4th July, 2020
 
-CONTENTS
+## CONTENTS
     INTRODUCTION
     UPDATING
     COMPILING
@@ -12,7 +12,7 @@ CONTENTS
     ERROR REPORTING
     RELEASE HISTORY
 
-INTRODUCTION
+## INTRODUCTION
     The BT library is a set of C language functions that implement a
     generalised index file capability, based on the B Tree indexing
     scheme. The B Tree was originally described by Bayer and
@@ -39,7 +39,7 @@ INTRODUCTION
     The BT library has been tested on GNU/Linux (Debian Buster),
     OpenBSD 6.7 and FreeBSD 12.1.
 
-UPDATING
+## UPDATING
     The BT Recovery program (btr) enables the migration of btree
     index files created in earlier versions.
 
@@ -50,17 +50,11 @@ UPDATING
     constants will ensure btcerr acts as a very effective stack
     smasher.
 
-COMPILING
-    First, grab the tar file from https://hydrus.org.uk and untar
-    into a convenient directory, e.g.
-
-        tar xzf bt-5.0.1.tar.gz -C ~/dev
-
-    Since the tar file includes this README file, you've probably done
-    this already.
+## COMPILING
+    First, clone this repository.
 
     The key sub-directories under the bt source directory are as follows:
- 
+
         src-lib             C source for BT library routines
         src-main            C source for BT test harness and copy
                             utility
@@ -87,7 +81,7 @@ COMPILING
     The BT library is a standard UNIX object archive, built by ar.
 
     It is possible to smoke test the newly built library by:
-       
+
        make test_run
 
     All tests should pass.  Note that the last test (bigdata) will
@@ -96,7 +90,7 @@ COMPILING
 
     If you need to rebuild, issue the command "make clean && make".
 
-INSTALLING
+## INSTALLING
     Copy the BT library archive (./lib/libbt.a) to a convenient system
     library location (e.g. /usr/local/lib).  The standard BT header
      files (./inc/{bc.h,bt.h,btree.h}) must also be placed in a local
@@ -113,21 +107,21 @@ INSTALLING
     convenient in your local development hierarchy and use matching
     compiler arguments.
 
-NOTES
+## NOTES
     Documentation on the BT API is available in docbook format and
     HTML, also downloadable from https://hydrus.org.uk.
 
     BT is dependent on very little, but it does require the gcc
     compiler and GNU make.
 
-BUGS 
+## BUGS
     On all platforms, shared file handling is clunky.
 
-ERROR REPORTING
+## ERROR REPORTING
     Should you encounter errors during use of the BT library, please
-    email mark@hydrus.org.uk with relevant details.
+    email cdr.nil@gmail.com with relevant details.
 
-LICENCE
+## LICENCE
     Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011, 2012, 2020.  Mark Willson
 
     This program is free software; you can redistribute it and/or
@@ -145,7 +139,7 @@ LICENCE
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
     02111-1307, USA.
 
-RELEASE HISTORY
+## RELEASE HISTORY
     15th December,  2003        1.0     First public release
     31st May,       2004        2.0     Major API revision
      8th September, 2004        2.0.1   Bug fix release
@@ -160,4 +154,3 @@ RELEASE HISTORY
     24th June,      2011        4.0.0   Added recovery capabilities
     26th November,  2012        5.0.0   Duplicate key handling re-written
      4th July,      2020        5.0.1   Bug fixes; accomodate toolchain mods
-    
