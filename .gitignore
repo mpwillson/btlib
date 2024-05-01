@@ -4,6 +4,7 @@ kcp
 btr
 bigt
 bigtdel
+doc/asciidoctor.css
 # CVS default ignores begin
 tags
 TAGS

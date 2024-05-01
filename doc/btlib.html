@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="author" content="Mark Willson">
+<title>B Tree Library for indexed file management</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<link rel="stylesheet" href="./asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>B Tree Library for indexed file management</h1>
+<div class="details">
+<span id="author" class="author">Mark Willson</span><br>
+<span id="revnumber">version 5.0.1,</span>
+<span id="revdate">01-07-2020</span>
+<br><span id="revremark">Minor bug fixes</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#preface">B Tree Library History</a></li>
+<li><a href="#_introduction">Introduction</a></li>
+<li><a href="#SystemDescription">System Description</a>
+<ul class="sectlevel2">
+<li><a href="#SysDescOverview">Overview</a></li>
+<li><a href="#MultipleBTrees">Opening multiple B Tree files</a></li>
+<li><a href="#SharedAccess">Shared Access</a></li>
+<li><a href="#LargeFileSupport">Large File Support</a></li>
+<li><a href="#DuplicateKeys">Duplicate Keys</a></li>
+<li><a href="#SampleProgram">Sample Program</a></li>
+</ul>
+</li>
+<li><a href="#FunctionDescriptions">Function Descriptions</a>
+<ul class="sectlevel2">
+<li><a href="#funcintro">Introduction</a></li>
+<li><a href="#btinit">Initialising the B Tree library</a></li>
+<li><a href="#btcrt">Creating a B Tree File</a></li>
+<li><a href="#btopn">Opening a B Tree File</a></li>
+<li><a href="#btcls">Closing a B Tree File</a></li>
+<li><a href="#btdups">Set/unset support for duplicate keys</a></li>
+<li><a href="#btthresh">Set write through threshold for index file blocks</a></li>
+<li><a href="#binsky">Inserting a key</a></li>
+<li><a href="#bfndky">Finding a key</a></li>
+<li><a href="#bnxtky">Finding a sequence of keys</a></li>
+<li><a href="#bprvky">Finding a reverse sequence of keys</a></li>
+<li><a href="#btpos">Setting the position within a B Tree index</a></li>
+<li><a href="#bdelky">Deleting a key</a></li>
+<li><a href="#bupdky">Updating the value of a key</a></li>
+<li><a href="#btcrtr">Creating a root</a></li>
+<li><a href="#btchgr">Changing the current root</a></li>
+<li><a href="#btdelr">Deleting a root</a></li>
+<li><a href="#btlock">Gaining exclusive access to a B Tree file</a></li>
+<li><a href="#btunlock">Releasing exclusive access on a B Tree file</a></li>
+<li><a href="#btins">Inserting a key and data</a></li>
+<li><a href="#btupd">Updating data for an existing key</a></li>
+<li><a href="#btsel">Locating data for an existing key</a></li>
+<li><a href="#btdel">Deleting a key and associated data</a></li>
+<li><a href="#btseln">Locating data for the next key in sequence</a></li>
+<li><a href="#btselp">Locating data for the previous key in sequence</a></li>
+<li><a href="#btrecs">Determine size of data record for specific key</a></li>
+<li><a href="#btcerr">Retrieving error message text</a></li>
+</ul>
+</li>
+<li><a href="#ErrorMessages">Error Messages</a></li>
+<li><a href="#TestHarness">B Tree Test Harness</a></li>
+<li><a href="#Recovery">B Tree Recovery</a>
+<ul class="sectlevel2">
+<li><a href="#_name">Name</a></li>
+<li><a href="#_synopsis">Synopsis</a></li>
+<li><a href="#_description">Description</a></li>
+<li><a href="#_notes">Notes</a></li>
+</ul>
+</li>
+<li><a href="#Customisation">Customisation</a></li>
+<li><a href="#Building">Building and installing the BT Library</a></li>
+<li><a href="#_revision_history">Revision History</a></li>
+<li><a href="#_colophon">Colophon</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="preface">B Tree Library History</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The B Tree routines in this library were originally written in Fortran
+77 during the late 1980&#8217;s for use in a gazetteer.</p>
+</div>
+<div class="paragraph">
+<p>The routines were ported to C over a number years (as time permitted),
+but still very much organised as the original Fortran. This version was
+utilised in the anag and dict programs, for anagram solving.</p>
+</div>
+<div class="paragraph">
+<p>The source was re-organised in early 2001 to adopt more closely a C
+organisation style (note the source code itself still has a Fortran
+flavour). This was known as "bt_new".</p>
+</div>
+<div class="paragraph">
+<p>The original B Tree implementation was designed solely as an index
+handler. Data was expected to be managed by the client application. In
+addition, the routines were only able to manage exclusive access to the
+index file - shared access would result in corrupt index files. Lastly,
+only one index file could be open at a time - effectively preventing any
+application-mediated copying capability.</p>
+</div>
+<div class="paragraph">
+<p>"bt_shared" was derived to resolve these three issues: to provide a
+combined index and data file (yes, something like CP-V/CP-6 keyed
+files), to allow shared access to a B Tree file by concurrent processes,
+and to permit a single process to open multiple index files
+concurrently.</p>
+</div>
+<div class="paragraph">
+<p>These capabilities were provided in a 32 bit implementation, meaning the
+largest file that could be supported was 2GiB. Version 3.0 was developed
+to add support for larger files, i.e those requiring 64 bit addressing.
+This is dependent on kernel and gcc Large File Support.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The B Tree (BT) library offers a set of C language functions which
+implement a generalised index file capability, based on the B tree
+indexing scheme. The B tree was originally described by Bayer and
+McCraight. A B tree is a multiway balanced tree: i.e. there is more than
+one key per node, and all leaf nodes are the same distance from the root
+node.</p>
+</div>
+<div class="paragraph">
+<p>The BT functions implement a 'classical' B tree, not one of the later
+variants (B* or B+ tree).</p>
+</div>
+<div class="paragraph">
+<p>The B Tree is stored in a UNIX disk file. The file can contain many B
+Trees, each of which is referred to by a name assigned by the user (or
+application). The system allows many such files to exist.</p>
+</div>
+<div class="paragraph">
+<p>In order for BT to function efficiently on different hardware platforms,
+the important constants relating to disk block size, maximum number of
+keys per block, etc. are defined as constants, and may be modified prior
+to compilation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="SystemDescription">System Description</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="SysDescOverview">Overview</h3>
+<div class="paragraph">
+<p>The B Tree is stored in a standard UNIX file. To support efficient
+processing, the size of a B Tree node should be the same as the
+hardware&#8217;s disk block size. In the following description, the terms node
+and block are interchangeable.</p>
+</div>
+<div class="paragraph">
+<p>A B Tree has a root, which acts as the starting point for all
+insertions, deletions and searches. A B Tree has a master root stored at
+file address 0 (zero), which is termed the "superroot". The superroot
+holds the names and root block addresses of all the B Trees in the file.
+The superroot also holds the free block list for the file and other
+administrative information.</p>
+</div>
+<div class="paragraph">
+<p>Each block contains a number of keys, an associated integer value and
+pointers to other blocks. The maximum number of keys that can be stored
+in a block depends on the size of a block and the maximum number of
+bytes permitted for a key. The integer value associated with a key can
+be used as desired by the application program. If the record storage
+facilities of the B Tree are used, it will contain the block address of
+an associated data record.</p>
+</div>
+<div class="paragraph">
+<p>Version 3.1 and above allows the definition of duplicate keys, which is
+enabled on a per-root basis. If not enabled, this version with behave as
+previous versions, that is, duplicate keys will be rejected.</p>
+</div>
+<div class="paragraph">
+<p>When a B Tree file is created, the superroot is initialised with two
+named roots: itself and the default root. These are defined as "super"
+and "default" respectively. The application may create more roots as
+required. When a B Tree file is first opened, the default root
+($$default) is always selected.</p>
+</div>
+<div class="paragraph">
+<p>The maximum size of a B Tree file is governed by the implementation. For
+an implementation with a 32 bit word length, the maximum file size
+supported is 2GiB. If the B Tree library is built with Large File
+Support, that limit is removed.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="MultipleBTrees">Opening multiple B Tree files</h3>
+<div class="paragraph">
+<p>An application program may have more than one B Tree file opened at any
+one time. When a B Tree file is created or opened, a B Tree context
+pointer is returned to the application. All B Tree functions must be
+passed this context pointer to indicate which open B Tree file is to be
+operated on. This parameter is identified as <code>btact</code> in each function
+description.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="SharedAccess">Shared Access</h3>
+<div class="paragraph">
+<p>B Tree files may be created/opened in exclusive or shared mode.
+Application programs that use shared access should be prepared to handle
+a busy return from a read or update access to the B Tree file.</p>
+</div>
+<div class="paragraph">
+<p>An application can gain exclusive access to a B File after it has been
+opened in shared mode. This is achieved via the <a href="#btlock"><code>btlock</code></a>
+function. The<a href="#btunlock"> <code>btunlock</code></a> function relinquishes exclusive
+access.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="LargeFileSupport">Large File Support</h3>
+<div class="paragraph">
+<p>In order to support large files (i.e. those &gt; 2GiB), a new type has been
+introduced into the BT library, <em>BTint</em>, which can be 32 bits (i.e int)
+when compiled without Large File Support, or 64 bits (i.e. long long),
+when compiled with Large File Support. <em>BTint</em> is a typedef, which will
+be declared as appropriate. BT library function arguments which must be
+declared as <em>BTint</em> are described in the API, but version 2.x users of
+<code>bfndky</code>, <code>bdbug</code>, <code>binsky</code>, <code>bnxtky</code> or <code>bupdky</code> should be aware of the
+need to change argument declarations from int to BTint.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="DuplicateKeys">Duplicate Keys</h3>
+<div class="paragraph">
+<p>Version 3.1 added support for duplicate keys. By default, duplicate keys
+are not permitted, so this (and later) versions behaves as previous
+versions. Duplicate key support is enabled on a per-root basis, using
+the <a href="#btdups"><code>btdups</code></a> API function.</p>
+</div>
+<div class="paragraph">
+<p>Finding a duplicate key (via <a href="#bfndky"><code>bfndky</code></a>) will leave the
+index at the first instance of the key. <a href="#bnxtky"><code>bnxtky</code></a> may be
+used to walk through the set of duplicate keys. The
+<a href="#bprvky"><code>bprvky</code></a> function has been added to allow reverse key
+navigation.</p>
+</div>
+<div class="paragraph">
+<p>To faciltate the management of duplicate keys, a number of BTree
+functions have been modified to operate against the current key, as
+selected by the <a href="#bfndky"><code>bfndky</code></a>, <a href="#bnxtky"><code>bnxtky</code></a> or
+<a href="#bprvky"><code>bprvky</code></a> functions. These are: <a href="#bupdky"><code>bupdky</code></a>,
+<a href="#bdelky"><code>bdelky</code></a>, <a href="#btupd"><code>btupd</code></a>, <a href="#btdel"><code>btdel</code></a> and
+<a href="#btrecs"><code>btrecs</code></a>. Passing these functions a key pointer of NULL
+will invoke the desired operation against the currently selected key.
+See individual function descriptions for further details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="SampleProgram">Sample Program</h3>
+<div class="paragraph">
+<p>A very simple use of the BTree API is shown below. This program creates
+a BTree file and inserts one key ("akey") with the value of 99. Error
+checking has been omitted for clarity.</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>        #include "btree.h"
+        int main(int argc, char *argv[])
+        {
+            BTA *btfile;
+            btinit();
+            btfile = btcrt("test_db",0,FALSE);
+            binsky(btfile,"akey",99);
+            btcls(btfile);
+            return 0;
+        }</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If the program source resides in the bt directory, the command to
+compile and link the program will be (assuming no Large File Support):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>        gcc -o simple simple.c -Iinc -Llib -lbt</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A couple of additional sample programs, using the BT Library API, can be
+found the the <code>samples</code> sub-directory. A <code>Makefile</code> is provided to build
+the sample programs. The makefile assumes it will be run in the
+<code>samples</code> directory.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="FunctionDescriptions">Function Descriptions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="funcintro">Introduction</h3>
+<div class="paragraph">
+<p>This chapter describes each of the functions offered by the BT API.
+Rather than present the functions in alphabetic order (as any sensible
+document would), the functions are described in order of probable usage
+by an application program. To make it even more difficult to use as a
+reference manual, the functions are titled by their functionality, not
+their names.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btinit">Initialising the B Tree library</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btinit(void);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btinit</code> function initialises the B Tree library. It must be invoked
+before any other B Tree routine. Failure to do so will result in strange
+errors.</p>
+</div>
+<div class="paragraph">
+<p>Calling <code>btinit</code> more than once in the execution lifetime of the B Tree
+library will cause it to return an error (QINERR). btinit also checks
+that the block size, in bytes, of the B Tree library is a power of two.
+An error return will result for non-conformant block sizes. Successful
+initialisation is indicated by a return value of zero.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btcrt">Creating a B Tree File</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+BTA* btcrt(char* fid, int nkeys, int shared);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btcrt</code> function will create and initialise a new B Tree file. The
+parameter <code>fid</code> must be set to the name of the file to create. The
+<code>nkeys</code> defines the maximum number of keys that can be stored in the B
+Tree. This parameter should always be set to 0 for those operating
+systems, such as UNIX, that support dynamic file growth. The parameter
+<code>shared</code> should be set to 0 to disallow shared access to the newly
+created B Tree, or non-zero to allow shared access.</p>
+</div>
+<div class="paragraph">
+<p><code>btcrt</code> will return a pointer to the BT activation context for the newly
+opened file (BTA*), or NULL in the case of an error. To determine the
+cause of an error, invoke the<a href="#btcerr"> <code>btcerr</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>If the B Tree index file has been successfully created, the default root
+is selected, the file becomes the in-use B Tree file and is ready for
+further operations.</p>
+</div>
+<div class="paragraph">
+<p><em>WARNING:</em> The <code>btcrt</code> function will <em>unconditionally</em> create a new
+file, even if a file of the same name already exists.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btopn">Opening a B Tree File</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+BTA* btopn(char* fid, int mode, int shared);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btopn</code> function will open an existing B Tree file. The parameter
+<code>fid</code> must be set to the name of the file to open. The <code>mode</code> parameter
+determines if the B Tree file can be updated. A value of zero indicates
+that updates are allowed, a non-zero value will prohibit updates. The
+parameter <code>shared</code> should be set to zero to disallow shared access to
+the B Tree file, or non-zero to allow shared access.</p>
+</div>
+<div class="paragraph">
+<p><code>btopn</code> will return a pointer to the BT activation context for the newly
+opened file (BTA*), or NULL in the case of an error. To determine the
+cause of an error, invoke the <a href="#btcerr"><code>btcerr</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>If the B Tree index file has been successfully opened, the default root
+is selected, and the file is ready for further operations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btcls">Closing a B Tree File</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btcls(BTA* btact);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btcls</code> function will close the file associated with the <code>btact</code>
+context pointer.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return code indicates an error occurred in closing the file.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btdups">Set/unset support for duplicate keys</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btdups(BTA* btact, int dups);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btdups</code> controls support for duplicate keys in the current root of
+the index file associated with the <code>btact</code> context pointer. Setting the
+value of the <code>dups</code> to non-zero (TRUE) will enable support for duplicate
+keys in the current root. A value of zero (FALSE) will disable duplicate
+key support for the current root. Enabling duplicate key support on the
+superroot is not permitted.</p>
+</div>
+<div class="paragraph">
+<p>Disabling duplicate key support on a root that previously permitted them
+merely prevents further duplicate keys from being inserted into the root
+BTree index. Existing duplicates will remain and must be managed by the
+application.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return code indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btthresh">Set write through threshold for index file blocks</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btthresh(BTA* btact, int threshold);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btthresh</code> function sets the write threshold for the btree index
+file associated with the <code>btact</code> context pointer. The <code>threshold</code>
+defines the number of updates on a block that will cause it to be
+written to disk. A value of zero (the default for a btree index) means
+that a block is not written to disk until the memory it occupies is
+required for a new block.</p>
+</div>
+<div class="paragraph">
+<p><code>btthresh</code> offers finer-grained control over disk writes than in
+previous versions of Btree, which was either only when necessary (in
+exclusive mode), or after every API call (in shared mode). The intention
+is to allow the application program to reduce the chance of lost data in
+a btree index should a hardware or software falure interrupt the running
+program before the indexes are closed and dirty blocks flushed to disk.</p>
+</div>
+<div class="paragraph">
+<p>NB: If <code>threshold</code> is set to a small value, it may reduce performance of
+the BTree application.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return code indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="binsky">Inserting a key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int binsky(BTA* btact, char* key, BTint value);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>binsky</code> function inserts a new key and associated integer value
+into the current root of the file associated with the <code>btact</code> context
+pointer. The key, a character string, is passed in <code>key</code>, while <code>value</code>
+holds the associated integer value. <code>value</code> is declared as a BTint,
+which is normally a typedef for <em>int</em>, but with Large File Support will
+be a typedef for <em>long long</em>.</p>
+</div>
+<div class="paragraph">
+<p>If the key has been inserted successfully, <code>binsky</code> returns zero,
+otherwise an error code is returned.</p>
+</div>
+<div class="paragraph">
+<p>Keys longer than the maximum key length (BT constant ZKYLEN) will be
+silently truncated to the maximum key length.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>binsky</code> indicates an error occurred during the
+key insertion process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bfndky">Finding a key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bfndky(BTA* btact, char* key, BTint* value);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bfndky</code> function searches for a key in the current root of the file
+associated with the <code>btact</code> context pointer. The key, a character
+string, is passed as a pointer in <code>key</code>. If the key is found, the
+associated value will be returned in the integer location identified by
+<code>value</code>. <code>value</code> is declared as a BTint, which is normally a typedef for
+<em>int</em>, but with Large File Support will be a typedef for <em>long long</em>.</p>
+</div>
+<div class="paragraph">
+<p>If the key is found, <code>bfndky</code> returns zero. If the key is not found,
+<code>bfndky</code> will return an error code of <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>Whether or not the key is located, the B Tree context is left at the
+next highest key within the B Tree file. A call to
+<a href="#bnxtky"><code>bnxtky</code></a> will return this key. The function
+<a href="#bprvky"><code>bprvky</code></a> may be called to return the previous key.</p>
+</div>
+<div class="paragraph">
+<p>If the current root supports duplicate keys (enabled by a call to
+<a href="#btdups"><code>btdups</code></a>, and the target of the <code>bfndky</code> function has
+duplicates, the context of the B Tree index is positioned at the start
+of the duplicate key set.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>bfndky</code> indicates an error occurred during the
+key location process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bnxtky">Finding a sequence of keys</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bnxtky(BTA* btact, char* key, BTint* value);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bnxtky</code> function returns the next key from the current root in the
+file associated with the <code>btact</code> context pointer. The key, a character
+string, is returned via the pointer in <code>key</code>. The value associated with
+the key will be returned in the integer location identified by <code>value</code>.
+<code>value</code> is declared as a BTint, which is normally a typedef for <em>int</em>,
+but with Large File Support will be a typedef for <em>long long</em>.</p>
+</div>
+<div class="paragraph">
+<p><code>bnxtky</code> returns zero to indicate the next key has been located. If no
+next key exists, <code>bnxtky</code> returns the error code <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>To initialise the B Tree position, a call to <a href="#bfndky"><code>bfndky</code></a> or
+<a href="#btpos"><code>btpos</code></a> must be made before the first call to <code>bnxtky</code>.
+Thereafter, repeated calls to <code>bnxtky</code> may be made. Calls to
+<a href="#bprvky"><code>bprvky</code></a> may be freely intermingled with calls to
+<code>bnxtky</code>.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>bnxtky</code> indicates an error occurred during the
+key location process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bprvky">Finding a reverse sequence of keys</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bprvky(BTA* btact, char* key, BTint* value);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bprvky</code> function returns the previous key from the current root in
+the file associated with the <code>btact</code> context pointer. The key, a
+character string, is returned via the pointer in <code>key</code>. The value
+associated with the key will be returned in the integer location
+identified by <code>value</code>. <code>value</code> is declared as a BTint, which is normally
+a typedef for <em>int</em>, but with Large File Support will be a typedef for
+<em>long long</em>.</p>
+</div>
+<div class="paragraph">
+<p><code>bprvky</code> returns zero to indicate the previous key has been located. If
+no previous key exists, <code>bnxtky</code> returns the error code <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>To initialise the B Tree position, a call to <a href="#bfndky"><code>bfndky</code></a> or
+<a href="#btpos"><code>btpos</code></a> must be made before the first call to <code>bprvky</code>.
+Thereafter, repeated calls to <code>bprvky</code> may be made. Calls to
+<a href="#bnxtky"><code>bnxtky</code></a> may be freely intermingled with calls to
+<code>bprvky</code>.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>bprvky</code> indicates an error occurred during the
+key location process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btpos">Setting the position within a B Tree index</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btpos(BTA* btact, int pos);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btpos</code> function sets the position in the current root in the file
+associated with the <code>btact</code> context pointer. The desired position is
+indicated by the <code>pos</code>; a value of 1 positions before the first key in
+the index, a value of 2 will position after the last key in the index.
+These values correspond to the B Tree constants ZSTART and ZEND,
+respectively.</p>
+</div>
+<div class="paragraph">
+<p>Following a call to <code>btpos</code>, calls to <a href="#bnxtky"><code>bnxtky</code></a> and
+<a href="#bprvky"><code>bprvky</code></a> may be made to return successive or previous
+keys.</p>
+</div>
+<div class="paragraph">
+<p><code>btpos</code> returns zero to indicate success, otherwise the error code if an
+error was encountered.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bdelky">Deleting a key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bdelky(BTA* btact, char* key);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bdelky</code> function deletes a key from the current root in the file
+associated with the <code>btact</code> context pointer. The key, a character
+string, is passed via the pointer in <code>key</code>. If the key does not exist,
+<code>bdelky</code> returns the error code <code>QNOKEY</code>. <code>bdelky</code> returns zero on
+successful deletion of a key.</p>
+</div>
+<div class="paragraph">
+<p>If <code>bdelky</code> is called with a <code>key</code> value of NULL, the delete operation
+will act against the current key, as selected by <code>bfndky</code>, <code>bnxtky</code> or
+<code>bprvky</code> operations. This capability is designed to allow deletion of a
+duplicate key, presumably based on other, application managed,
+attributes.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>bdelky</code> indicates an error occurred during the
+key deletion process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="bupdky">Updating the value of a key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bupdky(BTA* btact, char* key, BTint value);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bupdky</code> function updates the value of an existing key in the
+current root of the file associated with the <code>btact</code> context pointer.
+The key, a character string, is passed via the pointer in <code>key</code>. The new
+value is passed via <code>value</code>. <code>value</code> is declared as a BTint, which is
+normally a typedef for <em>int</em>, but with Large File Support will be a
+typedef for <em>long long</em>.</p>
+</div>
+<div class="paragraph">
+<p>If the key does not exist, <code>bupdky</code> returns the error code <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>bupdky</code> is called with a <code>key</code> value of NULL, the update operation
+will act against the current key, as selected by <code>bfndky</code>, <code>bnxtky</code> or
+<code>bprvky</code> operations. This capability is designed to allow update of a
+duplicate key, presumably based on other, application managed,
+attributes.</p>
+</div>
+<div class="paragraph">
+<p><code>bupdky</code> returns zero to indicate a successful update, error code
+otherwise.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btcrtr">Creating a root</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btcrtr(BTA* btact, char* root);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btcrtr</code> function creates a new root within the file associated with
+the <code>btact</code> context pointer. The root name, a character string, is
+passed via the pointer in <code>root</code>. If the new root is created
+successfully, <code>btcrtr</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>On successful creation of a new root, on return from <code>btcrtr</code>, the new
+root will have been made current. If the root could not be created, the
+current root is unchanged.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btcrtr</code> indicates an error occurred during the
+root creation process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btchgr">Changing the current root</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btchgr(BTA* btact, char* root);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btchgr</code> function changes the current root within the file
+associated with the <code>btact</code> context pointer. The target root name, a
+character string, is passed via the pointer in <code>root</code>. If the switch to
+the target root is successful, <code>btchgr</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>On successful change to the target root, on return from <code>btchgr</code>, the
+target root will have been made current. If the root could not be
+switched, the current root is unchanged.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btchgr</code> indicates an error occurred during the
+root change process.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btdelr">Deleting a root</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btdelr(BTA* btact, char* root);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btdelr</code> function deletes the named root within the file associated
+with the <code>btact</code> context pointer. The target root name for deletion, a
+character string, is passed via the pointer in <code>root</code>. If the deletion
+of the target root is successful, <code>btdelr</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>All blocks owned by the target root are deleted, and returned to the
+free list. Whether or not the target root is deleted, the current root
+is left unchanged.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btdelr</code> indicates an error occurred during the
+root delete process. It is considered an error to attempt to delete the
+current root.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btlock">Gaining exclusive access to a B Tree file</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btlock(BTA* btact);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btlock</code> function enables a process to gain exclusive access to a B
+Tree file, originally opened in shared mode. <code>btlock</code> is passed <code>btact</code>,
+which holds the context pointer of the file for which exclusive access
+is required.</p>
+</div>
+<div class="paragraph">
+<p><code>btlock</code> will return zero on success, error code otherwise. Applications
+should be ready to handle a QBUSY error return, indicating that
+exclusive access could not be gained. <code>btlock</code> waits for ZSLEEP seconds
+before giving up the attempt to gain exclusive access. ZSLEEP is an
+implementation defined constant. The default is five seconds.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btunlock">Releasing exclusive access on a B Tree file</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btunlock(BTA* btact);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btunlock</code> function enables a process to relinquish exclusive access
+to a file, originally gained from a call to <code>btlock</code>. <code>btunlock</code> is
+passed <code>btact</code>, which holds the context pointer of the B Tree file for
+which exclusive access is no longer required.</p>
+</div>
+<div class="paragraph">
+<p>If the B Tree file is not locked, or has been opened for exclusive
+access, <code>btunlock</code> has no effect.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btunlock</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btins">Inserting a key and data</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btins(BTA* btact, char* key, char* data, int dsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btins</code> function inserts a key and data record into a file
+associated with the <code>btact</code> context pointer. Both <code>key</code> and <code>data</code> are
+character pointers. Since the data may legitimately contain null (x'00')
+characters, the length of the data, in bytes, is passed in <code>dsize</code>.
+<code>dsize</code> must be zero or greater. If the key and data is successfully
+stored in the B Tree file, <code>btins</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btins</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btupd">Updating data for an existing key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btupd(BTA* btact, char* key, char* data, int dsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btupd</code> function updates the data record of an existing key in the
+file associated with the <code>btact</code> context pointer. Both <code>key</code> and <code>data</code>
+are character pointers. Since the data may legitimately contain null
+(x'00) characters, the length of the data, in bytes, must be passed in
+<code>dsize</code>. If the replacement data is successfully stored in the B Tree
+file, <code>btupd</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>If <code>btupd</code> is called with a <code>key</code> value of NULL, the update operation
+will act against the current key, as selected by <code>btsel</code>, <code>btseln</code> or
+<code>btselp</code> operations. This capability is designed to allow update of a
+duplicate key, presumably based on other, application managed,
+attributes.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btupd</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btsel">Locating data for an existing key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btsel(BTA* btact, char* key, char* data, int dsize, int* rsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btsel</code> function locates and returns the data record of an existing
+key in the file associated with the <code>btact</code> context pointer. Both <code>key</code>
+and <code>data</code> are character pointers. The <code>dsize</code> parameter must contain
+the maximum number of bytes to be returned. The caller should ensure
+that the <code>data</code> pointer refers to an area of memory of at least <code>dsize</code>
+bytes. The actual number of bytes returned is returned in <code>rsize</code>. Even
+if the data record contains more than <code>dsize</code> bytes, only <code>dsize</code> bytes
+will be returned. If the data record is successfully retrieved (even
+partially), <code>btsel</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>An application program can determine the number of bytes occupied by a
+data record through the <a href="#btrecs"><code>btrecs</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btsel</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btdel">Deleting a key and associated data</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btdel(BTA* btact, char* key);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btdel</code> function deletes a key and data record in the file
+associated with the <code>btact</code> context pointer. <code>key</code> is a character
+pointer, identifying the key to delete. If deletion of the key and data
+is successful, <code>btdel</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>If <code>btdel</code> is called with a <code>key</code> value of NULL, the delete operation
+will act against the current key, as selected by <code>btsel</code>, <code>btseln</code> or
+<code>btselp</code> operations. This capability is designed to allow deletion of a
+duplicate key, presumably based on other, application managed,
+attributes.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btdel</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btseln">Locating data for the next key in sequence</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btseln(BTA* btact, char* key, char* data, int dsize, int* rsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btseln</code> function locates and returns the next key and data record
+in the file associated with the <code>btact</code> context pointer. Before using
+<code>btseln</code>, a call to <a href="#btsel"><code>btsel</code></a> or <a href="#btpos"><code>btpos</code></a> must be
+made to initialise the position within the B Tree. Calls to
+<a href="#btselp"><code>btselp</code></a> may be freely intermingled with calls to
+<code>btseln</code>.</p>
+</div>
+<div class="paragraph">
+<p>Both <code>key</code> and <code>data</code> are character pointers. The <code>dsize</code> parameter must
+contain the maximum number of bytes to be returned. The caller should
+ensure that the <code>data</code> pointer refers to an area of memory of at least
+<code>dsize</code> bytes. The actual number of bytes returned is returned in
+<code>rsize</code>. Even if the data record contains more than <code>dsize</code> bytes, only
+<code>dsize</code> bytes will be returned. If the data record is successfully
+retrieved (even partially), <code>btseln</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>If no next key exists, <code>btseln</code> will return the error code <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>An application program can determine the number of bytes occupied by a
+data record through the <a href="#btrecs"><code>btrecs</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btseln</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btselp">Locating data for the previous key in sequence</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btselp(BTA* btact, char* key, char* data, int dsize, int* rsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btselp</code> function locates and returns the previous key and data
+record in the file associated with the <code>btact</code> context pointer. Before
+using <code>btselp</code>, a call to <a href="#btsel"><code>btsel</code></a> or <a href="#btpos"><code>btpos</code></a>
+must be made to initialise the position within the B Tree. Calls to
+<a href="#btseln"><code>btseln</code></a> may be freely intermingled with calls to
+<code>btselp</code>.</p>
+</div>
+<div class="paragraph">
+<p>Both <code>key</code> and <code>data</code> are character pointers. The <code>dsize</code> parameter must
+contain the maximum number of bytes to be returned. The caller should
+ensure that the <code>data</code> pointer refers to an area of memory of at least
+<code>dsize</code> bytes. The actual number of bytes returned is returned in
+<code>rsize</code>. Even if the data record contains more than <code>dsize</code> bytes, only
+<code>dsize</code> bytes will be returned. If the data record is successfully
+retrieved (even partially), <code>btselp</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>If no previous key exists, <code>btselp</code> will return the error code <code>QNOKEY</code>.</p>
+</div>
+<div class="paragraph">
+<p>An application program can determine the number of bytes occupied by a
+data record through the <a href="#btrecs"><code>btrecs</code></a> function.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btseln</code> indicates an error occurred.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btrecs">Determine size of data record for specific key</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int btrecs(BTA* btact, char* key, int* rsize);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btrecs</code> function returns the number of bytes occupied by the data
+record of a key in the file associated with the <code>btact</code> context pointer.
+The <code>key</code> parameter is a character pointer, identifying the key to
+query. The number of bytes occupied by the data record is returned in
+<code>rsize</code>. If the key is located and the data size of the record returned
+successfully, <code>btrecs</code> returns zero.</p>
+</div>
+<div class="paragraph">
+<p>If <code>btrecs</code> is called with a <code>key</code> value of NULL, the size operation
+will act against the current key, as selected by <code>btsel</code>, <code>btseln</code> or
+<code>btselp</code> operations. This capability is designed to allow the
+determination of the size of the data record of a duplicate key,
+presumably based on other, application managed, attributes.</p>
+</div>
+<div class="paragraph">
+<p>If <code>btrecs</code> is invoked for a <em>key</em> without an associated data record,
+the results are undefined.</p>
+</div>
+<div class="paragraph">
+<p>A non-zero return from <code>btrecs</code> indicates an error occurred.</p>
+</div>
+<div id="bdbug" class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+int bdbug(BTA* btact, char* opt, BTint blk);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>bdbug</code> function provides a debug capability for the B Tree package.
+The following options can be passed via the <code>opt</code> parameter:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 1. Debug Options</caption>
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 3%;">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">control</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays the in-memory block information, together with the
+last key found details</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">super</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays superroot information i.e. block usage, free list
+etc.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stack</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays the tree stack (i.e. key context)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">space</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays occupancy statistics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stats</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays B Tree operating statistics</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">block</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">displays the contents of the block identified by <code>blk</code>. <code>blk</code>
+is declared as a BTint, which is normally a typedef for <em>int</em>, but with
+Large File Support will be a typedef for <em>long long</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">structure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performs a structure check of the currently active BTree
+file. If <code>blk</code> is set to ZNULL, information on the index structure, and
+problems (if any), are displayed. Otherwise, a simple statement of
+structure condition is displayed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A non-zero return from <code>bdbug</code> indicates an error occurred during the
+display of debugging information.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="btcerr">Retrieving error message text</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
+
+void btcerr(int* ierr, int* ioerr, char* srname, char* msg);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>btcerr</code> function returns the error code (in <code>ierr</code>) and (if
+relevant) the I/O error code (in <code>ioerr</code>) of the last error encountered
+by the B Tree system. In addition, it will return the name of the
+function which detected the error (in <code>srname</code>) and an error message in
+<code>msg</code>.</p>
+</div>
+<div class="paragraph">
+<p>The maximum number of chars returned in <code>srname</code> is BT constant
+<em>ZRNAMESZ</em>. The maximum number of chars returned in <code>msg</code> is BT constant
+<em>ZMSGSZ</em>. Both char arrays will be zero-padded to <em>ZRNAMESZ</em> and
+<em>ZMSGSZ</em> respectively. Declaring these arrays to be smaller than the BT
+constants will ensure <code>btcerr</code> acts as a very effective stack smasher.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ErrorMessages">Error Messages</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section lists the errors that may be encountered when using the B
+Tree system. The occurrence of most of these errors indicates a serious
+failure in the B Tree system, with the following exceptions:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">QNOKEY</dt>
+<dd>
+<p>The key given as a parameter to <code>bfndky</code> (or its brethren) does not
+exist.</p>
+</dd>
+<dt class="hdlist1">QDUP</dt>
+<dd>
+<p>The key given as a parameter to <code>binsky</code> (or its brethren) already
+exists in the index. Duplicate keys are not permitted.</p>
+</dd>
+<dt class="hdlist1">QBUSY</dt>
+<dd>
+<p>File busy, a normal hazard when using shared access mode in a
+multiuser environment.</p>
+</dd>
+<dt class="hdlist1">QNOWRT</dt>
+<dd>
+<p>The B Tree file was originally opened with read-only permission, and a
+write has subsequently been attempted. Probably an application program
+error.</p>
+</dd>
+<dt class="hdlist1">QNOBTF</dt>
+<dd>
+<p>Attempt to perform operation on B Tree file, but there is no file
+attached to the context pointer provided, likely an application error.</p>
+</dd>
+<dt class="hdlist1">QINERR</dt>
+<dd>
+<p>Attempt made to open the same file again, likely an application error.</p>
+</dd>
+<dt class="hdlist1">QDELCR</dt>
+<dd>
+<p>An attempt has been made to delete the current root, or worse, the
+super root. This is forbidden by the BT library.</p>
+</dd>
+<dt class="hdlist1">QBADOP</dt>
+<dd>
+<p>Unknown debug option passed to bdbug, likely an application error.</p>
+</dd>
+<dt class="hdlist1">QNOACT</dt>
+<dd>
+<p>Maximum number of concurrently open B Tree files reached - may be an
+application error.</p>
+</dd>
+<dt class="hdlist1">QBADAP</dt>
+<dd>
+<p>Illegal context pointer passed to a B Tree function - may be an
+application error.</p>
+</dd>
+<dt class="hdlist1">QDNEG</dt>
+<dd>
+<p>A negative length data record has been passed to a B Tree function.</p>
+</dd>
+<dt class="hdlist1">QBADVR</dt>
+<dd>
+<p>The B Tree index file was created using an older version of the B Tree
+library, and cannot be accessed safely with this version. Extract data
+using a program based on the previous version of the B Tree library,
+and import into a index file created with the new. Alternatively, it
+may be possible to use the <a href="#btr"><code>btr</code></a> recovery tool to migrate
+an older BTree index file to the latest version.</p>
+</dd>
+<dt class="hdlist1">QDAOVR</dt>
+<dd>
+<p>A new data record cannot be entered as the maximum value of a data
+block pointer has been exceeded.</p>
+</dd>
+<dt class="hdlist1">QF2BIG</dt>
+<dd>
+<p>The index file has reached its maximum size for this implementation.</p>
+</dd>
+<dt class="hdlist1">QBADAL</dt>
+<dd>
+<p>Unable to set alarm for for file lock handling. This may be a problem
+with the underlying OS.</p>
+</dd>
+<dt class="hdlist1">QBADCTXT</dt>
+<dd>
+<p>Index context invalid for current key operation. An attempt was made
+to delete or update the current key, but the context is not valid. A
+valid context is set by bfndky, bnxtky, bprvky, btsel, btseln, or
+btselp.</p>
+</dd>
+<dt class="hdlist1">QNODUPS</dt>
+<dd>
+<p>Duplicates are not permitted in the superroot. Attempting to permit
+duplicate keys in the superroot, via btdups(..,TRUE), is prohibited.</p>
+</dd>
+<dt class="hdlist1">QNOT64BIT</dt>
+<dd>
+<p>Index file was created with a non-64 bit version (LFS=0) of the
+library. However, access is being attempted with a 64 bit version.</p>
+</dd>
+<dt class="hdlist1">Q64BIT</dt>
+<dd>
+<p>Index file was created with a 64 bit version (LFS=1) of the library.
+However, access is being attempted with a non-64 bit version.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<caption class="title">Table 2. B Tree Error Messages</caption>
+<colgroup>
+<col style="width: 5%;">
+<col style="width: 10%;">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBLKNR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Block %s is not a root block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QCLSIO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to close index file: "file"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QCRTIO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to create index file: "file"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QCPBLK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to read source or destination block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QWRBLK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I/O error writing block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QRDSUP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I/O error reading super root</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">7</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QWRSUP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I/O error writing super root</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QOPNIO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I/O error opening index file: "file"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">9</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QRDBLK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I/O error reading block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QIXOPN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An index file is already open</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QSPLIT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can&#8217;t split full block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QINFER</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bad info block index used</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOMEM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to acquire a free memory block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QSTKUF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stack underflow</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QSTKOF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Stack overflow</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBLKFL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Can&#8217;t insert key at block: %s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QLOCTB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Replace location out of range</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QSPKEY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Split: search for middle key failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">19</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QWRMEM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requested write block not in memory</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBALSE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Balance: search for key failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDELEX</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exact flag not set for delete</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">22</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDELER</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal inconsistency in delete operation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">23</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDELRP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Search for deleted key replacement failed (in block %s)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDEMSE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Demote search failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">25</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDEMSP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Demote split failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">26</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QJNSE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Join search failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">27</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNODEF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cannot locate default root ($$default)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">28</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDELCR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Deletion of the current or super root is forbidden</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">29</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADIX</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Negative in-memory index encountered</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">30</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOBTF</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No index file open for this operation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">31</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QINERR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index file already in use</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADOP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Debug option not recognised</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">33</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOACT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No more index files may be opened (limit reached)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">34</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADAP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Invalid index file context pointer</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">35</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBUSY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File is busy</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">37</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOBLK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No block available for data storage</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">38</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNEGSZ</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data block usage gone bad: %s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">39</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOTDA</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data segment header references a non-data block: %s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">40</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADCTXT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index context invalid for current key operation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">41</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDLOOP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Circular data segment pointer encountered</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">42</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QUNLCK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unlock operation failed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">43</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QLRUER</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LRU queue corrupt - index not in list</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">44</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDAERR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to insert data record</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">45</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDNEG</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data record cannot be negative</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">46</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDUP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Key "key" already exists in index</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">47</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOKEY</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Key "key" does not exist in index</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">48</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOWRT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Write access to index prohibited</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">49</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOTFR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Block on free list is not marked as free</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">50</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADVR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index file is incompatible with current version: "version"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">51</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDAOVR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data capacity exceeded at block: "block"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">52</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QF2BIG</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index file is at maximum size</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">53</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADAL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unable to set alarm for locking</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">54</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDRANEG</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data record address is negative: "address"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">55</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBLKSZERR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Defined block size is not a power of two: "size"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">56</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNODUPS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duplicates keys are not allowed for the superroot</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">57</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QPOSERR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Location search exceeds key count at block: %s</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">58</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOT64BIT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index file likely not LFS (64bit) enabled; doesn&#8217;t match
+library.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">59</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Q64BIT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Index file likely LFS (64bit) enabled; doesn&#8217;t match
+library.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">60</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QNOTDUP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duplicate key address does not reference a duplicate
+block: %s.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">61</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QDUPSZ</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Duplicate key entry has wrong size.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">62</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">QBADIR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bad direction parameter.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="TestHarness">B Tree Test Harness</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The B Tree library is distributed with a test harness, <code>bt</code>, which
+exercises all of the functions supplied by the B Tree library.</p>
+</div>
+<div class="paragraph">
+<p>Most <code>bt</code> commands correspond directly to a matching B Tree library
+function call. Additional commands are available to automate testing
+scripts and manage concurrently open files. <code>bt</code> reads from stdin and
+writes normal output to stdout. Terminal error messages go to stderr. A
+prompt of <em>bt:</em> is issued prior to reading from stdin. Long running
+commands may be interrupted using cntrl-c, which will return to the
+command prompt.</p>
+</div>
+<div class="paragraph">
+<p><code>bt</code> is built with GNU readline support, if readline libraries and
+include files are detected when building the BT library and supporting
+tools. Readline enables <code>bt</code> to offer command editing, command history
+and file completion. More information on the capabilities provided by
+readline can be found in the
+<a href="http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html#Documentation"><code>full GNU documentation</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>A typical <code>bt</code> session might look like:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>      $ bt
+      bt: c test
+      bt: d newkey 55
+      bt: f newkey
+      Key: 'newkey' = 55
+      bt: dd datakey some_text_string
+      bt: fd datakey
+      Data returned: 'some_text_string'
+      bt: fd datakey d
+      some_text_string
+      bt: b abuf 512
+      bt: dd bufkey *abuf
+      bt: fd bufkey
+      Data record:
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      aaaaaaaaaaaaaaaaaaaaaaaaa'
+      bt: sd bufkey
+      Key 'bufkey' record size: 512 bytes
+      bt: q
+      $</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>bt</code> commands have a both a full and abbreviated versions. The
+descriptions below show the full command first, followed by the
+abbreviated version (comma separated). A command may optionally be
+followed by an argument and a qualifier. The following table lists the
+commands supported by <code>bt</code>:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>buffer,b</code> &lt;bufname&gt; &lt;size&gt; &lt;filename&gt;</dt>
+<dd>
+<p>Buffer: Creates a data buffer called <em>bufname</em>. If the numeric <em>size</em>
+argument is given, the buffer is created with that number of bytes. The
+buffer is filled with the first character of the <em>bufname</em>. If the
+<em>size</em> argument is non-numeric, it is assumed to be a file name, and the
+contents of the file are read into the buffer. The data buffer can
+subsequently be specified as data for a <a href="#dd"><code>define-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>buffer-delete,bd</code> &lt;bufname&gt;</dt>
+<dd>
+<p>Buffer Delete: Deletes an existing data buffer identified by <em>bufname</em>.</p>
+</dd>
+<dt class="hdlist1"><code>buffer-list,bl</code></dt>
+<dd>
+<p>Buffer List: Lists the names of the currently defined data buffers on
+stdout.</p>
+</dd>
+<dt class="hdlist1"><code>check-order,co</code> s c</dt>
+<dd>
+<p>Check Order: Checks the lexicographic order of keys in the current root,
+starting from the current position within the BTree. If the s argument
+is given, the check is performed from the first key of the BTree index.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If a disordered index is discovered, the keys at fault are displayed.
+Otherwise, <code>check-order</code> is silent, unless the c argument is specified,
+which causes the number of keys checked to be displayed.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>create,c</code> &lt;filename&gt; s</dt>
+<dd>
+<p>Create file: Creates a new B Tree file. If a file of the same name
+already exists, it will be silently overwritten. If the <em>s</em> qualifier is
+given, the file will be created in shared mode. The newly created B Tree
+file becomes the current file; use the <a href="#fl"><code>file-list</code></a> command to
+view the list of open files.</p>
+</dd>
+<dt class="hdlist1"><code>change-root,cr</code> &lt;rootname&gt;</dt>
+<dd>
+<p>Change Root: Switches the current root to the root named <em>rootname</em> in
+the in-use B Tree file. If switch is successful, <em>rootname</em> becomes the
+current root. All subsequent key and/or data operations will take place
+against <em>rootname</em>.</p>
+</dd>
+<dt class="hdlist1"><code>close,x</code></dt>
+<dd>
+<p>Close: Closes the in-use B Tree file. The next available open file, if
+one exists, is automatically made the in-use B Tree file. If there are
+no candidate B Tree files, a warning message is issued.</p>
+</dd>
+<dt class="hdlist1"><code>define,d</code> &lt;key&gt; &lt;value&gt;</dt>
+<dd>
+<p>Define key: Defines a new key in the current root of the in-use B Tree
+index file. The new key name is defined by <em>key</em>, and is assigned
+<em>value</em>. If <em>value</em> is omitted, zero is assumed.</p>
+</dd>
+<dt class="hdlist1"><code>data-address,da</code> &lt;key&gt; i</dt>
+<dd>
+<p>Data Address: Prints, in a decoded form, the data segment address
+associated with <em>key</em>. If the <em>i</em> qualifier is given, the <em>key</em> is
+interpreted as data segment address in integer form and decoded
+immediately.</p>
+</dd>
+<dt class="hdlist1"><code>define-data,dd</code> &lt;key&gt; &lt;string&gt; &lt;*bufname&gt;</dt>
+<dd>
+<p>Define key with Data: Defines a new key with an associated data record
+in the current root of the in-use B Tree index file. <em>key</em> defines the
+key name. Data can be provided in one of two ways: either a plain string
+or the name of a previously defined buffer can be specified. If the
+latter, it should be indicated by a leading <em>*</em>.</p>
+</dd>
+<dt class="hdlist1"><code>define-root,dr</code> &lt;rootname&gt;</dt>
+<dd>
+<p>Define Root: Creates a new B Tree index root, named <em>rootname</em> in the
+currently selected B Tree file. If creation is successful, the current
+root becomes the new root. All subsequent key and/or data operations
+will take place against the new root.</p>
+</dd>
+<dt class="hdlist1"><code>duplicates,dups</code> on off</dt>
+<dd>
+<p>Duplicates: Sets or unsets support for duplicate keys in the current
+root. When <em>on</em> is specified, duplicate keys are permitted. When <em>off</em>,
+duplicate keys are not permitted .</p>
+</dd>
+<dt class="hdlist1"><code>echo,ec</code> on off</dt>
+<dd>
+<p>a
+Echo: When <code>echo</code> is <em>on</em>, commands read from an <a href="#e"><code>execute</code></a> file
+are echoed to stdout. If <em>off</em>, no echo is performed.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If no argument is given to <code>echo</code>, the current status of the echo
+setting is displayed.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>error,er</code> on off</dt>
+<dd>
+<p>a
+Error: When <code>error</code> is <em>on</em>, an execution error while reading commands
+from an <a href="#e"><code>execute</code></a> file will cause termination of the execute
+file. If <em>off</em>, command execution will continue when errors are
+encountered.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If no argument is given to <code>error</code>, the current status of the error
+setting is displayed.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>execute,e</code> &lt;filename&gt;</dt>
+<dd>
+<p>a
+Execute: Causes commands to be read and executed from the file denoted
+by <em>filename</em>. <code>execute</code> commands can be nested, currently up to five
+deep. No command prompts will be issued while reading commands from a
+file.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>See also the <a href="#echo"><code>echo</code></a> and <a href="#error"><code>error</code></a> command
+descriptions for more information on execution control when reading
+commands from a file.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>find,f</code> &lt;key&gt;</dt>
+<dd>
+<p>a
+Find: Attempts to locate <em>key</em> in the current root of the in-use B Tree
+index file. If found, the value associated with the key is printed.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If <em>key</em> is omitted, the index is positioned prior to the first key
+(like <a href="#pos"><code>position</code></a> <em>s</em>).</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>find-data,fd</code> &lt;key&gt; d</dt>
+<dd>
+<p>Find Data: Attempts to locate <em>key</em> in the current root of the in-use B
+Tree index file. If found, the first 80 bytes of the data record
+associated with the key is displayed. If the <em>d</em> qualifier is given, the
+whole of the data record is displayed. Note that the data record is
+displayed as character data; control characters or escape sequences in
+the data record could cause strangenesses on display.</p>
+</dd>
+<dt class="hdlist1"><code>file-list,fl</code></dt>
+<dd>
+<p>File List: Lists the set of open B Tree index files. To change the
+current file, issue a <a href="#u"><code>use</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>list,l</code> c</dt>
+<dd>
+<p>a
+List: Displays all key and associated value, starting from the current
+key in the current root of the in-use B Tree index file. The current key
+is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If the <em>c</em> argument is given, the count of keys listed will be displayed
+in addition.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>list-data,ld</code></dt>
+<dd>
+<p>List Data: Displays all keys, and associated data records, starting
+from the current key in the current root of the in-use B Tree index
+file. The current key is set by the last <a href="#f"><code>find</code></a>,
+<a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>
+<a href="#prv"><code>previous</code></a> or <a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>list-data-prev,ldp</code></dt>
+<dd>
+<p>List Data Previous: Displays all keys, and associated data records,
+prior to the current key in the current root of the in-use B Tree index
+file. The current key is set by the last <a href="#f"><code>find</code></a>,
+<a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>
+<a href="#prv"><code>previous</code></a> or <a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>list-prev,lp</code> c</dt>
+<dd>
+<p>a
+List Previous: Displays all keys, and associated value, prior to the
+current key in the current root of the in-use B Tree index file. The
+current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If the <em>c</em> argument is given, the count of keys listed will be displayed
+in addition.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>list-keys-only,lko</code></dt>
+<dd>
+<p>List Keys Only: Displays all keys, but not associated value, starting
+from the current key in the current root of the in-use B Tree index
+file. The current key is set by the last <a href="#f"><code>find</code></a>,
+<a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>,
+<a href="#prv"><code>previous</code></a> or <a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>lock,lk</code></dt>
+<dd>
+<p>Lock: Acquires exclusive access to the in-use B Tree file which was
+originally opened in shared mode. If the file was opened in exclusive
+mode (the default), <code>lock</code> will have no effect.</p>
+</dd>
+<dt class="hdlist1"><code>next,n</code></dt>
+<dd>
+<p>Next: Displays the key following the current key in the current root of
+the in-use B Tree index file. The current key is set by the last
+<a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
+<a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>next-data,nd</code></dt>
+<dd>
+<p>Next Data: Displays the key and associated data record following the
+current key in the current root of the in-use B Tree index file. The
+current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>open,o</code> &lt;filename&gt; s</dt>
+<dd>
+<p>Open: Opens the existing B Tree file identified by <em>filename</em>. If the
+optional <em>s</em> qualifier is given, the file will be opened in shared mode.
+More than one B Tree index file may be open currently; the newly opened
+file is made the in-use B Tree file. The in-use file may be changed by
+the <a href="#u"><code>use</code></a> command, while the list of open files is displayed
+through the <a href="#fl"><code>file-list</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>open-readonly,or</code> &lt;filename&gt; s</dt>
+<dd>
+<p>Open Readonly: Opens the existing B Tree file identified by <em>filename</em>
+in read-only mode. If the optional <em>s</em> qualifier is given, the file will
+be opened in shared mode. More than one B Tree index file may be open
+currently; the newly opened file is made the in-use B Tree file. The
+in-use file may be changed by the <a href="#u"><code>use</code></a> command, while the list
+of open files is displayed through the <a href="#fl"><code>file-list</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>position,pos</code> s e</dt>
+<dd>
+<p>Position: Sets the position in the current root. <em>s</em> will cause the
+position to be set prior to the first key in the index, <em>e</em> will cause
+the position to be set after the last key.</p>
+</dd>
+<dt class="hdlist1"><code>prompt,p</code></dt>
+<dd>
+<p>Prompt: Toggles the display of a command prompt when <code>bt</code> is ready for
+the next user command.</p>
+</dd>
+<dt class="hdlist1"><code>previous,prv</code></dt>
+<dd>
+<p>Previous: Displays the key prior to the current key in the current root
+of the in-use B Tree index file. The current key is set by the last
+<a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
+<a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>previous-data,pd</code></dt>
+<dd>
+<p>Previous Data: Displays the key and associated data record prior to the
+current key in the current root of the in-use B Tree index file. The
+current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>quit,q</code></dt>
+<dd>
+<p>Quit: Terminates <code>bt</code>. Any open B Tree files will be closed
+automatically.</p>
+</dd>
+<dt class="hdlist1"><code>remove,r</code> &lt;key&gt;</dt>
+<dd>
+<p>Remove key: Removes a previously defined key in the current root of the
+in-use B Tree index file. The key name is specified by <em>key</em>.</p>
+</dd>
+<dt class="hdlist1"><code>remove-cur,rc</code></dt>
+<dd>
+<p>Remove Current key: Removes the current key in the current root of the
+in-use B Tree index file. The current key is set by the last
+<a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
+<a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>remove-data,rd</code> &lt;key&gt;</dt>
+<dd>
+<p>Removes key with Data: Removes a previously defined key and its
+associated data record in the current root of the in-use B Tree index
+file. <em>key</em> defines the key name.</p>
+</dd>
+<dt class="hdlist1"><code>remove-data-cur,rdc</code></dt>
+<dd>
+<p>Removes Current Data: Removes the current key and its associated data
+record in the current root of the in-use B Tree index file. The current
+key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>remove-root,rr</code> &lt;rootname&gt;</dt>
+<dd>
+<p>Remove Root: Removes an existing B Tree index root, named <em>rootname</em> in
+the in-use B Tree file. If removal is successful, all blocks used by the
+root (both index and data) will be returned to the free list. It is not
+permitted to remove the current root.</p>
+</dd>
+<dt class="hdlist1"><code>show,s</code> control super stats space stack block &lt;n&gt; structure v</dt>
+<dd>
+<p>a
+Show: Displays B Tree debug information. The option specified is passed
+directly to the <code>bdbug</code> function. See the <a href="#bdbug"><code>bdebug</code></a>
+description for the information provided by each option.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>For the <em>structure</em> option, specifying <em>v</em> will cause a detailed report
+on the structure to be displayed. Otherwise, only a summary is
+displayed.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>size-data,sd</code> &lt;key&gt;</dt>
+<dd>
+<p>a
+Size Data: Displays the number of bytes occupied by the data record
+associated with <em>key</em>. If <em>key</em> is omitted, the size of the data record
+associated with the current key is displayed. The current key is set by
+the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
+<a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If <em>key</em> has no associated data record, results are undefined.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>system,!</code> &lt;command&gt;</dt>
+<dd>
+<p>System: Passes the text following the system command to the shell for
+execution.</p>
+</dd>
+<dt class="hdlist1"><code>use,u</code> &lt;filename&gt;</dt>
+<dd>
+<p>Use: Changes the in-use B Tree file to <em>filename</em>. The file must have
+already been opened or created, using the <a href="#o"><code>open</code></a> or
+<a href="#c"><code>create</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>update-data,ud</code> &lt;key&gt; &lt;string&gt; &lt;*bufname&gt;</dt>
+<dd>
+<p>Update Data: Updates an existing key with a new associated data record
+in the current root of the in-use B Tree index file. <em>key</em> defines the
+key name. Data can be provided in one of two ways: either a plain string
+or the name of a previously defined buffer can be specified. If the
+latter, it should be indicated by a leading <em>*</em>.</p>
+</dd>
+<dt class="hdlist1"><code>update-data-cur,udc</code> &lt;string&gt; &lt;*bufname&gt;</dt>
+<dd>
+<p>Update Data Current: Updates the current key with a new associated data
+record in the current root of the in-use B Tree index file. The current
+key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command. Data can be provided in one of two
+ways: either a plain string or the name of a previously defined buffer
+can be specified. If the latter, it should be indicated by a leading
+<em>*</em>.</p>
+</dd>
+<dt class="hdlist1"><code>unlock,ulk</code></dt>
+<dd>
+<p>Unlock: Unlocks the in-use B Tree file, if it was locked with the <code>lk</code>
+command. If not locked, or the file was originally opened in exclusive
+mode, <code>unlock</code> has no effect.</p>
+</dd>
+<dt class="hdlist1"><code>update-value,uv</code> &lt;key&gt; &lt;value&gt;</dt>
+<dd>
+<p>Update Value: Modifies the value associated with <em>key</em> in the current
+root of the in-use B Tree index file.</p>
+</dd>
+<dt class="hdlist1"><code>update-value,uv</code> &lt;value&gt;</dt>
+<dd>
+<p>Update Value Current: Modifies the value associated with current key
+<em>key</em> in the current root of the in-use B Tree index file. The current
+key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
+<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<a href="#pd"><code>previous-data</code></a> command.</p>
+</dd>
+<dt class="hdlist1"><code>write-threshold,wt</code> &lt;threshold&gt;</dt>
+<dd>
+<p>Write Threshold: Sets the number of index block updates beyond which
+the block contents must be writtent to disk. A <em>threshold</em> of zero means
+writes will not take place unless a block must be flushed to disk.</p>
+</dd>
+<dt class="hdlist1"><code>help,?</code> cmd</dt>
+<dd>
+<p>Help: Displays a list of <code>bt</code> commands and a terse description of
+syntax and usage. If <em>cmd</em> is specified, only help on that command will
+be displayed.</p>
+</dd>
+<dt class="hdlist1"><code>comment,#</code></dt>
+<dd>
+<p>Comment: <code>bt</code> will ignore any line starting with a <code>#</code>. Note that <code>bt</code>
+will also ignore blank lines.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Recovery">B Tree Recovery</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>btr</code> provides a B Tree recovery facility. Recovery of a B Tree index
+file may be required if it is left in an inconsistent state due to a
+hardware or software failure during update processing.</p>
+</div>
+<div class="paragraph">
+<p><code>btr</code> may also be used to migrate a Btree index file created with an
+earlier version of the Btree library to current version. Due to limited
+recovery information in earlier versions of the Btree index file, such
+migration is really only applicable to single-rooted B Tree index files.</p>
+</div>
+<div class="sect2">
+<h3 id="_name">Name</h3>
+<div class="paragraph">
+<p>btr - B Tree index recovery</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_synopsis">Synopsis</h3>
+<div class="paragraph">
+<p><code>btr [-a | -d | -f | -k | -n cnt | -r | -v |&#8201;&#8212;&#8201;] &lt;old_file&gt; &lt;new_file&gt;</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_description">Description</h3>
+<div class="paragraph">
+<p><code>btr</code> will attempt to recover key (and optionally data) information from
+the B Tree index file identified by &lt;old_file&gt;. The recovered contents
+are written to the B Tree index file identified by &lt;new_file&gt;. <code>btr</code>
+recovery is controlled by a number of arguments:</p>
+</div>
+<div class="sect3">
+<h4 id="_command_arguments">Command Arguments</h4>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 15%;">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-k | -d</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies recovery mode; -k for keys, -d for keys and data.
+Default if omitted is -k.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-n &lt;cnt&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets maximum number of io errors to ignore before
+terminating the recovery. Default is 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-v</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Causes <code>btr</code> to display information on the recovery process. This
+flag may be repeated up to three times to increase the level of
+information. For a large B Tree index this could lead to a significant
+amount of output.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-a</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If specified, the B Tree index in &lt;new_file&gt; will allow duplicate
+keys. The default is not to allow duplicates.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-f</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If specified, the B Tree index represented by &lt;new_file&gt; will be
+overwritten. Default is to preserve &lt;new_file&gt;, should it exist.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-r</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests <code>btr</code> to attempt full recovery mode even if the version
+of the &lt;old_file&gt; does not support it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&#8201;&#8212;&#8201;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Causes <code>btr</code> to stop processing command arguments. Should be used
+if &lt;old_file&gt; begins with a '-'.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_recovery_processing">Recovery Processing</h4>
+<div class="paragraph">
+<p><code>btr</code> will attempt to open the input btree file using the btree library
+version of <code>btopn</code>. If this fails, the <code>btr</code> version of <code>btopn</code> is used
+instead, which bypasses the consistency checks.</p>
+</div>
+<div class="paragraph">
+<p>An attempt to read the superroot is made. If successful, the root names
+and root blocks are recorded. Only the roots present in the superroot
+are retained. Root names in any child blocks are ignored; the index
+structure may be damaged and therefore no attempt to traverse it is
+made.</p>
+</div>
+<div class="paragraph">
+<p>Each block, starting from 1, is read. If marked as ZROOT, ZINUSE or ZDUP
+the keys and values are extracted directly from the in-memory array. If
+-k specified, the key and value are written to the &lt;new_btree&gt; index
+file. If -d specified, and the value is a valid disk record address, an
+attempt is made to read the data record. Data record addresses are
+stored in a supporting bt index file (<code>.bt_da.db</code>), to enable detection
+of circular references. If the data record is read OK, the key and data
+record is written to the &lt;new_file&gt; btree file. If the data record
+cannot be read, only the key is written.</p>
+</div>
+<div class="paragraph">
+<p>In version 4 (and later) of the BTree index, each ZINUSE block contains
+the root block it belongs to. This data allows <code>btr</code> to partition keys
+by their roots. Only those roots recovered from the superroot will be
+named as in the &lt;old_file&gt;. Keys from other roots will be copied to new
+roots, named after their root block number (e.g. root_19834).</p>
+</div>
+<div class="paragraph">
+<p><code>btr</code> will display summary statistics about the recovery on stdout when
+complete.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_exit_status">Exit Status</h4>
+<div class="paragraph">
+<p>0 if OK.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_notes">Notes</h3>
+<div class="paragraph">
+<p><code>btr</code> can be used to recover (or indeed migrate) data from earlier (i.e.
+pre-version 4) versions of a Btree index file. Since the root block
+numbers are not held in the ZINUSE blocks, keys can not be partitioned
+by root. Therefore, this facility is only really applicable to
+single-rooted B Tree index files.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Customisation">Customisation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>All compile time constants are defined in the header file <code>bc.h</code>. The
+following constants may be altered for different hardware environments.
+The values used in the example given are from the original UNIX
+implementation.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">ZBPW</dt>
+<dd>
+<p>The number of bytes in a word.</p>
+</dd>
+<dt class="hdlist1">ZBYTEW</dt>
+<dd>
+<p>The number of bits in a byte.</p>
+</dd>
+<dt class="hdlist1">ZMXBLK</dt>
+<dd>
+<p>Maximum number of in-memory disk blocks that can be stored. The
+minimum value for this parameter is 3; there is no maximum. The more
+in-memory blocks defined, the lower the disk I/O requirements will be.</p>
+</dd>
+<dt class="hdlist1">ZBLKSZ</dt>
+<dd>
+<p>The number of bytes allocated to a disk block. This value should be
+set to a multiple of the physical disk block size. This must be
+defined as a power of two.</p>
+</dd>
+<dt class="hdlist1">ZKEYSZ</dt>
+<dd>
+<p>The maximum size (in bytes) of a key.</p>
+</dd>
+<dt class="hdlist1">ZTHRES</dt>
+<dd>
+<p>Threshold for block joining. This value determines the number of free
+key slots that must exist before two blocks are considered candidates
+for joining.</p>
+</dd>
+<dt class="hdlist1">ZMXACT</dt>
+<dd>
+<p>The maximum number of B Tree files that may be open concurrently.</p>
+</dd>
+<dt class="hdlist1">ZSLEEP</dt>
+<dd>
+<p>The number of seconds to wait for a B Tree file to become unlocked,
+when in shared mode.</p>
+</dd>
+<dt class="hdlist1">ZRNAMESZ</dt>
+<dd>
+<p>The maximum number of bytes returned for the name of the function
+reporting a BT error (via btcerr)/</p>
+</dd>
+<dt class="hdlist1">ZMSGSZ</dt>
+<dd>
+<p>The maximum number of bytes returned for the error message of the
+corresponding to a BT library error (via btcerr).</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>These compile time constants are assigned the following values in the
+distributed version:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>      ZBPW =        4
+      ZBYTEW =      8
+      ZMXBLK =      3     (16 when LFS=1)
+      ZBLKSZ =   1024     (8192 when LFS=1)
+      ZKEYSZ =     32
+      ZTHRES =      3
+      ZMXACT =      5
+      ZSLEEP =      5
+      ZRNAMESZ =   16
+      ZMSGSZ =    123</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These values result in the minimum memory usage. If memory is not a
+constraint, increasing the values for ZMXBLK and ZBLKSZ will make the B
+Tree implementation much faster, e.g try:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>      ZMXBLK =  100
+      ZBLKSZ = 8192</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The number of keys that can be stored in a block is determined at
+compile time, using the following definition:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>      #define ZMXKEY ((ZBLKSZ-ZBPW-ZINFSZ*ZBPW)/(ZKYLEN+2*ZBPW))</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>N.B. ZINFSZ is the number of information words that a block must carry
+as overhead. This value is six in this implementation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Building">Building and installing the BT Library</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The BT library is distributed as a tar file, which contains a set of C
+source and header files, a <code>Makefile</code> and a set of testcases.</p>
+</div>
+<div class="paragraph">
+<p>First, unpack the tar file into a convenient directory. cd to the
+directory containing the source files and issue the command
+<code>make clean;make</code>. This will compile each BT library file, and create
+the UNIX static library <code>libbt.a</code> in the <code>lib</code> sub-directory. <code>make</code>
+will also built the BT test harness <code>bt</code>, a utility, <code>kcp</code>, which
+performs intelligent copies of BT index files, a BTree index recovery
+tool <code>btr</code> and two additional testing utilities, <code>bigt</code> and <code>bigtdel</code>,
+for large file handling.</p>
+</div>
+<div class="paragraph">
+<p>The default BT library build will create a 32-bit version, in which the
+maximum size of the index file is 2GiB. A version of BT with Large File
+Support can be built with the command <code>make clean;make LFS=1</code>.</p>
+</div>
+<div class="paragraph">
+<p>When compiling programs against a LFS version of BT, if you need to
+manipulate the <em>BTint</em> value associated with a key, ensure you set the
+compile-time flag _FILE_OFFSET_BITS=64, e.g:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>      $ gcc -o yak yak.c -Iinc -Llib -lbt -D_FILE_OFFSET_BITS=64</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is not necessary if you are just using the in-built data record
+functions (<code>btsel</code> etc).</p>
+</div>
+<div class="paragraph">
+<p>In order to test the newly created BT library, you can use the <code>bt</code> test
+harness for ad-hoc testing. Alternatively, the <code>Makefile</code> provides a
+means of automated testing. <code>make test_run</code> will run a set of testcases,
+held in the <code>Testcases</code> sub-directory. These testcases use <code>bt</code> scripts
+to test key components of the BT library, comparing the results against
+known, good, output templates. The output templates distributed with BT
+should suffice for most standard Linux and FreeBSD builds.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_revision_history">Revision History</h2>
+<div class="sectionbody">
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 10%;">
+<col style="width: 20%;">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Revision</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Date</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Comment</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5.0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1st July, 2020</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minor bug fixes. Modifications to accomodate changes in the toolchain since 2012 (GNU Make and C compilers).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5.0.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">26th November, 2012</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Revised duplicate key handling to remove index navigation restrictions when in shared mode.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4.0.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24th June, 2011</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add support for btree index recovery.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.1.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3rd January, 2011</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Document revised handling of duplicate keys in shared mode.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.1.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">21st December, 2010</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bump rev to match library version. No other changes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.1.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10th December, 2010</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Added support for previous key search, duplicate keys. Programs that link against the 3.0.x library will operate unchanged with 3.1.0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2nd July, 2010</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enhanced BT test harness; bug fixes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.0.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4th June, 2010</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Added support for large files (&gt; 2GiB)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10th May, 2008</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared access sleep time added as implementation constant</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">27th December, 2005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Changes to reflect that zero-length data records are valid</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3rd October, 2004</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">New text on implementation constants and file sizes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1st June, 2004</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reflect changes to API in version 2.0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13th April, 2003</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">First release</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_colophon">Colophon</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This manual was written in AsciiDoc using Emacs.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 5.0.1<br>
+Last updated 2024-04-30 16:42:58 +0100
+</div>
+</div>
+</body>
+</html>
