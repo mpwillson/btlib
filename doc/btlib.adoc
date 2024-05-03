@@ -2,7 +2,6 @@
 Mark Willson
 5.0.2, 03-05-2024: AsciiDoc documentation
 :toc: left
-:linkcss:
 
 [[preface]]
 == B Tree Library History
