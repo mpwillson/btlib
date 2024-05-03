@@ -16,7 +16,7 @@
 # BTMAKE	05Dec27 1.6 mpw
 #	Added release target
 # BTMAKE    070413  1.8 mpw
-#   Revised linking 
+#   Revised linking
 # BTMAKE    080509  mpw
 #	Make dependency file handling cleaner: ${DEP} is dependent on ${SRC}
 # BTMAKE    100525
@@ -29,6 +29,8 @@
 
 # Uncomment the following line for a debug version of the library
 # DEBUG=-g
+
+.PHONY:	test_run test_init clean release doc publish
 
 # Headers in INC_DIR
 INC_DIR=./inc
@@ -85,14 +87,14 @@ ${SRC}:	 ${INC_DIR}/bc.h ${INC_DIR}/bt.h ${INC_DIR}/btree_int.h \
 		${INC_DIR}/btree.h
 	touch $@
 
-${LIB_FILE}: ${SRC} 
+${LIB_FILE}: ${SRC}
 	${CC} -c ${CFLAGS} $?
 	${AR} ${ARFLAGS} $@ *.o
 	rm -f *.o
 
-bt:	${SRC_MAIN}/bt.c ${INC_DIR}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE} 
+bt:	${SRC_MAIN}/bt.c ${INC_DIR}/btcmd.h ${SRC_MAIN}/btcmd.c ${LIB_FILE}
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ ${SRC_MAIN}/bt.c ${SRC_MAIN}/btcmd.c \
-	${LIBS} 
+	${LIBS}
 
 kcp:	${SRC_MAIN}/kcp.c ${LIB_FILE}
 	${CC} ${CFLAGS} -o $@ ${SRC_MAIN}/kcp.c ${LIBS}
@@ -103,6 +105,7 @@ btr:  ${SRC_MAIN}/btr.c ${LIB_FILE} ${INC_DIR}/btr.h
 clean:
 	rm -f bt bigt bigtdel ${LIB_FILE} kcp \
 	btr ${OBJ} ${TESTCASES}/corrupt
+	cd doc; make clean
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
 	@etags $^
@@ -137,3 +140,9 @@ endif
         else \
             rm -f btlib-${REL}.tar.gz; \
         fi
+
+doc:
+	cd doc; make
+
+publish:
+	cd doc; make publish

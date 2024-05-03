@@ -1,6 +1,6 @@
 # BT Library README File
 
-4th July, 2020
+3rd May, 2024
 
 ## CONTENTS
     INTRODUCTION
@@ -36,8 +36,8 @@
     BT supports large files (> 2GB), if built with the Large File
     Support (LFS) option.
 
-    The BT library has been tested on GNU/Linux (Debian Buster),
-    OpenBSD 6.7 and FreeBSD 12.1.
+    The BT library has been tested on GNU/Linux (Debian Bookworm),
+    OpenBSD 7.5 and FreeBSD 14.0.
 
 ## UPDATING
     The BT Recovery program (btr) enables the migration of btree
@@ -62,6 +62,7 @@
         lib                 holds BT library archive
         samples             simple programs showing library API usage
         Testcases           driver and master output files for testing
+        doc                 API documentation (AsciiDoc and HTML)
 
     The BT library, a test harness (bt), additional testing tools for
     large files (bigt and bigtdel), recovery tool (btr) and a copy
@@ -111,8 +112,8 @@
     Documentation on the BT API is available in docbook format and
     HTML, also downloadable from https://hydrus.org.uk.
 
-    BT is dependent on very little, but it does require the gcc
-    compiler and GNU make.
+    BT is dependent on very little, but it does require a C compiler
+    and GNU make.
 
 ## BUGS
     On all platforms, shared file handling is clunky.
@@ -122,7 +123,8 @@
     email cdr.nil@gmail.com with relevant details.
 
 ## LICENCE
-    Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011, 2012, 2020.  Mark Willson
+    Copyright (C) 2003, 2004, 2005, 2008, 2010, 2011, 2012,
+                  2020, 2024.  Mark Willson
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -154,3 +156,4 @@
     24th June,      2011        4.0.0   Added recovery capabilities
     26th November,  2012        5.0.0   Duplicate key handling re-written
      4th July,      2020        5.0.1   Bug fixes; accomodate toolchain mods
+     3rd May,       2024        5.0.2   Documentation converted to AsciiDoc
