@@ -21,7 +21,7 @@
  * along with the B Tree library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-  
+
 #include <stdio.h>
 #include "bc.h"
 #include "bt.h"
@@ -29,11 +29,11 @@
 
 void bqadd(int idx)
 {
-    if (btact->cntxt->lru.lruh < 0) 
+    if (btact->cntxt->lru.lruh < 0)
         btact->cntxt->lru.lruh = idx;
     else
         ((btact->cntrl)+(btact->cntxt->lru.lrut))->lrunxt = idx;
-        
+
     btact->cntxt->lru.lrut = idx;
     ((btact->cntrl)+idx)->lrunxt = -1;
 #if DEBUG >= 2
@@ -42,7 +42,7 @@ void bqadd(int idx)
 #endif
 }
 
-int bqhead()
+int bqhead(void)
 {
     int idx;
 
@@ -61,7 +61,7 @@ int bqhead()
 int bqmove(int idx)
 {
     int i;
-    
+
 #if DEBUG >= 4
     printf("Before move of idx %d:  lruh: %d, lrut: %d\n",idx,btact->cntxt->lru.lruh,btact->cntxt->lru.lrut);
     for (i=0;i<ZMXBLK;i++) printf("lrunxt[%d] = %d  ",i,((btact->cntrl)+i)->lrunxt);
@@ -72,7 +72,7 @@ int bqmove(int idx)
         goto fin;
     }
     if (idx == btact->cntxt->lru.lrut) return(0);
-     
+
     if (idx == btact->cntxt->lru.lruh)
         btact->cntxt->lru.lruh = ((btact->cntrl)+idx)->lrunxt;
     else {
@@ -100,4 +100,3 @@ int bqmove(int idx)
 fin:
     return(0);
 }
-

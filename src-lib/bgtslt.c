@@ -5,7 +5,7 @@
  *
  * Parameters:
  *   None
- *    
+ *
  * bgtslt returns index of free memory block
  *
  * Copyright (C) 2003, 2004 Mark Willson.
@@ -32,7 +32,7 @@
 #include "bt.h"
 #include "btree_int.h"
 
-int bgtslt()
+int bgtslt(void)
 {
     int idx, i;
 

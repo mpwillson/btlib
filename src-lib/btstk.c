@@ -40,11 +40,11 @@
 #include "bt.h"
 #include "btree_int.h"
 
-BTint bpull()
+BTint bpull(void)
 {
     BTint val = 0;
 
-    if (btact->cntxt->stk.stkptr < 0) 
+    if (btact->cntxt->stk.stkptr < 0)
         bterr("BPULL",QSTKUF,NULL);
     else {
         val = btact->cntxt->stk.stk[btact->cntxt->stk.stkptr];
@@ -65,7 +65,7 @@ int bpush(BTint val)
     return(0);
 }
 
-void bstkin()
+void bstkin(void)
 {
     btact->cntxt->stk.stkptr = -1;
 }

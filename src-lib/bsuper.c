@@ -6,7 +6,7 @@
  * bwrsup  - writes super root
  *
  * Both return 0 for success, error code otherwise
- * 
+ *
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -32,11 +32,11 @@ c * modify it under the terms of the GNU General Public License as
 #include "btree_int.h"
 
 /* get super root from disk */
-int brdsup()
+int brdsup(void)
 {
     int errcode,idx;
     BTint ver, type, misc;
-    
+
     errcode = brdblk(ZSUPER,&idx);
     if (errcode != 0) {
         bterr("BRDSUP",QRDSUP,(errcode<0)?"(EOF?)":"");
@@ -68,7 +68,7 @@ int brdsup()
 }
 
 /* update super root on disk */
-int bwrsup()
+int bwrsup(void)
 {
     int errcode,idx;
     BTint nkeys;

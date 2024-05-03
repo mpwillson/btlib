@@ -1,6 +1,6 @@
 /*
  * $Id: bt.c,v 1.44 2012-11-15 17:36:37 mark Exp $
- * 
+ *
  * =====================================================================
  * test harness for B Tree routines
  * =====================================================================
@@ -69,13 +69,13 @@ char *strsave(char *s)
 {
     char *p;
     int slen = strlen(s)+1;
-    
+
     p = (char *) malloc(slen);
     if (p == NULL) {
         fprintf(stderr,"no memory for string\n");
         return NULL;
     }
-    strncpy(p,s,slen);    
+    strncpy(p,s,slen);
     return p;
 }
 
@@ -143,7 +143,7 @@ int add_data(char *f, int size)
         fprintf(stderr,"bt: no memory for new data buffer header\n");
         return(FALSE);
     }
-    
+
     b->name = strsave(f);
     b->fn = NULL;
     b->bptr = (char *) malloc(size);
@@ -300,7 +300,7 @@ void free_buffers(struct bt_blist *bh)
 int buffer_create(CMDBLK* c)
 {
     int status = 0;
-    
+
     /* delete any previous definition */
     del_data(c->arg);
     if (c->qual_int == 0) {
@@ -319,7 +319,7 @@ int buffer_create(CMDBLK* c)
 int buffer_delete(CMDBLK* c)
 {
     int status = 0;
-    
+
     if (!del_data(c->arg)) {
         fprintf(stderr,"unable to delete data buffer: %s\n",c->arg);
         status = 1;
@@ -401,12 +401,12 @@ int quit(CMDBLK* c)
 }
 
 /* closes open index files prior to exit */
-void shutdown()
+void shutdown(void)
 {
     int status = 0;
 
     free_buffers(bhead);
-    
+
     while (phead != NULL && status == 0) {
         status = btcls(phead->b);
         phead = phead->next;
@@ -421,7 +421,7 @@ void shutdown()
 int close_file(CMDBLK* c)
 {
     int status = 0;
-    
+
     if (btp != NULL) {
         status = btcls(btp);
         if (status == 0) {
@@ -447,7 +447,7 @@ int find_key(CMDBLK* c)
 {
     int status;
     BTint val;
-    
+
     status = bfndky(btp,c->arg,&val);
     if (status == 0) {
         printf("Key: '%s' = " ZINTFMT "\n",c->arg,val);
@@ -483,7 +483,7 @@ int next_key(CMDBLK* c)
     int status;
     BTint val;
     char key[ZKYLEN];
-    
+
     status = bnxtky(btp,key,&val);
     if (status == QNOKEY) {
         printf("No more keys\n");
@@ -501,7 +501,7 @@ int list(CMDBLK* c)
         count = 0;
     BTint val;
     char key[ZKYLEN];
-    
+
     while (status == 0) {
         status = bnxtky(btp,key,&val);
         if (status == 0) {
@@ -520,7 +520,7 @@ int list_keys(CMDBLK* c)
         count = 0;
     BTint val;
     char key[ZKYLEN];
-    
+
     while (status == 0) {
         status = bnxtky(btp,key,&val);
         if (status == 0) {
@@ -538,7 +538,7 @@ int prev_key(CMDBLK* c)
     int status;
     BTint val;
     char key[ZKYLEN];
-    
+
     status = bprvky(btp,key,&val);
     if (status == QNOKEY) {
         printf("No more keys\n");
@@ -556,7 +556,7 @@ int list_keys_prev(CMDBLK* c)
     int count = 0;
     BTint val;
     char key[ZKYLEN];
-    
+
     while (status == 0) {
         status = bprvky(btp,key,&val);
         if (status == 0) {
@@ -572,23 +572,23 @@ int list_keys_prev(CMDBLK* c)
 int remove_key(CMDBLK* c)
 {
     int status;
-    
-    status = bdelky(btp,c->arg); 
+
+    status = bdelky(btp,c->arg);
     return status;
 }
 
 int remove_key_current(CMDBLK* c)
 {
     int status;
-    
-    status = bdelky(btp,NULL); 
+
+    status = bdelky(btp,NULL);
     return status;
 }
 
 int define_root(CMDBLK* c)
 {
     int status;
-    
+
     status = btcrtr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"Can't create root: '%s'\n",c->arg);
@@ -600,7 +600,7 @@ int define_root(CMDBLK* c)
 int change_root(CMDBLK* c)
 {
     int status;
-    
+
     status = btchgr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"Can't change root to: '%s'\n",c->arg);
@@ -612,7 +612,7 @@ int change_root(CMDBLK* c)
 int remove_root(CMDBLK* c)
 {
     int status;
-    
+
     status = btdelr(btp,c->arg);
     if (status == QNOKEY) {
         fprintf(stdout,"No such root as '%s'\n",c->arg);
@@ -637,7 +637,7 @@ int file_list(CMDBLK* c)
 int use_file(CMDBLK* c)
 {
     int status = 0;
-    
+
     if (STREMP(c->arg)) {
         if (btp != NULL) {
             struct bt_plist *p;
@@ -670,7 +670,7 @@ int define_data(CMDBLK* c)
 {
     int status = 0;
     struct bt_blist *blk;
-    
+
     /* check for use of data buffer */
     if (c->qualifier[0] == '*') {
         blk = get_data((c->qualifier)+1);
@@ -693,7 +693,7 @@ int find_data(CMDBLK* c)
     int status = 0;
     int datasize;
     char* dbuf;
-    
+
     if (strcmp(c->qualifier,"d") == 0) {
         /* determine record size */
         status = btrecs(btp,c->arg,&datasize);
@@ -715,25 +715,25 @@ int find_data(CMDBLK* c)
             free(dbuf);
         }
     }
-    
+
     if (status == QNOKEY) {
         if (!STREMP(c->arg)) {
             fprintf(stdout,"No such key as '%s'\n",c->arg);
             suppress_error_msg = TRUE;
-        }   
+        }
         else {
             /* looking for empty string is not an error */
             status = 0;
         }
     }
     return status;
-}       
+}
 
 int update_data(CMDBLK* c)
 {
     int status = 0;
     struct bt_blist *blk;
-    
+
     if ((c->qualifier)[0] == '*') {
         blk = get_data((c->qualifier)+1);
         if (blk != NULL) {
@@ -755,7 +755,7 @@ int update_data_current(CMDBLK* c)
 {
     int status = 0;
     struct bt_blist *blk;
-    
+
     if ((c->arg)[0] == '*') {
         blk = get_data((c->arg)+1);
         if (blk != NULL) {
@@ -793,7 +793,7 @@ int size_data(CMDBLK* c)
     else {
         status = btrecs(btp,c->arg,&size);
     }
-    
+
     if (status == 0) {
         printf("Key '%s' record size: %d bytes\n",c->arg,size);
     }
@@ -806,7 +806,7 @@ int list_data(CMDBLK* c)
     char key[ZKYLEN];
     int status = 0,
         size, nkeys = 0;
-    
+
     while (status == 0) {
         status = btseln(btp,key,buf,DATABUFSZ,&size);
         if (status == 0) {
@@ -826,12 +826,12 @@ int list_data_prev(CMDBLK* c)
     char key[ZKYLEN];
     int status = 0,
         size, nkeys = 0;
-    
+
     while (status == 0) {
         status = btselp(btp,key,buf,DATABUFSZ,&size);
         if (status == 0) {
             nkeys++;
-            
+
             buf[(size==DATABUFSZ?size-1:size)] = '\0';
             printf("Key: '%s' - Data: '%s'\n",key,buf);
         }
@@ -846,7 +846,7 @@ int next_data(CMDBLK* c)
     char buf[DATABUFSZ];
     char key[ZKYLEN];
     int  status,size;
-    
+
     status = btseln(btp,key,buf,DATABUFSZ,&size);
     if (status == 0) {
         buf[(size==DATABUFSZ?size-1:size)] = '\0';
@@ -860,7 +860,7 @@ int previous_data(CMDBLK* c)
     char buf[DATABUFSZ];
     char key[ZKYLEN];
     int  status,size;
-    
+
     status = btselp(btp,key,buf,DATABUFSZ,&size);
     if (status == 0) {
         buf[(size==DATABUFSZ?size-1:size)] = '\0';
@@ -882,7 +882,7 @@ int unlock_file(CMDBLK* c)
 int update_value(CMDBLK* c)
 {
     int status;
-    
+
     status = bupdky(btp,c->arg,c->qual_int); /* only int update! */
     return status;
 }
@@ -890,7 +890,7 @@ int update_value(CMDBLK* c)
 int update_value_current(CMDBLK* c)
 {
     int status;
-    
+
     status = bupdky(btp,NULL,strtol(c->arg,NULL,10)); /* only int update! */
     return status;
 }
@@ -941,10 +941,10 @@ int chk_order(CMDBLK* c)
     BTint val;
     char key[ZKYLEN], last_key[ZKYLEN];
 
-    if (strncmp(c->qualifier,"s",1) == 0 || strncmp(c->arg,"s",1) == 0) {   
+    if (strncmp(c->qualifier,"s",1) == 0 || strncmp(c->arg,"s",1) == 0) {
         btpos(btp,ZSTART);
     }
-    
+
 
     last_key[0] = '\0';
     while (status == 0) {
@@ -963,7 +963,7 @@ int chk_order(CMDBLK* c)
     if (strncmp(c->arg,"c",1) == 0 || strncmp(c->qualifier,"c",1) == 0) {
         printf("%d keys checked\n",count);
     }
-    
+
     return ((status==0||status==QNOKEY)?0:status);
 }
 
@@ -1084,12 +1084,12 @@ void report_error(int i)
         }
     }
 }
-    
+
 int main(int argc,char *argv[])
 {
     int quit_type;
     char *ps = "bt: ";
-    
+
     if (btinit() != 0) {
         report_error(0);
         return EXIT_FAILURE;
@@ -1101,4 +1101,3 @@ int main(int argc,char *argv[])
     }
     return EXIT_SUCCESS;
 }
-

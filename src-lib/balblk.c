@@ -27,13 +27,13 @@
 #include "bt.h"
 #include "btree_int.h"
 
-void balblk() 
+void balblk(void)
 {
     BTint val,llink,rlink,cblk;
     int nkeys,cnkeys,result,diff;
     char tkey[ZKYLEN];
     KEYENT* kep;
-    
+
     cblk = btact->cntxt->lf.lfblk;
     /* get parent block */
     btact->cntxt->lf.lfpos = bpull();

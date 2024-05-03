@@ -1,6 +1,6 @@
 /*
  * $Id: btcmd.c,v 1.13 2012/10/23 19:19:44 mark Exp $
- * 
+ *
  * =====================================================================
  * Simple parser for BT test harness
  * =====================================================================
@@ -57,7 +57,7 @@
  *      can make available to the end user; these are commands related
  *      to scripting, help and access to system commands.  An example
  *      of the appropriate CMDENTRY setup may be found below.
- *      
+ *
  * 	NOTES
  *      This module was introduced when I became fed-up with looking
  *      at the mess of bt command handling.
@@ -69,7 +69,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <string.h>
 #include <signal.h>
 #include <setjmp.h>
@@ -129,7 +129,7 @@ int pushcf(FILE* cf)
     }
 }
 
-FILE* pullcf()
+FILE* pullcf(void)
 {
     if (cmdtop <= 0) {
         return NULL;
@@ -141,7 +141,7 @@ FILE* pullcf()
 
 /* Dump cmdblk contents to stdout */
 
-void dump_cmdblk()
+void dump_cmdblk(void)
 {
     fprintf(stdout,"cmd: %s\n",cblk.cmd);
 }
@@ -170,7 +170,7 @@ void display_help(CMDENTRY cmds[],char* cmd)
     char desc[MAXDESCSZ+1];
     char* cp;
     char* ed;
-    
+
     if (STREMP(cmd)) {
         fprintf(stdout,"%-20s %-10s %s\n","Command,Abbrev","Args",
                 "Description");
@@ -306,7 +306,7 @@ CMDENTRY local_cmds[] = {
     { "execute","e",btcmd_execute,"filename",1,"Commence reading commands from "
       "file. execute commands may be nested."},
     { "echo","ec",btcmd_echo,"[on|off]",0,
-      "Echo commands when on and reading from file." },         
+      "Echo commands when on and reading from file." },
     { "error","er",btcmd_error,"[on|off]",0,
       "Stop processing command files on error." },
     { "help","?",btcmd_help,"",0,"Provide help on supported commands."},
@@ -327,7 +327,7 @@ char* non_ws(char* str){
 int tty_input(FILE* input)
 {
     struct stat statbuf;
-    
+
     if (fstat(fileno(input),&statbuf) == 0) {
         return ((statbuf.st_mode & S_IFMT) == S_IFCHR); /* character
                                                            special */
@@ -345,7 +345,7 @@ void rl_history(FILE* input,char* cmd)
     if (tty_input(input)) {
         add_history(cmd);
     }
-#endif            
+#endif
     return;
 }
 
@@ -354,13 +354,13 @@ int tokenise(char* cmdbuf, char* cmd, char* arg, char* qual, char* all)
     char copybuf[MAXBUFSZ+1];
     char* cp;
     int nargs = 0;
-    
+
     strncpy(copybuf,cmdbuf,MAXBUFSZ);
     cmd[0] = '\0';
     arg[0] = '\0';
     qual[0] = '\0';
     all[0] = '\0';
-    
+
     if ((cp = strtok(copybuf," \n")) != NULL) {
         strncpy(cmd,cp,MAXBUFSZ);
         if ((cp = strtok(NULL,"\n")) != NULL) {
@@ -390,7 +390,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
 {
     int i;
     char* cp;
-    
+
     cp = non_ws(cmdbuf); /* locate first non-whitespace character */
 
     cblk.nargs = tokenise(cmdbuf,cmd,arg,qual,all);
@@ -429,7 +429,7 @@ void find_cmd(char* cmdbuf,CMDENTRY cmds[])
     }
     return;
 }
-    
+
 int btcmd(char* prompt_string,CMDENTRY app_cmds[],
               void(error_handler)(int))
 {
@@ -437,7 +437,7 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
     char* cp = NULL;
     static char cmdbuf[MAXBUFSZ+1];
     int status = 0;
-    
+
     if (input == NULL) input = stdin;
     current_app_cmds = app_cmds;
     cblk.function = NULL;
@@ -457,9 +457,9 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
         }
         if (tty_input(input)) {
 #ifdef READLINE
-            if (issue_prompt) 
+            if (issue_prompt)
                 rlbuf = readline(prompt_string);
-            else    
+            else
                 rlbuf = readline(NULL);
             if (rlbuf != NULL) {
                 if (rlbuf[0] == 0) continue;
@@ -469,7 +469,7 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
 #else
             if (issue_prompt) printf("%s",prompt_string);
             cp = fgets(cmdbuf,MAXBUFSZ,input);
-#endif            
+#endif
         }
         else {
             cp = fgets(cmdbuf,MAXBUFSZ,input);
@@ -511,12 +511,10 @@ int btcmd(char* prompt_string,CMDENTRY app_cmds[],
                 else {
                     while (input != stdin) btcmd_close_execute(&cblk);
                 }
-            }   
+            }
         }
     }
     /* dump_cmdblk(); */
     signal(SIGINT,SIG_DFL);
     return status;
 }
-
-

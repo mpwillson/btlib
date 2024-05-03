@@ -1,12 +1,12 @@
 /*
  *  $Id: btr.c,v 1.26 2012-11-24 16:35:44 mark Exp $
- *  
+ *
  *  NAME
  *      btr - attempts to recover corrupt btree index file
- *  
+ *
  *  SYNOPSIS
  *      btr [-adfkrv] [-n cnt] [--] old_file new_file
- *  
+ *
  *  DESCRIPTION
  *      btr will attempt the copy the contents of the btree inex file
  *      old_file into new_file, mediated by the following command
@@ -20,7 +20,7 @@
  *                and -vvv)
  *      -f        overwrite new_file if it exists
  *      -r        request full recovery attempt
- *      
+ *
  *       btr will also attempt to copy index files created with
  *       previous versions of btree, but recovery is limited as
  *       necessary information for btree index reconstruction is not
@@ -54,16 +54,16 @@
  *      list of duplicate keys).  The MEMREC4 data structure is
  *      defined in btr.h to allow earlier versions of btree library
  *      index files to be migrated and/or recovered.
- * 
+ *
  *  BUGS
  *      btr delves into the innards of a btree index file and should
  *      not be used as a typical example of use of the btree API.
- *  
+ *
  *  MODIFICATION HISTORY
  *  Mnemonic        Rel Date     Who
  *  BTR             1.0 20110401 mpw
  *    Created.
- *    
+ *
  * Copyright (C) 2011,2012 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -119,7 +119,7 @@ int data_record_size = ZBLKSZ;
 int limited_recovery = FALSE;
 BTint src_file_ver = ZVERS;
 char usage_str[] = "btr [-adfkrv] [-n cnt] [--] old_file new_file";
-    
+
 /* Recovery statistics */
 struct {
     int   nioerrs;
@@ -200,7 +200,7 @@ void kalloc(char **buf,int bufsiz)
 BTA *btropn(char *fid,int vlevel,int full_recovery)
 {
     int idx,ioerr;
-    
+
     bterr("",0,NULL);
 
     btact = bnewap(fid);
@@ -218,7 +218,7 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
         fclose(btact->idxunt);
         goto fin;
     }
-    
+
     btact->shared = FALSE;
     btact->cntxt->super.smod = 0;
     btact->cntxt->super.scroot = 0;
@@ -233,7 +233,7 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
     if (ioerr != 0) {
         bterr("BRDSUP",QRDSUP,(ioerr<0)?"(EOF?)":"");
         goto fin;
-    } 
+    }
     if (bgtinf(ZSUPER,ZBTYPE) != ZROOT) {
         fprintf(stderr,"%s: superroot is not a root: possible file damage?\n",
                 prog);
@@ -259,7 +259,7 @@ BTA *btropn(char *fid,int vlevel,int full_recovery)
         }
         fprintf(stderr,"%s: index file is version: 0x" ZXFMT ". "
                 "Running in limited recovery mode.\n",
-                prog,src_file_ver);    
+                prog,src_file_ver);
     }
     return btact;
 fin:
@@ -272,7 +272,7 @@ fin:
  * indicated by draddr
  *----------------------------------------------------------------------*/
 
-int btrseginfo(BTint draddr, int *size, BTint *nextseg) 
+int btrseginfo(BTint draddr, int *size, BTint *nextseg)
 {
     BTint blk;
     int offset;
@@ -280,7 +280,7 @@ int btrseginfo(BTint draddr, int *size, BTint *nextseg)
     DATBLK4 *d;
 
     cnvdraddr(draddr,&blk,&offset);
-    
+
     status = brdblk(blk,&idx);
     if (status != 0) {
         return(status);
@@ -292,7 +292,7 @@ int btrseginfo(BTint draddr, int *size, BTint *nextseg)
     return(0);
 }
 
-int btrseldt(BTint draddr, char *data, int dsize) 
+int btrseldt(BTint draddr, char *data, int dsize)
 {
     BTint dblk;
     int idx, type,
@@ -300,7 +300,7 @@ int btrseldt(BTint draddr, char *data, int dsize)
     int offset = 0;
     int totsz = 0;
     int sprem = dsize;
-    
+
     DATBLK4 *d;
 
     while (sprem > 0 && draddr != 0) {
@@ -330,13 +330,13 @@ int btrseldt(BTint draddr, char *data, int dsize)
         cpsz = (segsz>sprem)?sprem:segsz;
 #if DEBUG > 0
         fprintf(stderr,"BTRSELDT: copying %d bytes\n",cpsz);
-#endif      
+#endif
         memcpy(data,d->data+offset+ZDOVRH,cpsz);
         data += cpsz;
         sprem -= cpsz;
         totsz += cpsz;
     }
-    
+
 fin:
     return(totsz);
 }
@@ -351,7 +351,7 @@ int btrrecsz(BTint draddr, BTA* dr_index)
     BTint blk,newdraddr;
     BTA* b;
     int offset, segsz, recsz, status;
-    
+
     recsz = 0;
     while (draddr != 0) {
         if (dr_index != NULL) {
@@ -361,7 +361,7 @@ int btrrecsz(BTint draddr, BTA* dr_index)
             snprintf(dr_str,BUFSZ,ZXFMT,draddr);
             dr_str[BUFSZ-1] = '\0';
             status = binsky(dr_index,dr_str,0);
-            btact = b;              
+            btact = b;
             if (status != 0) {
                 if (status == QDUP) {
                     bterr("",0,NULL);
@@ -382,11 +382,11 @@ int btrrecsz(BTint draddr, BTA* dr_index)
             return(0);
         }
         btrseginfo(draddr,&segsz,&newdraddr);
-        
-#if DEBUG > 0       
+
+#if DEBUG > 0
         fprintf(stderr,"BTRRECSZ: Seg size: %d, next seg: " ZINTFMT "\n",
                 segsz,newdraddr);
-#endif      
+#endif
         if (newdraddr == draddr) {
             /* next segment address should never refer to current
                segment */
@@ -410,7 +410,7 @@ int btrrecsz(BTint draddr, BTA* dr_index)
 int load_block(BTA* in, BTint blkno, int vlevel)
 {
     int status, idx;
-    
+
     btact = in;
     status = brdblk(blkno,&idx);
     if (status != 0) {
@@ -434,7 +434,7 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
     int j;
     BTKEYS* keys;
     MEMREC4* m4;
-    
+
     if (k == NULL) {
         keys = malloc(sizeof(BTKEYS));
         if (keys == NULL) {
@@ -468,13 +468,13 @@ BTKEYS* get_keys(int idx, int nkeys, BTKEYS* k)
  * can't trust the index, only the superroot block is processed.
  * We assume that there will be fewer roots than ZMXKEY.  If this
  * assumption is incorrect, then roots are named using the root block
- * number (for btree index files >= FULL_RECOVERY_VERSION). 
+ * number (for btree index files >= FULL_RECOVERY_VERSION).
  */
 
 int load_superroot_names(BTA* in,int vlevel)
 {
     int i, idx, nkeys;
-    
+
     idx = load_block(in,ZSUPER,vlevel);
     if (idx < 0) return idx;
     nkeys = bgtinf(ZSUPER,ZNKEYS);
@@ -495,7 +495,7 @@ char* name_of_root(BTint blkno)
 {
     int j;
     static char root_name[ZKYLEN];
-    
+
     for (j=0;j<superroot_keys->nkeys;j++) {
         if (superroot_keys->keyblk[j].val == blkno) {
             return superroot_keys->keyblk[j].key;
@@ -519,7 +519,7 @@ int valid_draddr(BTint draddr)
             offset >= 0 &&
             offset < ZBLKSZ);
 }
- 
+
 int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
                      int vlevel)
 {
@@ -534,7 +534,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         status = BAD_DRADDR;
         goto fin;
     }
-    
+
     /* Call brecsz with BTA*, which will cause it to record all
      * draddrs, and error on a duplicate */
     rsize = (src_file_ver > FULL_RECOVERY_VERSION)?
@@ -546,7 +546,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
         status = DR_READ_ERROR;
         goto fin;
     }
-    
+
     if (rsize > data_record_size) {
         free(data_record);
         data_record_size = rsize;
@@ -578,7 +578,7 @@ int copy_data_record(BTA* in, BTA* out, BTA* da, char* key, BTint draddr,
        side */
     if (status == QDLOOP) {
         /* mostly likely problem on input side; let's
-           just copy the key */                        
+           just copy the key */
         stats.seg_addr_loops++;
         status = DLOOP;
     }
@@ -600,8 +600,7 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
 {
     BTint draddr, mx;
     DKEY* dkey;
-    int nkeys = 0;
-    
+
     if (bgtinf(blk,ZBTYPE) != ZDUP) {
         return btgerr();
     }
@@ -617,7 +616,7 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
                 ZINTFMT ", flink: " ZINTFMT "\n",
                 draddr, dkey->key, dkey->val, dkey->deleted,
                 dkey->blink, dkey->flink);
-#endif  
+#endif
         if (dkey == NULL) break;
         if (!dkey->deleted) {
             if (mode == DATA) {
@@ -631,13 +630,12 @@ int handle_dups (BTA* in, BTA* out, BTA* da, BTint blk, int mode,
             }
             /* reset btact to input file (btr digs into bt innards)*/
             btact = in;
-            nkeys++;
         }
         draddr += sizeof(DKEY)+ZDOVRH;
     }
     return btgerr();
 }
-    
+
 
 int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                int allow_dups)
@@ -649,13 +647,13 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
     char root_name[ZKYLEN+1];
     char* btype[] = {
         "ZSUPER","ZROOT","ZINUSE","ZFREE","ZDATA","ZDUP"
-    };  
-    
+    };
+
     strncpy(current_root,"$$default",ZKYLEN);
     strncpy(root_name,"*UNKNOWN*",ZKYLEN);
     status = load_superroot_names(in,vlevel);
     if (!limited_recovery && status < 0) return status;
-    
+
     for (blkno=1;blkno<BTINT_MAX;blkno++) {
        idx = load_block(in,blkno,vlevel);
         if (idx < 0 || stats.nioerrs > ioerr_max) {
@@ -675,7 +673,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             fprintf(stderr,"Processing block: " Z20DFMT
                     ", ZNKEYS: %8d [%s," ZINTFMT ",%6s]\n",blkno,nkeys,
                     current_root,root,btype[block_type]);
-        }   
+        }
         if (block_type == ZROOT || block_type == ZINUSE) {
             /* TDB: perform various checks on block info */
             if (nkeys < 0 || nkeys > ZRNKEYS) {
@@ -714,7 +712,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
                     }
                     strncpy(current_root,root_name,ZKYLEN);
                     current_root[ZKYLEN-1] = '\0';
-                }   
+                }
             }
            /* insert into new btree file */
             for (j=0;j<nkeys;j++) {
@@ -757,7 +755,7 @@ int copy_index(int mode, BTA *in, BTA *out, BTA *da, int vlevel, int ioerr_max,
             if (vlevel >= 3) {
                 fprintf(stderr,"%s: ignoring block " ZINTFMT
                         " of unknown type 0x%x\n",prog,blkno,block_type);
-                }   
+                }
             stats.bad_blocks++;
         }
     }
@@ -778,7 +776,7 @@ int main(int argc, char *argv[])
     int status;
     int full_recovery = FALSE;
     char *infile;
-    
+
     s = strrchr(argv[0],'/');
     prog = (s==NULL)?argv[0]:(s+1);
 
@@ -812,7 +810,7 @@ int main(int argc, char *argv[])
                  default:
                      fprintf(stderr,"%s: unknown switch: '-%c'\n"
                              "%s: usage: %s\n",prog,*s,prog,usage_str);
-                     exit(EXIT_FAILURE);     
+                     exit(EXIT_FAILURE);
             }
         }
     }
@@ -822,11 +820,11 @@ int main(int argc, char *argv[])
         fprintf(stderr,"%s: usage: %s\n",prog,usage_str);
         exit(EXIT_FAILURE);
     }
-    
+
     if (vlevel > 0) {
         fprintf(stderr,"BTree Recovery: %s\n",VERSION);
     }
-        
+
     if (btinit() != 0) {
         print_bterror();
         return EXIT_FAILURE;
@@ -843,7 +841,7 @@ int main(int argc, char *argv[])
         }
         kalloc(&data_record,data_record_size);
     }
-    
+
     exit_status = EXIT_SUCCESS;
     infile = *argv++;
     if (preserve && file_exists(*argv)) {
@@ -873,7 +871,7 @@ int main(int argc, char *argv[])
                 print_bterror();
                 return EXIT_FAILURE;
             }
-        }   
+        }
         status = copy_index(copy_mode,in,out,da,vlevel,ioerror_max,
                             allow_dups);
         if (vlevel >= 3 && status != EOF) {
@@ -900,7 +898,7 @@ int main(int argc, char *argv[])
         printf("  %-26s " Z20DFMT "\n","Record Address Loops:",
                stats.seg_addr_loops);
         printf("  %-26s " Z20DFMT "\n","Bad Blocks (invalid type):",
-               stats.bad_blocks); 
+               stats.bad_blocks);
         printf("  %-26s " Z20DFMT "\n","Bad Index Blocks:",
                stats.bad_index_blocks);
        if (vlevel > 0) {
@@ -908,6 +906,6 @@ int main(int argc, char *argv[])
                     stats.nioerrs);
         }
     }
-    
+
     return exit_status;
 }

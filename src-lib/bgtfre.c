@@ -33,15 +33,15 @@
 #include <limits.h>
 
 
-BTint bgtfre()
+BTint bgtfre(void)
 {
     BTint blk,faddr;
     int idx,ioerr;
-    
+
     if (btact->cntxt->super.sfreep == ZNULL) {
         /* unix can create a new block at file end other systems may
          * have to error return this request */
-        
+
         blk = btact->cntxt->super.sblkmx;
         faddr = blk*ZBLKSZ+ZBLKSZ;
         if (faddr < 0 || faddr >= BTINT_MAX) {
@@ -50,7 +50,7 @@ BTint bgtfre()
             bterr("BGTFRE",QF2BIG,NULL);
             return ZNULL;
         }
-        
+
         if ((idx = bgtslt()) >= 0) {
             bqmove(idx);
             ((btact->cntrl)+idx)->inmem = blk;
@@ -63,7 +63,7 @@ BTint bgtfre()
             btact->cntxt->super.sblkmx++;
             btact->cntxt->stat.xgot++;
         }
-        else 
+        else
             blk = ZNULL;
     }
     else {

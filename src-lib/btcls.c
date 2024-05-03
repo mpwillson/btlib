@@ -6,7 +6,7 @@
  *
  * Parameters:
  *   b  - pointer to BT context
- *     
+ *
  * Returns zero if no errors, error code otherwise
  *
  * Copyright (C) 2003, 2004 Mark Willson.
@@ -37,7 +37,7 @@
 int btcls(BTA* b)
 {
     int ioerr;
-  
+
     bterr("",0,NULL);
 
     if ((ioerr=bvalap("BTCLS",b)) != 0) return(ioerr);
@@ -47,7 +47,7 @@ int btcls(BTA* b)
 
     /* Undo any locks and flush buffers before closing file */
     while (btact->lckcnt > 0) bulock();
-    
+
     /* close index file and free context memory */
     ioerr = fclose(btact->idxunt);
     if (ioerr != 0) {
@@ -62,10 +62,10 @@ int btcls(BTA* b)
 
 /*
   btsync: sync memory blocks with B tree index file
-    
+
   returns zero if no errors, error code otherwise
 */
-int btsync()
+int btsync(void)
 {
     int i,ioerr;
 
@@ -77,7 +77,7 @@ int btsync()
                 bterr("BTSYNC",QWRBLK,itostr(((btact->cntrl)+i)->inmem));
                 goto fin;
             }
-        } 
+        }
         /* write super block if necessary */
         if (btact->cntxt->super.smod != 0) {
             if ( bwrsup() != 0) goto fin;
@@ -91,9 +91,7 @@ int btsync()
     /* re-initialise control blocks to ensure blocks will be re-read
        from disk */
     initcntrl(btact);
-    
+
 fin:
     return(btgerr());
 }
-
-

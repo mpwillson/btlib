@@ -13,7 +13,7 @@
  *
  * bterr:  set error code
  * bgterr: returns error code
- * 
+ *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -127,7 +127,7 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
         *ioerr = 0;
         return;
     }
-    
+
     strncpy(srname,qname,ZRNAMESZ-1);
     *ierr = qerror;
     *ioerr = qcode;
@@ -152,7 +152,7 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
     else {
         snprintf(msg,ZMSGSZ-1,msgblk[qerror],qarg);
     }
-    
+
     return;
 }
 /*
@@ -166,7 +166,7 @@ void btcerr(int *ierr,int *ioerr,char *srname,char *msg)
 
   Only the first error is recorded.  To reset saved error codes, use
   bterr("",0,NULL);
-  
+
 */
 
 void bterr(char *name, int errorcode, char* arg)
@@ -194,6 +194,6 @@ void bterr(char *name, int errorcode, char* arg)
 
 /* Return last error code */
 
-int btgerr() {
+int btgerr(void) {
     return qerror;
 }

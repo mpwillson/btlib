@@ -41,17 +41,16 @@ char* itostr(BTint v)
  * that are non-root, or inconsistent leaf depth). */
 BTint btkeys(BTA* b,int stats)
 {
-    BTint tblks = 0,
-        tnkeys = 0,
-        empty_blk = ZNULL,
-        blkno = ZNULL;
+    BTint tnkeys = 0,
+          empty_blk = ZNULL,
+          blkno = ZNULL;
     BTint val,link1,link2;
     int ioerr,idx,result,loc = 0;
     int blk_depth[STKMAX+1];
     int leaf_depth = -1,balanced = TRUE;
     char key[ZKYLEN];
 
-    
+
     bterr("",0,NULL);
     if ((ioerr=bvalap("BTKEYS",b)) != 0) return(ioerr);
 
@@ -61,22 +60,21 @@ BTint btkeys(BTA* b,int stats)
             goto fin;
         }
     }
-    
+
     btact = b;          /* set context pointer */
-    
+
     if (btact->idxunt == NULL) {
         bterr("BTKEYS",QNOBTF,NULL);
         goto fin;
     }
 
     for (idx=0;idx<=STKMAX;idx++) blk_depth[idx] = 0;
-    
-    tblks = 0; tnkeys = 0; blkno = ZNULL;
+
+    tnkeys = 0; blkno = ZNULL;
     do {
         int depth,nkeys;
         bnxtbk(&blkno);
         depth =  btstk_depth()/2;
-        tblks++;
         blk_depth[depth]++;
         ioerr = brdblk(blkno,&idx);
         nkeys = bgtinf(blkno,ZNKEYS);
@@ -111,9 +109,9 @@ BTint btkeys(BTA* b,int stats)
         printf("Depth   Number of blocks\n");
         for (idx=0;idx<=leaf_depth;idx++) {
             printf("%5d %18d\n",idx,blk_depth[idx]);
-        }       
+        }
     }
-    
+
   fin:
     return (empty_blk != ZNULL || !balanced)?ZNULL:tnkeys;
 }

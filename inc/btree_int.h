@@ -2,7 +2,7 @@
  * $Id: btree_int.h,v 1.15 2012/10/31 18:38:42 mark Exp $
  *
  * Btree internal function definitions
- *   
+ *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
  * This file is part of the B Tree library.
@@ -101,7 +101,7 @@ extern int context_ok(char*);
 
 extern int btdupkey(char*,BTint);
 extern int btduppos(int,BTint*);
-extern int btdeldup();
+extern int btdeldup(void);
 extern int btdispdups(BTint);
 extern int btupddup(BTint);
 extern int btcntkeys(BTint);

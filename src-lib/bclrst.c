@@ -27,7 +27,7 @@
 #include "bc.h"
 #include "bt.h"
 
-void bclrst()
+void bclrst(void)
 {
     memset(&btact->cntxt->stat,0,sizeof(STATS));
     return;

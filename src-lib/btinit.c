@@ -1,7 +1,7 @@
 /*
  * $Id: btinit.c,v 1.9 2011-06-13 19:34:46 mark Exp $
  *
- * btinit: initialise B tree tables 
+ * btinit: initialise B tree tables
  *
  * Copyright (C) 2003, 2004 Mark Willson.
  *
@@ -34,7 +34,7 @@ BTA btat[ZMXACT];
 /* Pointer to active index info */
 BTA *btact = NULL;
 
-int btinit()
+int btinit(void)
 {
     int i,cnt=0,blksz;
     static int btinited = FALSE;
@@ -54,7 +54,7 @@ int btinit()
         bterr("BTINIT",QBLKSZERR,itostr(ZBLKSZ));
         return(QBLKSZERR);
     }
-    
+
     for (i=0;i<ZMXACT;i++) {
         btat[i].idxunt = NULL;
         btat[i].idxfid[0] = '\0';
