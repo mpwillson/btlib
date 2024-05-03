@@ -104,7 +104,7 @@ btr:  ${SRC_MAIN}/btr.c ${LIB_FILE} ${INC_DIR}/btr.h
 
 clean:
 	rm -f bt bigt bigtdel ${LIB_FILE} kcp \
-	btr ${OBJ} ${TESTCASES}/corrupt
+	btr ${OBJ} ${TESTCASES}/corrupt *.tar.gz
 	cd doc; make clean
 
 TAGS:	${SRC} ${HDR} ${wildcard ${SRC_MAIN}/*.c}
