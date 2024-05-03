@@ -5,6 +5,7 @@ btr
 bigt
 bigtdel
 doc/asciidoctor.css
+bt*.tar.gz
 # CVS default ignores begin
 tags
 TAGS
