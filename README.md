@@ -51,7 +51,7 @@
     smasher.
 
 ## COMPILING
-    First, clone this repository.
+    First, clone this repository or extract from from the release tarball.
 
     The key sub-directories under the bt source directory are as follows:
 
