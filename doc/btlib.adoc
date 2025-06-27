@@ -1047,40 +1047,40 @@ A typical `bt` session might look like:
 
 ....
 
-`bt` commands have a both a full and abbreviated versions. The
+`bt` commands have both full and abbreviated versions. The
 descriptions below show the full command first, followed by the
 abbreviated version (comma separated). A command may optionally be
 followed by an argument and a qualifier. The following table lists the
 commands supported by `bt`:
 
-`buffer,b` <bufname> <size> <filename>::
+`buffer,b` <bufname> {<size> | <filename>}::
 
-Buffer: Creates a data buffer called _bufname_. If the numeric _size_
-argument is given, the buffer is created with that number of bytes. The
+Creates a data buffer called _bufname_. If a numeric _size_
+is given, the buffer is created with that number of bytes. The
 buffer is filled with the first character of the _bufname_. If the
 _size_ argument is non-numeric, it is assumed to be a file name, and the
 contents of the file are read into the buffer. The data buffer can
 subsequently be specified as data for a link:#dd[`define-data`] command.
 
 `buffer-delete,bd` <bufname>::
-Buffer Delete: Deletes an existing data buffer identified by _bufname_.
+Deletes an existing data buffer identified by _bufname_.
 
 `buffer-list,bl`::
-Buffer List: Lists the names of the currently defined data buffers on
+Lists the names of the currently defined data buffers on
 stdout.
 
-`check-order,co` s c::
-Check Order: Checks the lexicographic order of keys in the current root,
+`check-order,co` [s] [c] ::
+
+Checks the lexicographic order of keys in the current root,
 starting from the current position within the BTree. If the s argument
 is given, the check is performed from the first key of the BTree index.
-
 If a disordered index is discovered, the keys at fault are displayed.
 Otherwise, `check-order` is silent, unless the c argument is specified,
 which causes the number of keys checked to be displayed.
 
-`create,c` <filename> s::
+`create,c` <filename> [s] ::
 
-Create file: Creates a new B Tree file. If a file of the same name
+Creates a new B Tree file. If a file of the same name
 already exists, it will be silently overwritten. If the _s_ qualifier is
 given, the file will be created in shared mode. The newly created B Tree
 file becomes the current file; use the link:#fl[`file-list`] command to
@@ -1088,31 +1088,31 @@ view the list of open files.
 
 `change-root,cr` <rootname>::
 
-Change Root: Switches the current root to the root named _rootname_ in
+Switches the current root to the root named _rootname_ in
 the in-use B Tree file. If switch is successful, _rootname_ becomes the
 current root. All subsequent key and/or data operations will take place
 against _rootname_.
 
 `close,x`::
 
-Close: Closes the in-use B Tree file. The next available open file, if
+Closes the in-use B Tree file. The next available open file, if
 one exists, is automatically made the in-use B Tree file. If there are
 no candidate B Tree files, a warning message is issued.
 
-`define,d` <key> <value>::
+`define,d` <key> [<value>]::
 
-Define key: Defines a new key in the current root of the in-use B Tree
+Defines a new key in the current root of the in-use B Tree
 index file. The new key name is defined by _key_, and is assigned
 _value_. If _value_ is omitted, zero is assumed.
 
-`data-address,da` <key> i::
+`data-address,da` <key> [i]::
 
-Data Address: Prints, in a decoded form, the data segment address
+Prints, in a decoded form, the data segment address
 associated with _key_. If the _i_ qualifier is given, the _key_ is
 interpreted as data segment address in integer form and decoded
 immediately.
 
-`define-data,dd` <key> <string> <*bufname>::
+`define-data,dd` <key> {<string> | <*bufname>} ::
 
 Define key with Data: Defines a new key with an associated data record
 in the current root of the in-use B Tree index file. _key_ defines the
@@ -1122,61 +1122,57 @@ latter, it should be indicated by a leading _*_.
 
 `define-root,dr` <rootname>::
 
-Define Root: Creates a new B Tree index root, named _rootname_ in the
+Creates a new B Tree index root, named _rootname_ in the
 currently selected B Tree file. If creation is successful, the current
 root becomes the new root. All subsequent key and/or data operations
 will take place against the new root.
 
-`duplicates,dups` on off::
+`duplicates,dups` {on | off} ::
 
-Duplicates: Sets or unsets support for duplicate keys in the current
+Sets or unsets support for duplicate keys in the current
 root. When _on_ is specified, duplicate keys are permitted. When _off_,
 duplicate keys are not permitted .
 
-`echo,ec` on off::
+`echo,ec` {on | off} ::
 
-a
-Echo: When `echo` is _on_, commands read from an link:#e[`execute`] file
+When `echo` is _on_, commands read from an link:#e[`execute`] file
 are echoed to stdout. If _off_, no echo is performed.
-
++
 If no argument is given to `echo`, the current status of the echo
 setting is displayed.
 
-`error,er` on off::
+`error,er` {on | off} ::
 
-a
-Error: When `error` is _on_, an execution error while reading commands
+When `error` is _on_, an execution error while reading commands
 from an link:#e[`execute`] file will cause termination of the execute
 file. If _off_, command execution will continue when errors are
 encountered.
-
++
 If no argument is given to `error`, the current status of the error
 setting is displayed.
 
 `execute,e` <filename>::
 
-a
-Execute: Causes commands to be read and executed from the file denoted
+Causes commands to be read and executed from the file denoted
 by _filename_. `execute` commands can be nested, currently up to five
 deep. No command prompts will be issued while reading commands from a
 file.
-
++
 See also the link:#echo[`echo`] and link:#error[`error`] command
 descriptions for more information on execution control when reading
 commands from a file.
 
 `find,f` <key>::
 
-a
-Find: Attempts to locate _key_ in the current root of the in-use B Tree
+Attempts to locate _key_ in the current root of the in-use B Tree
 index file. If found, the value associated with the key is printed.
-
++
 If _key_ is omitted, the index is positioned prior to the first key
 (like link:#pos[`position`] _s_).
 
-`find-data,fd` <key> d::
+`find-data,fd` <key> [d]::
 
-Find Data: Attempts to locate _key_ in the current root of the in-use B
+Attempts to locate _key_ in the current root of the in-use B
 Tree index file. If found, the first 80 bytes of the data record
 associated with the key is displayed. If the _d_ qualifier is given, the
 whole of the data record is displayed. Note that the data record is
@@ -1185,24 +1181,23 @@ the data record could cause strangenesses on display.
 
 `file-list,fl`::
 
-File List: Lists the set of open B Tree index files. To change the
+Lists the set of open B Tree index files. To change the
 current file, issue a link:#u[`use`] command.
 
-`list,l` c::
+`list,l` [c]::
 
-a
-List: Displays all key and associated value, starting from the current
+Displays all key and associated value, starting from the current
 key in the current root of the in-use B Tree index file. The current key
 is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
 link:#pd[`previous-data`] command.
-
++
 If the _c_ argument is given, the count of keys listed will be displayed
 in addition.
 
 `list-data,ld`::
 
-List Data: Displays all keys, and associated data records, starting
+Displays all keys, and associated data records, starting
 from the current key in the current root of the in-use B Tree index
 file. The current key is set by the last link:#f[`find`],
 link:#fd[`find-data`], link:#n[`next`], link:#nd[`next-data`]
@@ -1210,27 +1205,26 @@ link:#prv[`previous`] or link:#pd[`previous-data`] command.
 
 `list-data-prev,ldp`::
 
-List Data Previous: Displays all keys, and associated data records,
+Displays all keys, and associated data records,
 prior to the current key in the current root of the in-use B Tree index
 file. The current key is set by the last link:#f[`find`],
 link:#fd[`find-data`], link:#n[`next`], link:#nd[`next-data`]
 link:#prv[`previous`] or link:#pd[`previous-data`] command.
 
-`list-prev,lp` c::
+`list-prev,lp` [c]::
 
-a
-List Previous: Displays all keys, and associated value, prior to the
+Displays all keys, and associated value, prior to the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
 link:#pd[`previous-data`] command.
-
++
 If the _c_ argument is given, the count of keys listed will be displayed
 in addition.
 
 `list-keys-only,lko`::
 
-List Keys Only: Displays all keys, but not associated value, starting
+Displays all keys, but not associated value, starting
 from the current key in the current root of the in-use B Tree index
 file. The current key is set by the last link:#f[`find`],
 link:#fd[`find-data`], link:#n[`next`], link:#nd[`next-data`],
@@ -1238,13 +1232,13 @@ link:#prv[`previous`] or link:#pd[`previous-data`] command.
 
 `lock,lk`::
 
-Lock: Acquires exclusive access to the in-use B Tree file which was
+Acquires exclusive access to the in-use B Tree file which was
 originally opened in shared mode. If the file was opened in exclusive
 mode (the default), `lock` will have no effect.
 
 `next,n`::
 
-Next: Displays the key following the current key in the current root of
+Displays the key following the current key in the current root of
 the in-use B Tree index file. The current key is set by the last
 link:#f[`find`], link:#fd[`find-data`], link:#n[`next`],
 link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1252,44 +1246,44 @@ link:#pd[`previous-data`] command.
 
 `next-data,nd`::
 
-Next Data: Displays the key and associated data record following the
+Displays the key and associated data record following the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
 link:#pd[`previous-data`] command.
 
-`open,o` <filename> s::
+`open,o` <filename> [s] ::
 
-Open: Opens the existing B Tree file identified by _filename_. If the
+Opens the existing B Tree file identified by _filename_. If the
 optional _s_ qualifier is given, the file will be opened in shared mode.
 More than one B Tree index file may be open currently; the newly opened
 file is made the in-use B Tree file. The in-use file may be changed by
 the link:#u[`use`] command, while the list of open files is displayed
 through the link:#fl[`file-list`] command.
 
-`open-readonly,or` <filename> s::
+`open-readonly,or` <filename> [s]::
 
-Open Readonly: Opens the existing B Tree file identified by _filename_
+Opens the existing B Tree file identified by _filename_
 in read-only mode. If the optional _s_ qualifier is given, the file will
 be opened in shared mode. More than one B Tree index file may be open
 currently; the newly opened file is made the in-use B Tree file. The
 in-use file may be changed by the link:#u[`use`] command, while the list
 of open files is displayed through the link:#fl[`file-list`] command.
 
-`position,pos` s e::
+`position,pos` {s | e} ::
 
-Position: Sets the position in the current root. _s_ will cause the
+Sets the position in the current root. _s_ will cause the
 position to be set prior to the first key in the index, _e_ will cause
 the position to be set after the last key.
 
 `prompt,p`::
 
-Prompt: Toggles the display of a command prompt when `bt` is ready for
+Toggles the display of a command prompt when `bt` is ready for
 the next user command.
 
 `previous,prv`::
 
-Previous: Displays the key prior to the current key in the current root
+Displays the key prior to the current key in the current root
 of the in-use B Tree index file. The current key is set by the last
 link:#f[`find`], link:#fd[`find-data`], link:#n[`next`],
 link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1297,7 +1291,7 @@ link:#pd[`previous-data`] command.
 
 `previous-data,pd`::
 
-Previous Data: Displays the key and associated data record prior to the
+Displays the key and associated data record prior to the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1305,17 +1299,17 @@ link:#pd[`previous-data`] command.
 
 `quit,q`::
 
-Quit: Terminates `bt`. Any open B Tree files will be closed
+Terminates `bt`. Any open B Tree files will be closed
 automatically.
 
 `remove,r` <key>::
 
-Remove key: Removes a previously defined key in the current root of the
+Removes a previously defined key in the current root of the
 in-use B Tree index file. The key name is specified by _key_.
 
 `remove-cur,rc`::
 
-Remove Current key: Removes the current key in the current root of the
+Removes the current key in the current root of the
 in-use B Tree index file. The current key is set by the last
 link:#f[`find`], link:#fd[`find-data`], link:#n[`next`],
 link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1323,13 +1317,13 @@ link:#pd[`previous-data`] command.
 
 `remove-data,rd` <key>::
 
-Removes key with Data: Removes a previously defined key and its
+Removes a previously defined key and its
 associated data record in the current root of the in-use B Tree index
 file. _key_ defines the key name.
 
 `remove-data-cur,rdc`::
 
-Removes Current Data: Removes the current key and its associated data
+Removes the current key and its associated data
 record in the current root of the in-use B Tree index file. The current
 key is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1337,56 +1331,54 @@ link:#pd[`previous-data`] command.
 
 `remove-root,rr` <rootname>::
 
-Remove Root: Removes an existing B Tree index root, named _rootname_ in
+Removes an existing B Tree index root, named _rootname_ in
 the in-use B Tree file. If removal is successful, all blocks used by the
 root (both index and data) will be returned to the free list. It is not
 permitted to remove the current root.
 
-`show,s` control super stats space stack block <n> structure v::
+`show,s` {control | super | stats | space | stack | block <n> | structure [v] }::
 
-a
-Show: Displays B Tree debug information. The option specified is passed
+Displays B Tree debug information. The option specified is passed
 directly to the `bdbug` function. See the link:#bdbug[`bdebug`]
 description for the information provided by each option.
-
++
 For the _structure_ option, specifying _v_ will cause a detailed report
 on the structure to be displayed. Otherwise, only a summary is
 displayed.
 
 `size-data,sd` <key>::
 
-a
-Size Data: Displays the number of bytes occupied by the data record
+Displays the number of bytes occupied by the data record
 associated with _key_. If _key_ is omitted, the size of the data record
 associated with the current key is displayed. The current key is set by
 the last link:#f[`find`], link:#fd[`find-data`], link:#n[`next`],
 link:#nd[`next-data`], link:#prv[`previous`] or
 link:#pd[`previous-data`] command.
-
++
 If _key_ has no associated data record, results are undefined.
 
 `system,!` <command>::
 
-System: Passes the text following the system command to the shell for
+Passes the text following the system command to the shell for
 execution.
 
 `use,u` <filename>::
 
-Use: Changes the in-use B Tree file to _filename_. The file must have
+Changes the in-use B Tree file to _filename_. The file must have
 already been opened or created, using the link:#o[`open`] or
 link:#c[`create`] command.
 
-`update-data,ud` <key> <string> <*bufname>::
+`update-data,ud` <key> {<string> | <*bufname>} ::
 
-Update Data: Updates an existing key with a new associated data record
+Updates an existing key with a new associated data record
 in the current root of the in-use B Tree index file. _key_ defines the
 key name. Data can be provided in one of two ways: either a plain string
 or the name of a previously defined buffer can be specified. If the
 latter, it should be indicated by a leading _*_.
 
-`update-data-cur,udc` <string> <*bufname>::
+`update-data-cur,udc` {<string> | <*bufname>} ::
 
-Update Data Current: Updates the current key with a new associated data
+Updates the current key with a new associated data
 record in the current root of the in-use B Tree index file. The current
 key is set by the last link:#f[`find`], link:#fd[`find-data`],
 link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
@@ -1397,7 +1389,7 @@ _*_.
 
 `unlock,ulk`::
 
-Unlock: Unlocks the in-use B Tree file, if it was locked with the `lk`
+Unlocks the in-use B Tree file, if it was locked with the `lk`
 command. If not locked, or the file was originally opened in exclusive
 mode, `unlock` has no effect.
 
@@ -1406,30 +1398,30 @@ mode, `unlock` has no effect.
 Update Value: Modifies the value associated with _key_ in the current
 root of the in-use B Tree index file.
 
-`update-value,uv` <value>::
+`update-value-current,uvc` <value>::
 
-Update Value Current: Modifies the value associated with current key
-_key_ in the current root of the in-use B Tree index file. The current
-key is set by the last link:#f[`find`], link:#fd[`find-data`],
-link:#n[`next`], link:#nd[`next-data`], link:#prv[`previous`] or
+Modifies the value associated with current key _key_ in the current
+root of the in-use B Tree index file. The current key is set by the
+last link:#f[`find`], link:#fd[`find-data`], link:#n[`next`],
+link:#nd[`next-data`], link:#prv[`previous`] or
 link:#pd[`previous-data`] command.
 
 `write-threshold,wt` <threshold>::
 
-Write Threshold: Sets the number of index block updates beyond which
-the block contents must be writtent to disk. A _threshold_ of zero means
-writes will not take place unless a block must be flushed to disk.
+Sets the number of index block updates beyond which the block contents
+must be writtent to disk. A _threshold_ of zero means writes will not
+take place unless a block must be flushed to disk.
 
-`help,?` cmd::
+`help,?` [<cmd>] ::
 
-Help: Displays a list of `bt` commands and a terse description of
-syntax and usage. If _cmd_ is specified, only help on that command will
-be displayed.
+Displays a list of `bt` commands and a terse description of syntax and
+usage. If _cmd_ is specified, only help on that command will be
+displayed.
 
 `comment,#`::
 
-Comment: `bt` will ignore any line starting with a `#`. Note that `bt`
-will also ignore blank lines.
+Any line starting with the `comment` keyword or a
+`#` will be ignored. Note that `bt` will also ignore blank lines.
 
 [[Recovery]]
 == B Tree Recovery

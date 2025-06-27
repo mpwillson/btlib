@@ -2029,7 +2029,7 @@ readline can be found in the
 </div>
 </div>
 <div class="paragraph">
-<p><code>bt</code> commands have a both a full and abbreviated versions. The
+<p><code>bt</code> commands have both full and abbreviated versions. The
 descriptions below show the full command first, followed by the
 abbreviated version (comma separated). A command may optionally be
 followed by an argument and a qualifier. The following table lists the
@@ -2037,10 +2037,10 @@ commands supported by <code>bt</code>:</p>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1"><code>buffer,b</code> &lt;bufname&gt; &lt;size&gt; &lt;filename&gt;</dt>
+<dt class="hdlist1"><code>buffer,b</code> &lt;bufname&gt; {&lt;size&gt; | &lt;filename&gt;}</dt>
 <dd>
-<p>Buffer: Creates a data buffer called <em>bufname</em>. If the numeric <em>size</em>
-argument is given, the buffer is created with that number of bytes. The
+<p>Creates a data buffer called <em>bufname</em>. If a numeric <em>size</em>
+is given, the buffer is created with that number of bytes. The
 buffer is filled with the first character of the <em>bufname</em>. If the
 <em>size</em> argument is non-numeric, it is assumed to be a file name, and the
 contents of the file are read into the buffer. The data buffer can
@@ -2048,31 +2048,25 @@ subsequently be specified as data for a <a href="#dd"><code>define-data</code></
 </dd>
 <dt class="hdlist1"><code>buffer-delete,bd</code> &lt;bufname&gt;</dt>
 <dd>
-<p>Buffer Delete: Deletes an existing data buffer identified by <em>bufname</em>.</p>
+<p>Deletes an existing data buffer identified by <em>bufname</em>.</p>
 </dd>
 <dt class="hdlist1"><code>buffer-list,bl</code></dt>
 <dd>
-<p>Buffer List: Lists the names of the currently defined data buffers on
+<p>Lists the names of the currently defined data buffers on
 stdout.</p>
 </dd>
-<dt class="hdlist1"><code>check-order,co</code> s c</dt>
+<dt class="hdlist1"><code>check-order,co</code> [s] [c] </dt>
 <dd>
-<p>Check Order: Checks the lexicographic order of keys in the current root,
+<p>Checks the lexicographic order of keys in the current root,
 starting from the current position within the BTree. If the s argument
-is given, the check is performed from the first key of the BTree index.</p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>If a disordered index is discovered, the keys at fault are displayed.
+is given, the check is performed from the first key of the BTree index.
+If a disordered index is discovered, the keys at fault are displayed.
 Otherwise, <code>check-order</code> is silent, unless the c argument is specified,
 which causes the number of keys checked to be displayed.</p>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>create,c</code> &lt;filename&gt; s</dt>
+</dd>
+<dt class="hdlist1"><code>create,c</code> &lt;filename&gt; [s] </dt>
 <dd>
-<p>Create file: Creates a new B Tree file. If a file of the same name
+<p>Creates a new B Tree file. If a file of the same name
 already exists, it will be silently overwritten. If the <em>s</em> qualifier is
 given, the file will be created in shared mode. The newly created B Tree
 file becomes the current file; use the <a href="#fl"><code>file-list</code></a> command to
@@ -2080,31 +2074,31 @@ view the list of open files.</p>
 </dd>
 <dt class="hdlist1"><code>change-root,cr</code> &lt;rootname&gt;</dt>
 <dd>
-<p>Change Root: Switches the current root to the root named <em>rootname</em> in
+<p>Switches the current root to the root named <em>rootname</em> in
 the in-use B Tree file. If switch is successful, <em>rootname</em> becomes the
 current root. All subsequent key and/or data operations will take place
 against <em>rootname</em>.</p>
 </dd>
 <dt class="hdlist1"><code>close,x</code></dt>
 <dd>
-<p>Close: Closes the in-use B Tree file. The next available open file, if
+<p>Closes the in-use B Tree file. The next available open file, if
 one exists, is automatically made the in-use B Tree file. If there are
 no candidate B Tree files, a warning message is issued.</p>
 </dd>
-<dt class="hdlist1"><code>define,d</code> &lt;key&gt; &lt;value&gt;</dt>
+<dt class="hdlist1"><code>define,d</code> &lt;key&gt; [&lt;value&gt;]</dt>
 <dd>
-<p>Define key: Defines a new key in the current root of the in-use B Tree
+<p>Defines a new key in the current root of the in-use B Tree
 index file. The new key name is defined by <em>key</em>, and is assigned
 <em>value</em>. If <em>value</em> is omitted, zero is assumed.</p>
 </dd>
-<dt class="hdlist1"><code>data-address,da</code> &lt;key&gt; i</dt>
+<dt class="hdlist1"><code>data-address,da</code> &lt;key&gt; [i]</dt>
 <dd>
-<p>Data Address: Prints, in a decoded form, the data segment address
+<p>Prints, in a decoded form, the data segment address
 associated with <em>key</em>. If the <em>i</em> qualifier is given, the <em>key</em> is
 interpreted as data segment address in integer form and decoded
 immediately.</p>
 </dd>
-<dt class="hdlist1"><code>define-data,dd</code> &lt;key&gt; &lt;string&gt; &lt;*bufname&gt;</dt>
+<dt class="hdlist1"><code>define-data,dd</code> &lt;key&gt; {&lt;string&gt; | &lt;*bufname&gt;} </dt>
 <dd>
 <p>Define key with Data: Defines a new key with an associated data record
 in the current root of the in-use B Tree index file. <em>key</em> defines the
@@ -2114,81 +2108,61 @@ latter, it should be indicated by a leading <em>*</em>.</p>
 </dd>
 <dt class="hdlist1"><code>define-root,dr</code> &lt;rootname&gt;</dt>
 <dd>
-<p>Define Root: Creates a new B Tree index root, named <em>rootname</em> in the
+<p>Creates a new B Tree index root, named <em>rootname</em> in the
 currently selected B Tree file. If creation is successful, the current
 root becomes the new root. All subsequent key and/or data operations
 will take place against the new root.</p>
 </dd>
-<dt class="hdlist1"><code>duplicates,dups</code> on off</dt>
+<dt class="hdlist1"><code>duplicates,dups</code> {on | off} </dt>
 <dd>
-<p>Duplicates: Sets or unsets support for duplicate keys in the current
+<p>Sets or unsets support for duplicate keys in the current
 root. When <em>on</em> is specified, duplicate keys are permitted. When <em>off</em>,
 duplicate keys are not permitted .</p>
 </dd>
-<dt class="hdlist1"><code>echo,ec</code> on off</dt>
+<dt class="hdlist1"><code>echo,ec</code> {on | off} </dt>
 <dd>
-<p>a
-Echo: When <code>echo</code> is <em>on</em>, commands read from an <a href="#e"><code>execute</code></a> file
+<p>When <code>echo</code> is <em>on</em>, commands read from an <a href="#e"><code>execute</code></a> file
 are echoed to stdout. If <em>off</em>, no echo is performed.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If no argument is given to <code>echo</code>, the current status of the echo
 setting is displayed.</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>error,er</code> on off</dt>
+</dd>
+<dt class="hdlist1"><code>error,er</code> {on | off} </dt>
 <dd>
-<p>a
-Error: When <code>error</code> is <em>on</em>, an execution error while reading commands
+<p>When <code>error</code> is <em>on</em>, an execution error while reading commands
 from an <a href="#e"><code>execute</code></a> file will cause termination of the execute
 file. If <em>off</em>, command execution will continue when errors are
 encountered.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If no argument is given to <code>error</code>, the current status of the error
 setting is displayed.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>execute,e</code> &lt;filename&gt;</dt>
 <dd>
-<p>a
-Execute: Causes commands to be read and executed from the file denoted
+<p>Causes commands to be read and executed from the file denoted
 by <em>filename</em>. <code>execute</code> commands can be nested, currently up to five
 deep. No command prompts will be issued while reading commands from a
 file.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>See also the <a href="#echo"><code>echo</code></a> and <a href="#error"><code>error</code></a> command
 descriptions for more information on execution control when reading
 commands from a file.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>find,f</code> &lt;key&gt;</dt>
 <dd>
-<p>a
-Find: Attempts to locate <em>key</em> in the current root of the in-use B Tree
+<p>Attempts to locate <em>key</em> in the current root of the in-use B Tree
 index file. If found, the value associated with the key is printed.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If <em>key</em> is omitted, the index is positioned prior to the first key
 (like <a href="#pos"><code>position</code></a> <em>s</em>).</p>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><code>find-data,fd</code> &lt;key&gt; d</dt>
+</dd>
+<dt class="hdlist1"><code>find-data,fd</code> &lt;key&gt; [d]</dt>
 <dd>
-<p>Find Data: Attempts to locate <em>key</em> in the current root of the in-use B
+<p>Attempts to locate <em>key</em> in the current root of the in-use B
 Tree index file. If found, the first 80 bytes of the data record
 associated with the key is displayed. If the <em>d</em> qualifier is given, the
 whole of the data record is displayed. Note that the data record is
@@ -2197,29 +2171,24 @@ the data record could cause strangenesses on display.</p>
 </dd>
 <dt class="hdlist1"><code>file-list,fl</code></dt>
 <dd>
-<p>File List: Lists the set of open B Tree index files. To change the
+<p>Lists the set of open B Tree index files. To change the
 current file, issue a <a href="#u"><code>use</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>list,l</code> c</dt>
+<dt class="hdlist1"><code>list,l</code> [c]</dt>
 <dd>
-<p>a
-List: Displays all key and associated value, starting from the current
+<p>Displays all key and associated value, starting from the current
 key in the current root of the in-use B Tree index file. The current key
 is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
 <a href="#pd"><code>previous-data</code></a> command.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If the <em>c</em> argument is given, the count of keys listed will be displayed
 in addition.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>list-data,ld</code></dt>
 <dd>
-<p>List Data: Displays all keys, and associated data records, starting
+<p>Displays all keys, and associated data records, starting
 from the current key in the current root of the in-use B Tree index
 file. The current key is set by the last <a href="#f"><code>find</code></a>,
 <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>
@@ -2227,32 +2196,27 @@ file. The current key is set by the last <a href="#f"><code>find</code></a>,
 </dd>
 <dt class="hdlist1"><code>list-data-prev,ldp</code></dt>
 <dd>
-<p>List Data Previous: Displays all keys, and associated data records,
+<p>Displays all keys, and associated data records,
 prior to the current key in the current root of the in-use B Tree index
 file. The current key is set by the last <a href="#f"><code>find</code></a>,
 <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>
 <a href="#prv"><code>previous</code></a> or <a href="#pd"><code>previous-data</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>list-prev,lp</code> c</dt>
+<dt class="hdlist1"><code>list-prev,lp</code> [c]</dt>
 <dd>
-<p>a
-List Previous: Displays all keys, and associated value, prior to the
+<p>Displays all keys, and associated value, prior to the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
 <a href="#pd"><code>previous-data</code></a> command.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If the <em>c</em> argument is given, the count of keys listed will be displayed
 in addition.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>list-keys-only,lko</code></dt>
 <dd>
-<p>List Keys Only: Displays all keys, but not associated value, starting
+<p>Displays all keys, but not associated value, starting
 from the current key in the current root of the in-use B Tree index
 file. The current key is set by the last <a href="#f"><code>find</code></a>,
 <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>,
@@ -2260,13 +2224,13 @@ file. The current key is set by the last <a href="#f"><code>find</code></a>,
 </dd>
 <dt class="hdlist1"><code>lock,lk</code></dt>
 <dd>
-<p>Lock: Acquires exclusive access to the in-use B Tree file which was
+<p>Acquires exclusive access to the in-use B Tree file which was
 originally opened in shared mode. If the file was opened in exclusive
 mode (the default), <code>lock</code> will have no effect.</p>
 </dd>
 <dt class="hdlist1"><code>next,n</code></dt>
 <dd>
-<p>Next: Displays the key following the current key in the current root of
+<p>Displays the key following the current key in the current root of
 the in-use B Tree index file. The current key is set by the last
 <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
 <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2274,44 +2238,44 @@ the in-use B Tree index file. The current key is set by the last
 </dd>
 <dt class="hdlist1"><code>next-data,nd</code></dt>
 <dd>
-<p>Next Data: Displays the key and associated data record following the
+<p>Displays the key and associated data record following the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
 <a href="#pd"><code>previous-data</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>open,o</code> &lt;filename&gt; s</dt>
+<dt class="hdlist1"><code>open,o</code> &lt;filename&gt; [s] </dt>
 <dd>
-<p>Open: Opens the existing B Tree file identified by <em>filename</em>. If the
+<p>Opens the existing B Tree file identified by <em>filename</em>. If the
 optional <em>s</em> qualifier is given, the file will be opened in shared mode.
 More than one B Tree index file may be open currently; the newly opened
 file is made the in-use B Tree file. The in-use file may be changed by
 the <a href="#u"><code>use</code></a> command, while the list of open files is displayed
 through the <a href="#fl"><code>file-list</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>open-readonly,or</code> &lt;filename&gt; s</dt>
+<dt class="hdlist1"><code>open-readonly,or</code> &lt;filename&gt; [s]</dt>
 <dd>
-<p>Open Readonly: Opens the existing B Tree file identified by <em>filename</em>
+<p>Opens the existing B Tree file identified by <em>filename</em>
 in read-only mode. If the optional <em>s</em> qualifier is given, the file will
 be opened in shared mode. More than one B Tree index file may be open
 currently; the newly opened file is made the in-use B Tree file. The
 in-use file may be changed by the <a href="#u"><code>use</code></a> command, while the list
 of open files is displayed through the <a href="#fl"><code>file-list</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>position,pos</code> s e</dt>
+<dt class="hdlist1"><code>position,pos</code> {s | e} </dt>
 <dd>
-<p>Position: Sets the position in the current root. <em>s</em> will cause the
+<p>Sets the position in the current root. <em>s</em> will cause the
 position to be set prior to the first key in the index, <em>e</em> will cause
 the position to be set after the last key.</p>
 </dd>
 <dt class="hdlist1"><code>prompt,p</code></dt>
 <dd>
-<p>Prompt: Toggles the display of a command prompt when <code>bt</code> is ready for
+<p>Toggles the display of a command prompt when <code>bt</code> is ready for
 the next user command.</p>
 </dd>
 <dt class="hdlist1"><code>previous,prv</code></dt>
 <dd>
-<p>Previous: Displays the key prior to the current key in the current root
+<p>Displays the key prior to the current key in the current root
 of the in-use B Tree index file. The current key is set by the last
 <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
 <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2319,7 +2283,7 @@ of the in-use B Tree index file. The current key is set by the last
 </dd>
 <dt class="hdlist1"><code>previous-data,pd</code></dt>
 <dd>
-<p>Previous Data: Displays the key and associated data record prior to the
+<p>Displays the key and associated data record prior to the
 current key in the current root of the in-use B Tree index file. The
 current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2327,17 +2291,17 @@ current key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"
 </dd>
 <dt class="hdlist1"><code>quit,q</code></dt>
 <dd>
-<p>Quit: Terminates <code>bt</code>. Any open B Tree files will be closed
+<p>Terminates <code>bt</code>. Any open B Tree files will be closed
 automatically.</p>
 </dd>
 <dt class="hdlist1"><code>remove,r</code> &lt;key&gt;</dt>
 <dd>
-<p>Remove key: Removes a previously defined key in the current root of the
+<p>Removes a previously defined key in the current root of the
 in-use B Tree index file. The key name is specified by <em>key</em>.</p>
 </dd>
 <dt class="hdlist1"><code>remove-cur,rc</code></dt>
 <dd>
-<p>Remove Current key: Removes the current key in the current root of the
+<p>Removes the current key in the current root of the
 in-use B Tree index file. The current key is set by the last
 <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
 <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2345,13 +2309,13 @@ in-use B Tree index file. The current key is set by the last
 </dd>
 <dt class="hdlist1"><code>remove-data,rd</code> &lt;key&gt;</dt>
 <dd>
-<p>Removes key with Data: Removes a previously defined key and its
+<p>Removes a previously defined key and its
 associated data record in the current root of the in-use B Tree index
 file. <em>key</em> defines the key name.</p>
 </dd>
 <dt class="hdlist1"><code>remove-data-cur,rdc</code></dt>
 <dd>
-<p>Removes Current Data: Removes the current key and its associated data
+<p>Removes the current key and its associated data
 record in the current root of the in-use B Tree index file. The current
 key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2359,66 +2323,56 @@ key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>f
 </dd>
 <dt class="hdlist1"><code>remove-root,rr</code> &lt;rootname&gt;</dt>
 <dd>
-<p>Remove Root: Removes an existing B Tree index root, named <em>rootname</em> in
+<p>Removes an existing B Tree index root, named <em>rootname</em> in
 the in-use B Tree file. If removal is successful, all blocks used by the
 root (both index and data) will be returned to the free list. It is not
 permitted to remove the current root.</p>
 </dd>
-<dt class="hdlist1"><code>show,s</code> control super stats space stack block &lt;n&gt; structure v</dt>
+<dt class="hdlist1"><code>show,s</code> {control | super | stats | space | stack | block &lt;n&gt; | structure [v] }</dt>
 <dd>
-<p>a
-Show: Displays B Tree debug information. The option specified is passed
+<p>Displays B Tree debug information. The option specified is passed
 directly to the <code>bdbug</code> function. See the <a href="#bdbug"><code>bdebug</code></a>
 description for the information provided by each option.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>For the <em>structure</em> option, specifying <em>v</em> will cause a detailed report
 on the structure to be displayed. Otherwise, only a summary is
 displayed.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>size-data,sd</code> &lt;key&gt;</dt>
 <dd>
-<p>a
-Size Data: Displays the number of bytes occupied by the data record
+<p>Displays the number of bytes occupied by the data record
 associated with <em>key</em>. If <em>key</em> is omitted, the size of the data record
 associated with the current key is displayed. The current key is set by
 the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
 <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
 <a href="#pd"><code>previous-data</code></a> command.</p>
-</dd>
-</dl>
-</div>
 <div class="paragraph">
 <p>If <em>key</em> has no associated data record, results are undefined.</p>
 </div>
-<div class="dlist">
-<dl>
+</dd>
 <dt class="hdlist1"><code>system,!</code> &lt;command&gt;</dt>
 <dd>
-<p>System: Passes the text following the system command to the shell for
+<p>Passes the text following the system command to the shell for
 execution.</p>
 </dd>
 <dt class="hdlist1"><code>use,u</code> &lt;filename&gt;</dt>
 <dd>
-<p>Use: Changes the in-use B Tree file to <em>filename</em>. The file must have
+<p>Changes the in-use B Tree file to <em>filename</em>. The file must have
 already been opened or created, using the <a href="#o"><code>open</code></a> or
 <a href="#c"><code>create</code></a> command.</p>
 </dd>
-<dt class="hdlist1"><code>update-data,ud</code> &lt;key&gt; &lt;string&gt; &lt;*bufname&gt;</dt>
+<dt class="hdlist1"><code>update-data,ud</code> &lt;key&gt; {&lt;string&gt; | &lt;*bufname&gt;} </dt>
 <dd>
-<p>Update Data: Updates an existing key with a new associated data record
+<p>Updates an existing key with a new associated data record
 in the current root of the in-use B Tree index file. <em>key</em> defines the
 key name. Data can be provided in one of two ways: either a plain string
 or the name of a previously defined buffer can be specified. If the
 latter, it should be indicated by a leading <em>*</em>.</p>
 </dd>
-<dt class="hdlist1"><code>update-data-cur,udc</code> &lt;string&gt; &lt;*bufname&gt;</dt>
+<dt class="hdlist1"><code>update-data-cur,udc</code> {&lt;string&gt; | &lt;*bufname&gt;} </dt>
 <dd>
-<p>Update Data Current: Updates the current key with a new associated data
+<p>Updates the current key with a new associated data
 record in the current root of the in-use B Tree index file. The current
 key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
 <a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
@@ -2429,7 +2383,7 @@ can be specified. If the latter, it should be indicated by a leading
 </dd>
 <dt class="hdlist1"><code>unlock,ulk</code></dt>
 <dd>
-<p>Unlock: Unlocks the in-use B Tree file, if it was locked with the <code>lk</code>
+<p>Unlocks the in-use B Tree file, if it was locked with the <code>lk</code>
 command. If not locked, or the file was originally opened in exclusive
 mode, <code>unlock</code> has no effect.</p>
 </dd>
@@ -2438,30 +2392,30 @@ mode, <code>unlock</code> has no effect.</p>
 <p>Update Value: Modifies the value associated with <em>key</em> in the current
 root of the in-use B Tree index file.</p>
 </dd>
-<dt class="hdlist1"><code>update-value,uv</code> &lt;value&gt;</dt>
+<dt class="hdlist1"><code>update-value-current,uvc</code> &lt;value&gt;</dt>
 <dd>
-<p>Update Value Current: Modifies the value associated with current key
-<em>key</em> in the current root of the in-use B Tree index file. The current
-key is set by the last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>,
-<a href="#n"><code>next</code></a>, <a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
+<p>Modifies the value associated with current key <em>key</em> in the current
+root of the in-use B Tree index file. The current key is set by the
+last <a href="#f"><code>find</code></a>, <a href="#fd"><code>find-data</code></a>, <a href="#n"><code>next</code></a>,
+<a href="#nd"><code>next-data</code></a>, <a href="#prv"><code>previous</code></a> or
 <a href="#pd"><code>previous-data</code></a> command.</p>
 </dd>
 <dt class="hdlist1"><code>write-threshold,wt</code> &lt;threshold&gt;</dt>
 <dd>
-<p>Write Threshold: Sets the number of index block updates beyond which
-the block contents must be writtent to disk. A <em>threshold</em> of zero means
-writes will not take place unless a block must be flushed to disk.</p>
+<p>Sets the number of index block updates beyond which the block contents
+must be writtent to disk. A <em>threshold</em> of zero means writes will not
+take place unless a block must be flushed to disk.</p>
 </dd>
-<dt class="hdlist1"><code>help,?</code> cmd</dt>
+<dt class="hdlist1"><code>help,?</code> [&lt;cmd&gt;] </dt>
 <dd>
-<p>Help: Displays a list of <code>bt</code> commands and a terse description of
-syntax and usage. If <em>cmd</em> is specified, only help on that command will
-be displayed.</p>
+<p>Displays a list of <code>bt</code> commands and a terse description of syntax and
+usage. If <em>cmd</em> is specified, only help on that command will be
+displayed.</p>
 </dd>
 <dt class="hdlist1"><code>comment,#</code></dt>
 <dd>
-<p>Comment: <code>bt</code> will ignore any line starting with a <code>#</code>. Note that <code>bt</code>
-will also ignore blank lines.</p>
+<p>Any line starting with the <code>comment</code> keyword or a
+<code>#</code> will be ignored. Note that <code>bt</code> will also ignore blank lines.</p>
 </dd>
 </dl>
 </div>
@@ -2860,7 +2814,7 @@ Asciidoctor.</p>
 <div id="footer">
 <div id="footer-text">
 Version 5.0.2<br>
-Last updated 2024-05-03 16:18:35 +0100
+Last updated 2025-06-27 10:06:50 +0100
 </div>
 </div>
 </body>
