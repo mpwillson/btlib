@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.18">
+<meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="Mark Willson">
 <title>B Tree Library for indexed file management</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -141,7 +141,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #content::before{content:none}
 #header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
 #header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
-#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
 #header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
 #header .details span:first-child{margin-left:-.125em}
 #header .details span.email a{color:rgba(0,0,0,.85)}
@@ -163,6 +163,7 @@ p a>code:hover{color:rgba(0,0,0,.9)}
 #toctitle{color:#7a2518;font-size:1.2em}
 @media screen and (min-width:768px){#toctitle{font-size:1.375em}
 body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
 #toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
 #toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
 #toc.toc2>ul{font-size:.9em;margin-bottom:0}
@@ -209,13 +210,10 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
-.exampleblock>.content>:first-child{margin-top:0}
-.exampleblock>.content>:last-child{margin-bottom:0}
 .sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
-.sidebarblock>:first-child{margin-top:0}
-.sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
-.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
@@ -331,7 +329,7 @@ a.image{text-decoration:none;display:inline-block}
 a.image object{pointer-events:none}
 sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
 sup.footnote a,sup.footnoteref a{text-decoration:none}
-sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
 #footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
 #footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
 #footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
@@ -394,7 +392,7 @@ b.conum *{color:inherit!important}
 dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
 h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
 p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
@@ -489,6 +487,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#btseln">Locating data for the next key in sequence</a></li>
 <li><a href="#btselp">Locating data for the previous key in sequence</a></li>
 <li><a href="#btrecs">Determine size of data record for specific key</a></li>
+<li><a href="#bdbug">Display B Tree debug information</a></li>
 <li><a href="#btcerr">Retrieving error message text</a></li>
 </ul>
 </li>
@@ -613,8 +612,8 @@ previous versions, that is, duplicate keys will be rejected.</p>
 </div>
 <div class="paragraph">
 <p>When a B Tree file is created, the superroot is initialised with two
-named roots: itself and the default root. These are defined as "super"
-and "default" respectively. The application may create more roots as
+named roots: itself and the default root. These are defined as "$$super"
+and "$$default" respectively. The application may create more roots as
 required. When a B Tree file is first opened, the default root
 ($$default) is always selected.</p>
 </div>
@@ -776,16 +775,17 @@ BTA* btcrt(char* fid, int nkeys, int shared);</code></pre>
 <div class="paragraph">
 <p>The <code>btcrt</code> function will create and initialise a new B Tree file. The
 parameter <code>fid</code> must be set to the name of the file to create. The
-<code>nkeys</code> defines the maximum number of keys that can be stored in the B
-Tree. This parameter should always be set to 0 for those operating
-systems, such as UNIX, that support dynamic file growth. The parameter
-<code>shared</code> should be set to 0 to disallow shared access to the newly
-created B Tree, or non-zero to allow shared access.</p>
+<code>nkeys</code> parameter defines the maximum number of keys that can be
+stored in the B Tree. This parameter should always be set to 0 for
+those operating systems, such as UNIX, that support dynamic file
+growth. The parameter <code>shared</code> should be set to 0 to disallow shared
+access to the newly created B Tree, or non-zero to allow shared
+access.</p>
 </div>
 <div class="paragraph">
 <p><code>btcrt</code> will return a pointer to the BT activation context for the newly
 opened file (BTA*), or NULL in the case of an error. To determine the
-cause of an error, invoke the<a href="#btcerr"> <code>btcerr</code></a> function.</p>
+cause of an error, invoke the <a href="#btcerr"><code>btcerr</code></a> function.</p>
 </div>
 <div class="paragraph">
 <p>If the B Tree index file has been successfully created, the default root
@@ -1453,7 +1453,10 @@ the results are undefined.</p>
 <div class="paragraph">
 <p>A non-zero return from <code>btrecs</code> indicates an error occurred.</p>
 </div>
-<div id="bdbug" class="listingblock">
+</div>
+<div class="sect2">
+<h3 id="bdbug">Display B Tree debug information</h3>
+<div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-C" data-lang="C">#include "btree.h"
 
@@ -2814,7 +2817,7 @@ Asciidoctor.</p>
 <div id="footer">
 <div id="footer-text">
 Version 5.0.2<br>
-Last updated 2025-06-27 10:06:50 +0100
+Last updated 2026-11-13 21:26:25 UTC
 </div>
 </div>
 </body>
