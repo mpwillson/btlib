@@ -87,7 +87,7 @@ enabled on a per-root basis. If not enabled, this version with behave as
 previous versions, that is, duplicate keys will be rejected.
 
 When a B Tree file is created, the superroot is initialised with two
-named roots: itself and the default root. These are defined as "$$super"
+named roots: itself and the default root. These are defined as "\$$super"
 and "$$default" respectively. The application may create more roots as
 required. When a B Tree file is first opened, the default root
 ($$default) is always selected.
@@ -231,15 +231,16 @@ BTA* btcrt(char* fid, int nkeys, int shared);
 ----
 The `btcrt` function will create and initialise a new B Tree file. The
 parameter `fid` must be set to the name of the file to create. The
-`nkeys` defines the maximum number of keys that can be stored in the B
-Tree. This parameter should always be set to 0 for those operating
-systems, such as UNIX, that support dynamic file growth. The parameter
-`shared` should be set to 0 to disallow shared access to the newly
-created B Tree, or non-zero to allow shared access.
+`nkeys` parameter defines the maximum number of keys that can be
+stored in the B Tree. This parameter should always be set to 0 for
+those operating systems, such as UNIX, that support dynamic file
+growth. The parameter `shared` should be set to 0 to disallow shared
+access to the newly created B Tree, or non-zero to allow shared
+access.
 
 `btcrt` will return a pointer to the BT activation context for the newly
 opened file (BTA*), or NULL in the case of an error. To determine the
-cause of an error, invoke thelink:#btcerr[ `btcerr`] function.
+cause of an error, invoke the link:#btcerr[`btcerr`] function.
 
 If the B Tree index file has been successfully created, the default root
 is selected, the file becomes the in-use B Tree file and is ready for
@@ -805,7 +806,7 @@ the results are undefined.
 A non-zero return from `btrecs` indicates an error occurred.
 
 [[bdbug]]
-
+=== Display B Tree debug information
 
 [source, C]
 ----
